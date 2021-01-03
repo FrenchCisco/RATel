@@ -1,0 +1,16 @@
+20/12/20
+
+1- Create a persistence system.  27/12/20
+2- Create a log system. 
+3- Create an anti reverse engineering system.
+4- Create a network sniffer mode on the client.
+5- Create a make file.
+6- Optimize the customer's memory management. 
+7- Create a connection management system on the client in case the server is offline.
+8- Cipher data.
+
+
+mingw32
+python3
+
+La connexion comment se remet elle en vie ?

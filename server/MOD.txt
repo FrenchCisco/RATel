@@ -1,0 +1,4 @@
+MOD_DESTRUCTION = Stop the connection and then remove all traces on the target machine.
+MOD_PERSISTENCE = 
+MOD_ALL = Send a command every connection. The customer will not return the result of the order.
+MOD_HANDSHAKE = First exchange with the server, the client sends the first necessary information.
