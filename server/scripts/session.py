@@ -55,14 +55,17 @@ class Session:
             else:
                 pass
 
+
     def printInformation(self):
         pass
+
 
     def main(self): #Main function of the class | tpl = tuple session_nb = session number
         
         printColor("help","\n[?] Run -h or --help to list the available commands.\n")
         #while Handler.dict_conn[self.session_nb][3]: #If connexion is always connected (True)
-        while Handler.dict_conn[self.session_nb][3]: #If connexion is always connected (True)
+        checker = True
+        while Handler.dict_conn[self.session_nb][3] and checker: #If connexion is always connected (True)
             terminal = str(input("Session:"+ str(self.session_nb)+">")).split()
             for i in range(0,len(terminal)):
                 if terminal[i] == "-h" or terminal[i] == "--help":
@@ -70,8 +73,8 @@ class Session:
                 elif terminal[i] == "-s" or terminal[i] == "--shell":
                     self.spawnShell()
                 elif terminal[i] == "-b" or terminal[i] == "--back":
-                    printColor("information","\n[-] Session stop.")
-                    #Handler.dict_conn[self.session_nb][3] = False Faux
+                    printColor("information","[-] Session stop.\n")
+                    checker = False
                 else:
                     pass
             

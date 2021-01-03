@@ -2,11 +2,6 @@ from colorama import Fore,Style
 from subprocess import Popen
 from subprocess import PIPE
 import socket
-import os
-import binascii
-
-def generateToken():
-    return binascii.hexlify(os.urandom(22)).decode("utf8") 
 
 def exec(command):
     with Popen([str(command)], stdout=PIPE,stderr=PIPE,shell=True) as cmd:
