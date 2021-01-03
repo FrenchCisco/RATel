@@ -30,11 +30,10 @@ class Management(threading.Thread):
                         Handler.dict_conn[key][0].send(Management.is_life.encode())
                     except ConnectionError as connerr: #If the connection does not answer
                         if(Handler.status_connection_display):
-                            printColor("information","[-] The client's connection is disconnected\n")
-                            printColor("error",connerr)
+                            printColor("information","\n[-] The client's connection is disconnected")
+                            printColor("error",str(connerr))
                         else:
                             pass
-
                         CheckConn().connexionIsDead(key) #Change status to dead (False)
 
                 else:#If the connection is dead
@@ -57,13 +56,12 @@ class CheckConn:#Heritage on Session
         Returns true if the socket was sent if not retrun false if there was a problem.
         '''
         try:
-            
             sock.send(payload)
         except ConnectionError as connerr: #If the connection does not answer
             if(Handler.status_connection_display):
-                print("ERRO")
                 printColor("error","[-] The connection to the client was cut {}:{}.\n".format(Handler.dict_conn[nb_session][1],Handler.dict_conn[nb_session][2]))
-            
+
             self.connexionIsDead(nb_session)
             return False
+        
         return True

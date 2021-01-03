@@ -39,7 +39,7 @@ class Session:
        
         printColor("help","\n\n[?] Execute -b or --back to return to sessions mode.") 
         printColor("help","\r[?] Mod shell active, You can run windows commands.\n\n")
-        while True:
+        while Handler.dict_conn[self.session_nb][3]:
             shell = str(input("Shell>"))
             if shell:
                 if(shell == "-b" or shell=="--back"):
@@ -62,8 +62,7 @@ class Session:
         
         printColor("help","\n[?] Run -h or --help to list the available commands.\n")
         #while Handler.dict_conn[self.session_nb][3]: #If connexion is always connected (True)
-        checker = True
-        while checker: #If connexion is always connected (True)
+        while Handler.dict_conn[self.session_nb][3]: #If connexion is always connected (True)
             terminal = str(input("Session:"+ str(self.session_nb)+">")).split()
             for i in range(0,len(terminal)):
                 if terminal[i] == "-h" or terminal[i] == "--help":
@@ -72,7 +71,6 @@ class Session:
                     self.spawnShell()
                 elif terminal[i] == "-b" or terminal[i] == "--back":
                     printColor("information","\n[-] Session stop.")
-                    checker = False
                     #Handler.dict_conn[self.session_nb][3] = False Faux
                 else:
                     pass

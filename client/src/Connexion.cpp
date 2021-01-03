@@ -49,7 +49,6 @@ int Connexion::openConnexion()
 
 int Connexion::main(bool is_admin, string path_prog)
 {   
-    
 
     int i=0;
     char buffer[BUFFER_LEN];

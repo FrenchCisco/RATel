@@ -36,14 +36,12 @@ string ModShell::getPath()
 
 int ModShell::exec(string command,string &result)
 {
-    //command += " 2>&1"; //for catch stderr
     char buffer[1024];
-    //cout << "dans exec: " <<command  <<endl;
+
     FILE* pipe = popen(command.c_str(), "rt");
     if (!pipe) 
     { 
         ///popen fail;
-        cout << "fail" <<endl;
         return 1;
         //return "popen failed!";
     }
@@ -54,14 +52,12 @@ int ModShell::exec(string command,string &result)
         // use buffer to read and add to result
         if (fgets(buffer, sizeof(buffer), pipe) != NULL)
         {
-        //    cout << "In mod shell: " << buffer<< endl;
             result.append(buffer,strlen(buffer));
         }
-       // cout <<"Buffer in modshell: " << buffer << endl;
-       // memset(buffer,0,sizeof(buffer));
+
     }
     pclose(pipe);
-    //cout << "Size result: " << result.length() <<endl;
-    cout << "Mod shell finish " << endl;
+
+    //cout << "Mod shell finish " << endl;
     return 0;
 }

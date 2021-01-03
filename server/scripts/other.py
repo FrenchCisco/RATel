@@ -1,7 +1,12 @@
 from colorama import Fore,Style
 from subprocess import Popen
 from subprocess import PIPE
+import socket
+import os
+import binascii
 
+def generateToken():
+    return binascii.hexlify(os.urandom(22)).decode("utf8") 
 
 def exec(command):
     with Popen([str(command)], stdout=PIPE,stderr=PIPE,shell=True) as cmd:
@@ -15,13 +20,22 @@ def exec(command):
 
 
 def recvall(sock,buffer):
+    
     result =b""
+    sock.settimeout(3)
     while True:
-        data = sock.recv(buffer)
-        #print(data)
-        if(data ==b"\r\n"):
-           break
-        result+=data
+        try:            
+            data = sock.recv(buffer)
+        except socket.timeout:
+            #print("Timeout")
+            break
+        
+        else:
+            if(data ==b"\r\n"):
+                break
+
+            result+=data
+    sock.settimeout(None)
     return result
 
 

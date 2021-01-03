@@ -6,7 +6,6 @@ from scripts.management import Management
 from scripts.other import printColor
 from scripts.other import myBanner
 from scripts.other import exec
-
 import argparse
 import time
 
@@ -38,7 +37,6 @@ except SystemExit:
 
 else:
     #print("[+] Server started.\n")
-
     handler= Handler(HOST,PORT,DISPLAY,AUTO)
     management = Management(TIME) #2 secondes.
     menu = Menu()

@@ -111,8 +111,11 @@ class Menu:
                     self.help()
 
                 elif(choice[i] == "-t" or choice[i] =="--target"):
-                    self.selectTarget(int(choice[i+1])) #int car -t 10 <- 10 doit ^etre un int 
-                
+                    try:
+                        self.selectTarget(int(choice[i+1])) #int car -t 10 <- 10 doit ^etre un int 
+                    except IndexError:
+                        printColor("information","[-] No target found. Please enter a valid target.\n")
+                        
                 elif(choice[i] == "-ls" or choice[i] == "--list"):
                     self.printTarget()
                 

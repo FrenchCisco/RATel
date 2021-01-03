@@ -30,6 +30,7 @@ class HandShake
         //Network:
         //void sendUltraSafe(string data, int sock);  
         string recvUltraSafe();  //Ensures that data is not corrupted and handles errors.
+        void sendUltraSafe(string data);
         int startHandShake(); //Sends the first necessary information to the server and if MOD_HANDSHAKE_AUTO_PERSISTENCE = True then persistence is activated automatically. 
 
         //---------------------------------------------------------------------
