@@ -59,7 +59,7 @@ else:
     
     except KeyboardInterrupt:
         handler.SuccessfullyQuit() 
-        print("[+] By Cisco")
+        print("[+] By cisco")
         print("[+] juanrubio.dev@gmail.com")
         print(Style.RESET_ALL) #Restore color terminal
         sys.exit(0)

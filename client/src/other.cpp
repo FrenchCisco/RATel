@@ -24,6 +24,9 @@ string recvUltraSafe(int sock)
     FD_ZERO(&fds);
     FD_SET(sock, &fds);
     
+    timeout.tv_sec = TIMEOUT_SOCK;
+    timeout.tv_usec = 0;
+
     int selectSock = select(0, &fds, 0, 0, &timeout);
     
     if(selectSock > 0)
@@ -78,6 +81,7 @@ void sendUltraSafe(int sock, string data)
     string result;
     timeval timeout;
 
+
     if(strlen(buffer) > 0)
     {
         //clean buffer
@@ -97,7 +101,12 @@ void sendUltraSafe(int sock, string data)
 
         FD_ZERO(&fds);
         FD_SET(sock, &fds);
-    
+
+
+        timeout.tv_sec = TIMEOUT_SOCK;
+        timeout.tv_usec = 0;
+
+
         int selectSock = select(0, &fds, 0, 0, &timeout);
         if(selectSock > 0)
         {

