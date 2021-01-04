@@ -17,15 +17,19 @@ int main()
     Client.openConnexion();
     cout << "[+] Connected." << endl;
 
+
     cout << "Start connexion in startHandShake." << endl;
-    cout << Client.getSocket() << endl;
+    cout << "[+] move prog go" << endl;
+    Handshake.moveProg();
+    cout << "[+] move prog finish" << endl;
+    
+
     Handshake.setSock(Client.getSocket());
-    Handshake.startHandShake();
-        
-    //cout << "[+] move prog go" << endl;
-    //Handshake.moveProg();
-    //cout << "[+] move prog finish" << endl;
+    Handshake.startHandShake();    
     cout << "[+] Handshake finished..." << endl;
+    
+
+    Client.setToken(Handshake.getToken());
     
     cout << "[+] client main go " << endl;
     Client.main(Handshake.getIsAdmin(), Handshake.getPathProg());    

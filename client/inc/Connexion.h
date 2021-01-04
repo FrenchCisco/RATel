@@ -15,18 +15,23 @@ public:
     //int statrHandShake(); //Start handshake class and send multiple information.#2
     int main(bool is_admin, string path_prog); //Main function of client. #3
 
-    int sendSafe(string &command); //Sends the data and manages possible errors. 
+    int sendSafe(string command); //Sends the data and manages possible errors. 
     int recvSafe(string &result,int i); //receives the data and manages possible errors. 
     void checkSend(int &iResult);
     int closeConnexion(); //Close connexion. 
     void reConnect(); //re connection to the server in case of problem.
+    void sendUltraSafe(string data);
     
     int getSocket(); //Ghetter of socket.
-    int setAutoPeristence();
+
+    int setAutoPeristence(); //
+    void setToken(string token);
+
 
 private:
     int sock_client=0; //Recupere le descripteur de fichier.
     bool a_auto_persitence;
+    string a_token;
 };
 #endif
 

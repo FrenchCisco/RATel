@@ -182,7 +182,7 @@ int Connexion::recvSafe(string &command,int i)
     return 0;
 }
 
-int Connexion::sendSafe(string &data)
+int Connexion::sendSafe(string data)
 {
     int iResult=0;
     bool is_modulo=false;
@@ -268,6 +268,21 @@ int Connexion::closeConnexion()
 
 void Connexion::reConnect()
 {
+    cout << "[+] Reconnect to server..." << endl;
+    if(a_token.empty())
+    {
+        cout << "TOKKEN EMPTY" << endl;
+    }
+    else
+    {
+        openConnexion();
+        cout << "[+] Send MOD_RECONNECT to server " << endl;
+        sendUltraSafe("MOD_RECONNECT");
+        cout << "[+] Send tokken to server " << endl;
+        sendUltraSafe(a_token); //send token
+    }
+
+    /*
     cout << "[-] disconnect from the server" <<endl;
     openConnexion();
     cout << "Reconnect ok " << endl;
@@ -277,11 +292,75 @@ void Connexion::reConnect()
 
     hand_in_re_connect.startHandShake();
     //cout << "Connection Ok ???????" << endl;
+    */
 
 }
 
 int Connexion::getSocket()
 {
-
     return sock_client;
+}
+
+void Connexion::setToken(string token)
+{
+    cout << "SET TOKKEN IN CONNEXION"  << endl;
+    a_token = token;
+}
+
+
+
+void Connexion::sendUltraSafe(string data) //TO change 
+{
+    int len_send=0;
+    int len_recv=0;
+    char buffer[BUFFER_LEN];
+    string result;
+    if(strlen(buffer) > 0)
+    {
+        //clean buffer
+        cout << "Clean buffer in sendUltrasafe " << endl;
+        memset(buffer, 0, sizeof(buffer));
+    }
+    timeval timeout;
+    timeout.tv_sec = TIMEOUT_SOCK;
+    timeout.tv_usec = 0;
+
+    len_send = send(sock_client, data.c_str(), strlen(data.c_str()), 0);
+    if(len_send == SOCKET_ERROR)
+    {
+        //error
+        cout << "error " << endl;
+    }
+    else
+    {   
+        struct fd_set fds;
+
+        FD_ZERO(&fds);
+        FD_SET(sock_client, &fds);
+    
+        int selectSock = select(0, &fds, 0, 0, &timeout);
+        if(selectSock > 0)
+        {
+            len_recv = recv(sock_client, buffer, sizeof(buffer), 0);
+            result.append(buffer, len_recv);
+
+            if(result == "confirmation")
+            {
+                ;
+                //cout << "confirmation ok ! in sendUltraSafe" << endl;
+            }
+            
+            else
+            {
+                cout << "ERROR in sendUltraSafe confirmation: "  << endl;
+            }
+
+        }
+        else if (selectSock == 0)
+        {
+            //timeout
+            ;        
+        }
+    }
+    
 }

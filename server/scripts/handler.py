@@ -134,15 +134,37 @@ The client first sends this information, then the server sends the parameters as
 
     def recvFirstInfo(self):
         #Collect informations with Handshake client.
+        #if the client sends MOD_RECONNECT it means that the client tries to reconnect, to be sure the client sends a tokken.
         list_info = []
         while True:
             data = self.recvUltraSafe()
+            
             if(data == "\r\n"):
-                print("while stop")
+                print("Stop recvFirstInfo")
                 break
-            print(data)
-            tmp = data.split("|")
-            list_info.append(tmp[1])
+            
+            if(data=="MOD_RECONNECT"):
+                print("IN MOD RECONNECT (recv Frist Info)")
+                token = self.recvUltraSafe()
+                if bool(Handler.dict_conn):
+                    print(token)
+                    for value in Handler.dict_conn.values():
+                        print(value[7])
+                        if(value[7] == token): 
+                            print("Token doublon")
+                            break
+                        else:
+                            end = self.recvUltraSafe()
+                            if(end == "\r\n"):
+                                print("End reconnexion.")
+                                break
+
+                else:
+                    print("dict empty")
+            else:       
+                print(data)
+                tmp = data.split("|")
+                list_info.append(tmp[1])
         
         return list_info
 
@@ -170,6 +192,9 @@ The client first sends this information, then the server sends the parameters as
        # print("sencode part persi go !!!! ")
         self.sendParameterOfClient(token) #2
 
-        
-        Handler.dict_conn[Handler.number_conn] = [self.conn, self.address[0],self.address[1], True, list_info[0], list_info[1], list_info[2]] #3 #True = Connexion is life 
-        Handler.number_conn+=1 #4
+        if(bool(list_info)):       
+            Handler.dict_conn[Handler.number_conn] = [self.conn, self.address[0],self.address[1], True, list_info[0], list_info[1], list_info[2]] #3 #True = Connexion is life 
+            Handler.number_conn+=1 #4
+        else:
+            #if empty, ignore.
+            pass 
