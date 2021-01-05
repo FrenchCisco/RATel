@@ -14,7 +14,8 @@ from .session import Session
 from .management import Management
 from .management import CheckConn
 from .other import printColor
-
+from .sql import Sql
+from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN
 
 import time
 
@@ -52,16 +53,17 @@ class Menu:
         ptable.field_names =["Session","IP","Port","Is he alive","Is he admin","Path RAT","Username"] #append title of row.
  
         for key in Handler.dict_conn.keys():
-            ptable.add_row([key,Handler.dict_conn[key][1],Handler.dict_conn[key][2],Handler.dict_conn[key][3],Handler.dict_conn[key][4],Handler.dict_conn[key][5],Handler.dict_conn[key][6]])
+            ptable.add_row([key,Handler.dict_conn[key][NB_IP],Handler.dict_conn[key][NB_PORT],Handler.dict_conn[key][NB_ALIVE],Handler.dict_conn[key][NB_ADMIN],Handler.dict_conn[key][NB_PATH],Handler.dict_conn[key][NB_USERNAME]])
 
         print(Fore.GREEN,(ptable),Fore.BLUE)
 
     def selectTarget(self,target):    
         #Select target.
+        #session, socket, ip, port, is_he_alive, is_he_admin, path_RAT, username, token
         if(target in Handler.dict_conn.keys()):
-            printColor("information","[+] Selected target: {}".format(Handler.dict_conn[target][1]))
-            if(Handler.dict_conn[target][3]):
-                session = Session(Handler.dict_conn[target][0],Handler.dict_conn[target][1],Handler.dict_conn[target][2],target) #def __init__(self,socket,ip_client,port_client,session_nb): 
+            printColor("information","[+] Selected target: {}".format(Handler.dict_conn[target][NB_IP]))
+            if(Handler.dict_conn[target][NB_ALIVE]):
+                session = Session(Handler.dict_conn[target][0],Handler.dict_conn[target][1],Handler.dict_conn[target][2], target) #def __init__(self,socket,ip_client,port_client,session_nb): 
                 session.main() 
             else:
                 printColor("information","[-] The target is currently offline.\n")

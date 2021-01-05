@@ -3,6 +3,19 @@ from subprocess import Popen
 from subprocess import PIPE
 import socket
 
+#CONSTANT:
+NB_SESSION = 0
+NB_SOCKET = 1
+NB_IP = 2
+NB_PORT = 3
+NB_ALIVE = 4
+NB_ADMIN = 5
+NB_PATH = 6
+NB_USERNAME = 7
+NB_TOKEN = 8
+
+#session, False, ip,port, is_he_alive, is_he_admin, path_rat, usename, token
+
 def exec(command):
     with Popen([str(command)], stdout=PIPE,stderr=PIPE,shell=True) as cmd:
         out,err = str(cmd.stdout.read(),"UTF8",errors="ignore"),str(cmd.stderr.read(),"UTF8",errors="ignore")

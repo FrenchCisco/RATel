@@ -1,4 +1,6 @@
 import sys
+import argparse
+import time
 
 from scripts.handler import Handler
 from scripts.menu import Menu
@@ -6,13 +8,13 @@ from scripts.management import Management
 from scripts.other import printColor
 from scripts.other import myBanner
 from scripts.other import exec
-import argparse
-import time
-
+from scripts.sql import Sql
 
 from colorama import Fore,Style
 
 exec("clear")
+
+
 print(Fore.GREEN,myBanner(),Fore.BLUE)
 
 parser = argparse.ArgumentParser()
@@ -37,8 +39,12 @@ except SystemExit:
 
 else:
     #print("[+] Server started.\n")
-    handler= Handler(HOST,PORT,DISPLAY,AUTO)
-    management = Management(TIME) #2 secondes.
+    SqlObj = Sql("sql/RAT-el.sqlite3", "sql/table_ratel.sql", "table_ratel")
+
+    handler= Handler(HOST,PORT,DISPLAY,AUTO, SqlObj)
+    
+    management = Management(TIME,SqlObj) #2 seconds.
+
     menu = Menu()
 
     handler.daemon=True
@@ -59,7 +65,9 @@ else:
     
     except KeyboardInterrupt:
         handler.SuccessfullyQuit() 
-        print("[+] By cisco")
-        print("[+] juanrubio.dev@gmail.com")
+        #SqlObj.removeDatabase()
+
+        print("[?] By cisco")
+        print("[?] juanrubio.dev@gmail.com")
         print(Style.RESET_ALL) #Restore color terminal
         sys.exit(0)

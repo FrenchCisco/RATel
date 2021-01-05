@@ -13,4 +13,4 @@
 mingw32
 python3
 
-La connexion comment se remet elle en vie ?
+
