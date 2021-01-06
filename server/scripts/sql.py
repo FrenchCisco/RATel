@@ -12,7 +12,6 @@ class Sql:
         self.name_db = name_db
         self.name_file_table = name_file_table #The ratel table file name
         self.name_table = name_table
-
         self.conn = self.setConnection()
         self.cursor = self.setCursor()
         print("CONN: ", self.conn)
@@ -33,7 +32,7 @@ class Sql:
         if not(self.conn):
             print("[-] The cursor cannot create.")
         else:
-            print("[+] Cursor ok.")
+            #print("[+] Cursor ok.")
             return self.conn.cursor()
 
 
@@ -76,7 +75,7 @@ class Sql:
             print("Error in execSqlCode: ",e)
         finally:
             if(commit):
-                print("commit ok")
+                #print("commit ok")
                 self.conn.commit()
             else:
                 pass
@@ -86,20 +85,18 @@ class Sql:
         '''
         returns a list of tuple,
         each row in the database and store in a tuple.
-        '''
+        '''        
         try:
-            
             self.cursor.execute("""SELECT * FROM {}""".format(self.name_table))
             rows = self.cursor.fetchall()
             
-            for row in rows:
-                print(type(row))
+            for row in rows: #row = tuple
                 list_of_rows.append(row)
 
         except sqlite3.Error as e:
             print("Error in execSqlCode: ",e)
         finally:        
-            print("commit ok")
+            #print("commit ok")
             self.conn.commit()
             
             return list_of_rows
@@ -153,12 +150,12 @@ class Sql:
         self.execSqlCode(self.readFile(self.name_file_table)) #Create table if no exists
 
     def removeDatabase(self):
+        
         try:
             os.remove(self.name_db)   
         except Exception as e:
             print(e)
-        else:
-            print("[+] Database deletes.")
+        
     def setTrueOrFalse(self,data):
         #Convert a string from the database to Boolean
         if("False" in data):

@@ -277,10 +277,11 @@ void Connexion::reConnect()
     {
         //if the client has a token then reconnects without handshaking
         openConnexion();
-        cout << "[+] Send MOD_RECONNECT to server " << endl;
-        sendUltraSafe(sock_client, "MOD_RECONNECT");
+        //cout << "[+] Send MOD_RECONNECT to server " << endl;
+        //sendUltraSafe(sock_client, "MOD_RECONNECT");
+        //cout << "[+] Send tokken to server " << endl;
+        sendUltraSafe(sock_client,"MOD_RECONNECT | " + a_token); //send token
         cout << "[+] Send tokken to server " << endl;
-        sendUltraSafe(sock_client, a_token); //send token
         sendUltraSafe(sock_client, "\r\n");
     }
 

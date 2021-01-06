@@ -14,6 +14,7 @@ NB_PATH = 6
 NB_USERNAME = 7
 NB_TOKEN = 8
 
+SOCK_TIMEOUT = 4
 #session, False, ip,port, is_he_alive, is_he_admin, path_rat, usename, token
 
 def exec(command):
@@ -30,7 +31,7 @@ def exec(command):
 def recvall(sock,buffer):
     
     result =b""
-    sock.settimeout(3)
+    sock.settimeout(SOCK_TIMEOUT)
     while True:
         try:            
             data = sock.recv(buffer)
