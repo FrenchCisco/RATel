@@ -10,7 +10,7 @@ from scripts.other import myBanner
 from scripts.other import exec
 from scripts.sql import Sql
 
-from colorama import Fore,Style
+from colorama import Fore,Style,init
 
 exec("clear")
 
@@ -42,7 +42,7 @@ else:
     #print("[+] Server started.\n")
     SqlObj = Sql("sql/RAT-el.sqlite3", "sql/table_ratel.sql", "table_ratel")
     handler= Handler(HOST,PORT,DISPLAY,AUTO, SqlObj)
-    
+    init()
     if(CLEAN):
         SqlObj.removeDatabase()
         printColor("information", "[+] Database cleaned successfully.\n")

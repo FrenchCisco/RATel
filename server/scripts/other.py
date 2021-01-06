@@ -15,6 +15,7 @@ NB_USERNAME = 7
 NB_TOKEN = 8
 
 SOCK_TIMEOUT = 4
+SPLIT = "|SPLIT|"
 #session, False, ip,port, is_he_alive, is_he_admin, path_rat, usename, token
 
 def exec(command):

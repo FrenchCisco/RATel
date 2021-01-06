@@ -113,6 +113,7 @@ int Connexion::main(bool is_admin, string path_prog)
         //len_recv = recv(sock_client,buffer,sizeof(buffer), 0);
         //command.append(buffer,len_recv); 
         cout << "IN main client " << endl;
+        cout << a_token << endl;
         recvSafe(command,i);
 
         cout << "command in main ---->" << command <<"<------------"<<endl;
@@ -133,6 +134,7 @@ int Connexion::main(bool is_admin, string path_prog)
         {
             //Connection is down.
             cout << "NADA" << endl;
+            //Beug ? 
         }
         else if(command == "is_life?")
         {
@@ -216,7 +218,7 @@ int Connexion::recvSafe(string &command,int i)
 
     if(len_recv==SOCKET_ERROR)
     {
-        //cout <<"error" <<endl;
+        cout <<"error in recvsafe, go to reconnect" <<endl;
         reConnect(); //?
         //return 1;
     }
@@ -228,7 +230,8 @@ int Connexion::recvSafe(string &command,int i)
         if(command.empty())
         {
             //If command empty re connect to server.
-            //cout << "empty" <<endl;
+            cout << "empty go to reconnect" <<endl;
+            //system("PAUSE");
             reConnect();
         }
     }
@@ -240,7 +243,7 @@ void Connexion::checkSend(int &iResult)
     if(iResult == SOCKET_ERROR)
     {
         //cout << "error in sendSafe" << endl;
-        cout << "go to reconnect !" << endl;
+        cout << "Error in CheckSend go to reconnect:!" << endl;
         reConnect();
     }
 }
@@ -272,6 +275,7 @@ void Connexion::reConnect()
     {
         //If the client does not have a token then a new connection with handshake.
         cout << "TOKKEN EMPTY" << endl;
+        //?????
     }
     else
     {
@@ -280,22 +284,11 @@ void Connexion::reConnect()
         //cout << "[+] Send MOD_RECONNECT to server " << endl;
         //sendUltraSafe(sock_client, "MOD_RECONNECT");
         //cout << "[+] Send tokken to server " << endl;
-        sendUltraSafe(sock_client,"MOD_RECONNECT | " + a_token); //send token
+        sendUltraSafe(sock_client,"MOD_RECONNECT" SPLIT + a_token); //send token
         cout << "[+] Send tokken to server " << endl;
         sendUltraSafe(sock_client, "\r\n");
+        //system("PAUSE");
     }
-
-    /*
-    cout << "[-] disconnect from the server" <<endl;
-    openConnexion();
-    cout << "Reconnect ok " << endl;
-    cout << "Go to handshake in reConnect" << endl;
-
-    HandShake hand_in_re_connect;
-
-    hand_in_re_connect.startHandShake();
-    //cout << "Connection Ok ???????" << endl;
-    */
 
 }
 

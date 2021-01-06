@@ -54,7 +54,6 @@ int ModShell::exec(string command,string &result)
         {
             result.append(buffer,strlen(buffer));
         }
-
     }
     pclose(pipe);
 
