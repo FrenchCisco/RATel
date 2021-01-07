@@ -1,5 +1,6 @@
 #include "../inc/other.h"
 #include "../inc/common.h"
+
 #include <iostream>
 #include <stdio.h>
 #include <string>
@@ -134,4 +135,16 @@ void sendUltraSafe(int sock, string data)
         }
     }
     
+}
+
+string generateToken(int length)
+{
+    string token;
+    char hex_characters[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+
+    for(int i=0; i < length; i++)
+    {
+        token += hex_characters[rand()%16]; //use (rand() % 16) to generate a random number between 0 to 15 
+    }
+    return token;
 }

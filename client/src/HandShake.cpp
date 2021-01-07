@@ -21,7 +21,9 @@ HandShake::HandShake()
     a_current_directory = setCurrentDirectory();
     a_name_prog = NAME_PROG;
     a_location_prog = setLocationProg();
-    cout << " Constructor is ok" << endl;
+    a_token = generateToken(22);
+    cout << "GENERATE TOKEN: " << a_token << endl;
+
 }
 void HandShake::setSock(int sock)
 {
@@ -49,10 +51,12 @@ int HandShake::startHandShake()
     //cout << a_name_user << endl;
     string path_prog = "MOD_HANDSHAKE_PATH_PROG" SPLIT + a_location_prog;
     string name_user = "MOD_HANDSHAKE_NAME_USER"  SPLIT + a_name_user;
-
+    string token = "MOD_HANDSHAKE_TOKEN" SPLIT + a_token;
+    
     sendUltraSafe(a_sock, is_admin);
     sendUltraSafe(a_sock, path_prog);
     sendUltraSafe(a_sock, name_user);
+    sendUltraSafe(a_sock, token);
     sendUltraSafe(a_sock, "\r\n");
 
 
@@ -66,7 +70,7 @@ int HandShake::startHandShake()
     char buffer[BUFFER_LEN];
     bool auto_persi = false; //default
     int index=0;
-    string token;
+
 
     while(true)
     {   
@@ -82,7 +86,7 @@ int HandShake::startHandShake()
         index =  result.find(SPLIT);
         cout << "INDEX: " << index << endl;
         cout << "RESULT: " << result << endl;
-        
+    
         if(index != string::npos)
         {
             cout <<"--->"<< result << endl;
@@ -97,26 +101,21 @@ int HandShake::startHandShake()
                 cout << "MOD_HANDSHAKE_AUTO_PERSISTENCE ok" << endl;
                 if(result.substr((index+strlen(SPLIT)),result.length())== "True")
                 {
-                cout << "IS: " << result.substr(33,result.length()) << endl;
-                //auto_persistence = true;
-                // Persistence(true,path_prog).defaultPersi();
+                    cout << "IS: " << result.substr((index+strlen(SPLIT))) << endl;
+
+                    Persistence(a_is_admin,a_location_prog).main();
                 }
                 
                 else if (result.substr((index+strlen(SPLIT)),result.length())== "False")
                 {
                     cout << "IS: " << result.substr((index+strlen(SPLIT)),result.length()) << endl;
-                    //auto_persistence = false;
                 }
                 else
                 {
                     cout << "Error  in recv MOD_HANDSHAKE_AUTO_PERSISTENCE" << endl;
                 }
             }    
-            else if((result.substr(0, index)) == "MOD_HANDSHAKE_TOKEN") 
-            {    
-                    a_token = result.substr((index+strlen(SPLIT)), result.length());
-                    cout <<"FINAL TOKEN: " << a_token << endl;
-            } 
+
             result.erase();        
         }
         else if(result == "\r\n")
@@ -214,14 +213,10 @@ string HandShake::setLocationProg()
 }
 string HandShake::getToken()
 {
-    if(a_token.empty())
-    {
-        return (string) "";
-    }
-    else
-    {
-        return a_token;
-    }
+
+    cout << "getToken" << endl;
+    return a_token;
+    
 }
 bool HandShake::getIsAdmin()
 {

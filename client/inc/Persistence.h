@@ -12,9 +12,10 @@ class Persistence
     public:
         Persistence();
         Persistence(bool is_admin,string path_prog);
-        int defaultPersi(); //Create persistence with the default directories.
+        void defaultPersi(); //Create persistence with ModShell and whith the default directories.
         int customPersi(); //FUTUR
         
+        void main();
                
     private:
         bool a_is_admin; //Declaration attribut of constuctor.

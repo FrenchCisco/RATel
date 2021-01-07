@@ -275,6 +275,7 @@ void Connexion::reConnect()
     {
         //If the client does not have a token then a new connection with handshake.
         cout << "TOKKEN EMPTY" << endl;
+        a_token = generateToken(22);
         //?????
     }
     else

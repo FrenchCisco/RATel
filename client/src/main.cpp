@@ -7,8 +7,7 @@ int main()
 {
     //-lws2_32
     //ShowWindow(GetConsoleWindow(),SW_HIDE);
-   // cout <<" change test 1 " << endl;
-    cout << "LEN MOD_PERSISTENCE:" << strlen("MOD_PERSISTENCE:") << endl;
+
     Connexion Client; //Declaration de l'object
     HandShake Handshake;
 

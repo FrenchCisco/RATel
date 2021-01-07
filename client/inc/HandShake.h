@@ -22,7 +22,6 @@ class HandShake
         string setNameUser(); // Return name user of target 
         string setCurrentDirectory(); // return current directory;
         string setLocationProg(); //set localisation prog after remove according to rights
-        //string getPathProg(); //
         void setSock(int sock); //Set socket
 
         //---------------------------------------------------------------------
