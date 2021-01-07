@@ -157,7 +157,7 @@ The client first sends this information, then the server sends the parameters as
         data = ""
         self.conn.settimeout(SOCK_TIMEOUT)
         try:
-            data = self.conn.recv(4096).decode("utf8")
+            data = self.conn.recv(4096).decode("utf8","replace")
         except socket.timeout:
             print("timeout in recvultrasafe")
         except Exception as e:
@@ -199,7 +199,6 @@ The client first sends this information, then the server sends the parameters as
                 print("Token recv->", token)
                 if bool(Handler.dict_conn): 
                     for value in Handler.dict_conn.values():
-                        print(value[NB_TOKEN])
                         if(value[NB_TOKEN] == token): #if the token is already in the dictionary it means that the client is trying to reconnect. This information is thus well stored in the db.
                             print("!!!!Token doublon!!!!")
                             already_in_the_dictionary = True

