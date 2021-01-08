@@ -6,7 +6,7 @@
 4- Create a network sniffer mode on the client.
 5- Create a make file.
 6- Optimize the customer's memory management. 
-7- Create a connection management system on the client in case the server is offline.
+7- Create a connection management system on the client in case the server is offline. ok 
 8- Cipher data.
 
 

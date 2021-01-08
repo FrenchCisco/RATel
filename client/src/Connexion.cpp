@@ -6,7 +6,7 @@
 
 #include <iostream>
 #include <winsock2.h>
-#include <Windows.h> //sleep
+#include <windows.h> //sleep
 
 using namespace std;
 

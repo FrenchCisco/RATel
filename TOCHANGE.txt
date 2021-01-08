@@ -3,17 +3,6 @@ the parameters  that the user has to change:
 1- IP in client
 2- PORT in client
 3- PORT server
-4- Timeout in server (management.py)
-5- Timeout in client (connect)
+4- Timeout in server (management.py) 
+5- Timeout in client (connect) 
 6- 
-
-Traceback (most recent call last):
-  File "/usr/lib/python3.7/threading.py", line 917, in _bootstrap_inner
-    self.run()
-  File "/home/cisco/Rat-el/v2/server/scripts/handler.py", line 79, in run
-    list_info = self.handShake(conn)
-  File "/home/cisco/Rat-el/v2/server/scripts/handler.py", line 42, in handShake
-    data = sock.recv(256).decode("latin1")
-ConnectionResetError: [Errno 104] Connection reset by peer
-
-

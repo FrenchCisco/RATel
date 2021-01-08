@@ -1,7 +1,7 @@
 #include <iostream>
 #include <windows.h>
 
-#include <Lmcons.h> // GetUserName UNLEN
+#include <lmcons.h> // GetUserName UNLEN
 #include <direct.h> // _getcwd
 //#include <stdlib.h>
 
