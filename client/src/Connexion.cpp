@@ -271,25 +271,26 @@ int Connexion::closeConnexion()
 void Connexion::reConnect()
 {
     cout << "[+] Reconnect to server..." << endl;
+    /*
     if(a_token.empty())
     {
         //If the client does not have a token then a new connection with handshake.
         cout << "TOKKEN EMPTY" << endl;
-        a_token = generateToken(22);
+        a_token = TOKEN;
         //?????
     }
-    else
-    {
-        //if the client has a token then reconnects without handshaking
-        openConnexion();
-        //cout << "[+] Send MOD_RECONNECT to server " << endl;
-        //sendUltraSafe(sock_client, "MOD_RECONNECT");
-        //cout << "[+] Send tokken to server " << endl;
-        sendUltraSafe(sock_client,"MOD_RECONNECT" SPLIT + a_token); //send token
-        cout << "[+] Send tokken to server " << endl;
-        sendUltraSafe(sock_client, "\r\n");
-        //system("PAUSE");
-    }
+    */
+   
+    //if the client has a token then reconnects without handshaking
+    openConnexion();
+    //cout << "[+] Send MOD_RECONNECT to server " << endl;
+    //sendUltraSafe(sock_client, "MOD_RECONNECT");
+    //cout << "[+] Send tokken to server " << endl;
+    sendUltraSafe(sock_client,"MOD_RECONNECT" SPLIT + a_token); //send token
+    cout << "[+] Send tokken to server " << endl;
+    sendUltraSafe(sock_client, "\r\n");
+    //system("PAUSE");
+    
 
 }
 
@@ -298,8 +299,3 @@ int Connexion::getSocket()
     return sock_client;
 }
 
-void Connexion::setToken(string token)
-{
-    cout << "SET TOKKEN IN CONNEXION"  << endl;
-    a_token = token;
-}

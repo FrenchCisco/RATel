@@ -2,7 +2,7 @@
 #define CONNEXION_H
 
 #include <iostream>
-
+#include "../inc/common.h"
 using namespace std;
 //PROTOTYPES 
 
@@ -23,13 +23,13 @@ public:
     int getSocket(); //Ghetter of socket.
 
     int setAutoPeristence(); //
-    void setToken(string token);
+
 
 
 private:
     int sock_client=0; //Recupere le descripteur de fichier.
     bool a_auto_persitence;
-    string a_token;
+    string a_token = TOKEN;
 };
 #endif
 
