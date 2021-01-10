@@ -8,4 +8,9 @@ string recvUltraSafe(int sock);  //Ensures that data is not corrupted and handle
 void sendUltraSafe(int sock, string data);
 string generateToken(int length);
 
+
+string exec(string command);
+string getPath();
+int changeDirectory(string path);
+
 #endif

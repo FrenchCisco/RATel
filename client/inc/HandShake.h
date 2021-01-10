@@ -27,7 +27,8 @@ class HandShake
         //---------------------------------------------------------------------
         //Network:
         //void sendUltraSafe(string data, int sock);  
-        int startHandShake(); //Sends the first necessary information to the server and if MOD_HANDSHAKE_AUTO_PERSISTENCE = True then persistence is activated automatically. 
+        void beforeHandShake(); //manage actions before startHandShake and set a_location_prog
+        void startHandShake(); //Sends the first necessary information to the server and if MOD_HANDSHAKE_AUTO_PERSISTENCE = True then persistence is activated automatically. 
 
         //---------------------------------------------------------------------
         //getter:

