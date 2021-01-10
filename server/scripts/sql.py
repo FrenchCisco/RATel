@@ -1,5 +1,6 @@
 import sqlite3
 import os
+from .other import printColor
 '''
 https://www.sqlitetutorial.net/sqlite-python/creating-database/
 When you connect to an SQLite database file that does not exist, SQLite automatically creates the new database for you.
@@ -14,10 +15,7 @@ class Sql:
         self.name_table = name_table
         self.conn = self.setConnection()
         self.cursor = self.setCursor()
-        print("CONN: ", self.conn)
-        print("CURSOR: ",self.cursor)
-        print("CONSTRUCTOR CALLED")
-        
+
     def setConnection(self):
     #create a database connection to a SQLite database 
         conn = None
@@ -66,7 +64,7 @@ class Sql:
 
     def execSqlCode(self,sql_code, commit=False, display=False):
         try:
-            print(sql_code)
+            #print(sql_code)
             self.cursor.execute(sql_code)
             if(display):
                 print(self.cursor.fetchone())
@@ -104,26 +102,26 @@ class Sql:
 
     def insertInDatabase(self, session, ip, port, is_he_alive, is_he_admin, path_RAT, username, token):
         #print("""INSERT INTO {}(session, ip, port, is_he_alive, is_he_admin, path_RAT, username, token) VALUES({},"{}","{}","{}","{}","{}","{}","{}") """.format(self.name_table, session ,ip, port, is_he_alive, is_he_admin, path_RAT, username, token))
-        print("""INSERT INTO {}(session, ip, port, is_he_alive, is_he_admin, path_RAT, username, token) VALUES({},"{}",{},"{}","{}","{}","{}","{}")""".format(self.name_table, session ,ip, port, is_he_alive, is_he_admin, path_RAT, username, token))
+        #print("""INSERT INTO {}(session, ip, port, is_he_alive, is_he_admin, path_RAT, username, token) VALUES({},"{}",{},"{}","{}","{}","{}","{}")""".format(self.name_table, session ,ip, port, is_he_alive, is_he_admin, path_RAT, username, token))
         self.execSqlCode("""INSERT INTO {}(session, ip, port, is_he_alive, is_he_admin, path_RAT, username, token) VALUES({},"{}",{},"{}","{}","{}","{}","{}")""".format(self.name_table, session ,ip, port, is_he_alive, is_he_admin, path_RAT, username, token),True)
-        print("[+] Insert in database ok.")       
+        #print("[+] Insert in database ok.")       
         
 
     def updateValue(self, column, value, session,is_string=False):#https://www.tutorialspoint.com/sqlite/sqlite_update_query.htm
         if not(is_string):
-            print("""UPDATE {} SET {} = {} WHERE session = {} """.format(self.name_table, column, value, session))
+            #print("""UPDATE {} SET {} = {} WHERE session = {} """.format(self.name_table, column, value, session))
             self.execSqlCode("""UPDATE {} SET {} = {} WHERE session = {} """.format(self.name_table, column, value, session),True)
         else:
-            print("""UPDATE {} SET {} = "{}" WHERE session = {} """.format(self.name_table, column, value, session))
+            #print("""UPDATE {} SET {} = "{}" WHERE session = {} """.format(self.name_table, column, value, session))
             self.execSqlCode("""UPDATE {} SET {} = "{}" WHERE session = {} """.format(self.name_table, column, value, session),True)
         
-        print("[+] UPDATE OK.")
+        #print("[+] UPDATE OK.")
 
     
     def returnValue(self, session, column): 
         row = ""
         try:
-            print("""SELECT {} FROM {} WHERE session = {} """.format(column, self.name_table ,session))
+            #print("""SELECT {} FROM {} WHERE session = {} """.format(column, self.name_table ,session))
             self.cursor.execute("""SELECT {} FROM {} WHERE session = {} """.format(column, self.name_table ,int(session) ))
             row = self.cursor.fetchone()  #return tuple
             print(row)
@@ -168,7 +166,7 @@ class Sql:
     def main(self):
         if(self.checkFileExists(self.name_db)):
 
-            print("[+] The database has been found.")
+            #print("[+] The database has been found.")
             #self.insertInDatabase(4,"127.0.0.1",8888 ,1 ,1 , "C:", "cisco", "01010101")
             #self.insertInDatabase(6,"8.8.8.6666",77978 ,1 ,1 , "C:", "roms", "01010101")
 

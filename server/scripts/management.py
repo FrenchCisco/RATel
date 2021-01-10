@@ -36,6 +36,8 @@ class Management(threading.Thread):
                 if(Handler.dict_conn[key][NB_ALIVE] and bool(Handler.dict_conn[key][NB_SOCKET])): #If the connection is alive (True) and the socket object is active (True)
                     try:
                         Handler.dict_conn[key][NB_SOCKET].send(Management.is_life.encode())
+                        #print(Handler.dict_conn[key][8])
+
                     except ConnectionError as connerr: #If the connection does not answer
                         if(Handler.status_connection_display):
                             printColor("information","\n[-] The client's connection is disconnected.")
