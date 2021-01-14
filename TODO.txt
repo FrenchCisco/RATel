@@ -8,9 +8,5 @@
 6- Optimize the customer's memory management. 
 7- Create a connection management system on the client in case the server is offline. ok 
 8- Cipher data.
-
-
-mingw32
-python3
-
+9- make the whole program in unicode
 

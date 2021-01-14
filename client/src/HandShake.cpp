@@ -151,34 +151,6 @@ string HandShake::setLocationProg()
     {
         return (string) buffer;        
     }
-
-    //if admin
-    
-        /*
-        if(a_is_admin)
-        {
-            result = PATH_ADMIN "\\" + a_name_prog;
-        }
-        else
-        {
-            string path_CONST=PATH_NOT_ADMIN;
-            int index = 0;
-            if(path_CONST.find("$USER") != string::npos)
-            {   
-                //If $user in string, replace by a_name_user (username of machine) 
-                index = path_CONST.find("$USER");
-                //cout << "$USER DETECT: "<<index<< endl;
-                path_CONST.replace(index,a_name_user.length(),a_name_user);
-                            //de index, 5 char,  remplace par a_name_user
-                cout << path_CONST << endl;;  
-                return path_CONST + "\\" +a_name_prog;
-            }
-            else
-            {
-                result = "C:\\Users\\"+ a_name_user+"\\AppData\\Roaming\\Microsoft\\Windows\\" + a_name_prog;
-            }
-        }
-        */
 }
 bool HandShake::getIsAdmin()
 {

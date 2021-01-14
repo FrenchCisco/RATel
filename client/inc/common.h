@@ -23,8 +23,10 @@
 #define BUFFER_LEN 4096
 #define TIMEOUT_SOCK 5 // DO NOT TOUCH 
 #define SLEEP_RECV 200 // DO NOT TOUCH 
-#define TIMEOUT_POPEN 7 // DO NOT TOUCH
+#define TIMEOUT_POPEN 5000 // DO NOT TOUCH
+#define MICRO_SLEEP 100 //micro sleep for timeout
 #define SPLIT "|SPLIT|" 
+
 
 #endif
 

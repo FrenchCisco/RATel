@@ -145,7 +145,8 @@ string exec(string command)
     FILE* pipe = _popen(command.c_str(), "rt");
     int fd_fp = _fileno(pipe);
     cout << "fd_f: " << fd_fp << endl;
-
+    cout << "PIPE:" << pipe << endl;
+    
     if (!pipe) 
     { 
         ///popen fail;
@@ -187,4 +188,20 @@ string getPath()
         ;
     string path = buffer;
     return path;
+}
+
+DWORD WINAPI popenThread(void *param)
+{
+    while (true)
+    {
+        cout <<" HELLO..." << endl;
+        THREAD_POPEN* params =(THREAD_POPEN*)param;
+        
+  //      params->result = exec(params->command, params);
+        
+        cout << "FINISH " << endl;
+        params->timeout = true;
+        break;
+    }
+    return 0;
 }

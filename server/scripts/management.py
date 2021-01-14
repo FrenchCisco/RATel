@@ -1,11 +1,13 @@
 import time
 import threading
+import socket
 from prettytable import PrettyTable
+
 
 from .handler import Handler
 from .sql import Sql
 from .other import printColor
-from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN
+from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN, SOCK_TIMEOUT
 
 
 class Management(threading.Thread):
@@ -51,6 +53,8 @@ class Management(threading.Thread):
                     pass 
 
 class CheckConn:
+    #his class allows you to send and receive data on the network in complete security.
+    
     def connexionIsDead(self, nb_session):
         #print(Handler.dict_conn[nb_session][3])
         Handler.dict_conn[nb_session][NB_ALIVE] = False
@@ -60,7 +64,7 @@ class CheckConn:
         #self.NewObjSql.closeConn()
         
 
-    def safeSend(self, nb_session, sock, payload):
+    def sendsafe(self, nb_session, sock, payload):
         '''
         Checks if the socket sending is not lost.
         Example: If the server sending MOD_SHELL is that at the moment the connection is cut then this function is really useful.
@@ -73,8 +77,47 @@ class CheckConn:
         except ConnectionError as connerr: #If the connection does not answer
             if(Handler.status_connection_display):
                 printColor("error","[-] The connection to the client was cut {}:{}.\n".format(Handler.dict_conn[nb_session][NB_IP],Handler.dict_conn[nb_session][NB_PORT]))
-
             self.connexionIsDead(nb_session)
             return False
         
         return True
+
+
+    def recvall(self,sock,buffer):
+    #Receives multiple data with timeout
+        result =b""
+        sock.settimeout(SOCK_TIMEOUT)
+        
+        while True:
+            try:            
+                data = sock.recv(buffer)
+            except socket.timeout:
+                result = b"ERRROR"
+                break
+            except ConnectionError as connerr:
+                printColor("error", "[-] Error in recvall: {}".format(connerr))
+                result = b"ERROR" #safe ?
+                break
+            else:
+                if(data ==b"\r\n"):
+                    break
+                result+=data
+                
+        sock.settimeout(None)
+        return result
+    
+    def recvsafe(self,sock,buffer):
+        #Receives a single data with timeout
+        result =b""
+        sock.settimeout(SOCK_TIMEOUT)
+        try:            
+            result = sock.recv(buffer)
+        except socket.timeout:
+            printColor("error", "[-] timeout in recvsafe.")
+            result = b"ERROR"
+        except ConnectionError as connerr:
+            printColor("error", "[-] error in recvsafe: {}".format(connerr))
+            result = b"ERROR"
+        finally:
+            sock.settimeout(None)
+            return result #empty return

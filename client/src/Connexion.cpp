@@ -108,6 +108,9 @@ int Connexion::main(bool is_admin, string path_prog)
     string command,result;
     int len_recv=0;    
     
+    int cmpt;
+    const int max_cmpt = TIMEOUT / MICRO_SLEEP;
+    
     while(true)
     {
         //len_recv = recv(sock_client,buffer,sizeof(buffer), 0);
@@ -116,7 +119,6 @@ int Connexion::main(bool is_admin, string path_prog)
 
         recvSafe(command,i);
         
-
         cout << "command in main ---->" << command <<"<------------"<<endl;
         cout << "command in main ---->" << command.length() <<"<------------"<<endl;
 
@@ -186,24 +188,22 @@ int Connexion::main(bool is_admin, string path_prog)
                 cout << result << endl;
                 cout << result.length() <<endl;
                 result += getPath();
-                
+      
                 sendSafe(result);
-                //cout << "Command send wala" << endl; 
                 
             }
         }
+        cout << "ERASE ALL " << endl;
         command.erase();
         result.erase();
         i++;
+    }
 //        memset(buffer,0,sizeof(buffer));
         //////cout << "erase ok !" <<endl;
-    }
     return 0;
 }
 int Connexion::recvSafe(string &command,int i)
 {
-
-
     char buffer[BUFFER_LEN];
     int len_recv=recv(sock_client,buffer,sizeof(buffer),0);
 
