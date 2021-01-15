@@ -65,10 +65,12 @@ class Menu:
             if(Handler.dict_conn[target][NB_ALIVE]):
                 session = Session(Handler.dict_conn[target][NB_SOCKET],Handler.dict_conn[target][NB_IP],Handler.dict_conn[target][NB_PORT], target) #def __init__(self,socket,ip_client,port_client,session_nb): 
                 session.main() 
+                print("END\n")
             else:
                 printColor("information","[-] The target is currently offline.\n")
         else:
             printColor("information","[-] No target found. Please enter a valid target.\n")
+            print("YEEES")
     
     def selectAll(self):
         #Add to the start of the "MOD_ALL" command to tell the client to switch to MOD_ALL
@@ -116,6 +118,7 @@ class Menu:
                     try:
                         self.selectTarget(int(choice[i+1])) #int car -t 10 <- 10 doit ^etre un int 
                     except IndexError:
+                        print("nop")
                         printColor("information","[-] No target found. Please enter a valid target.\n")
                         
                 elif(choice[i] == "-ls" or choice[i] == "--list"):

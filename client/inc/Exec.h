@@ -27,8 +27,7 @@ class Exec
         string readFromPipe(PROCESS_INFORMATION piProcInfo);  //read pipe and return result (string)
         string executeCommand(string &command);
 
-        void spawnCMD(); //Coming soon baby
-
+        void spawnSHELL(int sock,wchar_t *prog); //Coming soon baby
         ~Exec();
     
     private:

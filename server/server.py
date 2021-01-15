@@ -15,6 +15,7 @@ from colorama import Fore,Style,init
 exec("clear")
 
 
+init()
 print(Fore.GREEN,myBanner(),Fore.BLUE)
 
 parser = argparse.ArgumentParser()
@@ -41,7 +42,7 @@ else:
     #print("[+] Server started.\n")
     SqlObj = Sql("sql/RAT-el.sqlite3", "sql/table_ratel.sql", "table_ratel")
     handler= Handler(HOST,PORT,DISPLAY,SqlObj)
-    init()
+    
     if(CLEAN):
         SqlObj.removeDatabase()
         printColor("information", "[+] Database cleaned successfully.\n")
