@@ -135,6 +135,7 @@ void sendUltraSafe(int sock, string data)
     
 }
 
+/*
 string exec(string command)
 {
     command += " 2>&1"; //for catch stderr
@@ -169,6 +170,7 @@ string exec(string command)
     return result;
     //cout << "Mod shell finish " << endl;
 }
+*/
 
 int changeDirectory(string path)
 {

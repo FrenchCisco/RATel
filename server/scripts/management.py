@@ -101,14 +101,15 @@ class CheckConn:
             else:
                 if(data ==b"\r\n"):
                     break
-                result+=data
+                else:
+                    result+=data
                 
         sock.settimeout(None)
         return result
     
     def recvsafe(self,sock,buffer):
-        #Receives a single data with timeout
-        result =b""
+        
+        result = b""
         sock.settimeout(SOCK_TIMEOUT)
         try:            
             result = sock.recv(buffer)
@@ -122,4 +123,20 @@ class CheckConn:
             sock.settimeout(None)
             return result #empty return
     
-    
+    def recvcommand(self, sock, buffer):
+        #Gets the data without delay (session "-c 'command' ")
+        result = b""
+
+        while True:
+            try:
+                data = sock.recv(buffer)
+            except ConnectionError as connerr:
+                printColor("error", "[-] error in recvsafe: {}".format(connerr))
+                result = b"ERROR"
+            else:
+                if(data ==b"\r\n"):
+                    break
+                else:
+                    result += data
+        
+        return result

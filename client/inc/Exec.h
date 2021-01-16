@@ -25,7 +25,7 @@ class Exec
         PROCESS_INFORMATION createChildProcess(string &command); //create process childen and execute command.
         
         string readFromPipe(PROCESS_INFORMATION piProcInfo);  //read pipe and return result (string)
-        string executeCommand(string &command);
+        string executeCommand(string command);
 
         void spawnSHELL(int sock,wchar_t *prog); //Coming soon baby
         ~Exec();
@@ -39,7 +39,7 @@ class Exec
         
         BOOL a_error = FALSE;
         BOOL a_timeout= FALSE; //check if timeout in createProcess
-        string result;
+        //string result;
    
 };
 /*

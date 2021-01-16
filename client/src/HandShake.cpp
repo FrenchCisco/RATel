@@ -9,6 +9,7 @@
 #include "../inc/Persistence.h"
 #include "../inc/common.h"
 #include "../inc/other.h"
+#include "../inc/Exec.h"
 
 using namespace  std;
 
@@ -83,7 +84,7 @@ bool HandShake::setIsAdmin()
 {
     string result;
     cout << "call getamdin" << endl;
-    result = exec("powershell.exe -command \"([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')\"");
+    result = Exec().executeCommand("powershell.exe -command \"([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')\"");
     if(result.substr(0,4) == "True") //remove ruturn line.
     {
         //cout << "ADMIN IN setadmin: " << result.substr(0,4) << endl;
@@ -139,7 +140,7 @@ string HandShake::setLocationProg()
         if(_getcwd(buffer,sizeof(buffer)) == 0)//if error
         {
             string result_cmd;
-            result_cmd = exec("pwd");
+            result_cmd = Exec().executeCommand("pwd");
             return (string) result_cmd + "\\" + NAME_PROG;
         }
         else

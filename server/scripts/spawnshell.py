@@ -2,6 +2,8 @@ import threading
 import socket 
 
 
+from colorama import Fore,Style
+
 class FakeCmd:
     '''
     Create 2 threads, one to receive the other to send commands.
@@ -21,10 +23,10 @@ class FakeCmd:
                 FakeCmd.thread_in_progress = False
             else:
                 data_decode =  data.decode("utf8","replace")
-                print(data_decode.replace("\r\n\r\n","\n"),end="") #supprimer les double entryyy
+                print("\033[32m" + data_decode.replace("\r\n\r\n","\n") + "\033[34m",end="") #supprimer les double entryyy
 
     def sendthread(self):
-       
+
         while FakeCmd.thread_in_progress:
             
             inp  = input("")
@@ -42,7 +44,6 @@ class FakeCmd:
                 print(err)
                 FakeCmd.thread_in_progress = False 
 
-
     def main(self):
 
         FakeCmd.thread_in_progress = True #Reset
@@ -56,6 +57,7 @@ class FakeCmd:
         #0101010010101010100101010011001010100101010101010101010101010010101010101010100101010101010
         trecv.join()
         tsend.join()
+        print("\n")
 '''
 sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 sock.bind(("",8888))

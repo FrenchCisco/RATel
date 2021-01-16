@@ -18,6 +18,8 @@ from .sql import Sql
 from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN, SOCK_TIMEOUT
 
 import time
+import readline
+
 
 class Menu:
     RESET_COLOR = Style.RESET_ALL
@@ -118,7 +120,6 @@ class Menu:
                     try:
                         self.selectTarget(int(choice[i+1])) #int car -t 10 <- 10 doit ^etre un int 
                     except IndexError:
-                        print("nop")
                         printColor("information","[-] No target found. Please enter a valid target.\n")
                         
                 elif(choice[i] == "-ls" or choice[i] == "--list"):

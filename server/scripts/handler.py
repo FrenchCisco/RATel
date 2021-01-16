@@ -58,13 +58,10 @@ class Handler(threading.Thread):
                 #print(Handler.number_conn) ok
                 #print("type of dict_conn ----->",type(Handler.dict_conn[0])) ok
                 #print(Handler.dict_conn)
-
-
         else:
             #print("[?] NOT Value in database.")
             pass
             
-
     def SuccessfullyQuit(self):
         try:
             print("\n")
