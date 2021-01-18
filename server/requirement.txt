@@ -1,2 +1,4 @@
 colorama
 PTable
+readline
+pyreadline

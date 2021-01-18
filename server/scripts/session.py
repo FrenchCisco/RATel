@@ -16,8 +16,12 @@ from .spawnshell import FakeCmd
 from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN, SPLIT
 
 import threading
-import readline
+import platform 
 
+if(platform.system() == "Linux"):
+    import readline
+else: #if windows
+    import pyreadline
 
 class Session:
     #This class is called when the target is selected.
@@ -27,6 +31,8 @@ class Session:
         self.ip_client = ip_client
         self.port_client = port_client 
         self.session_nb = session_nb
+
+        
        
     def help(self):
         '''-h or --help'''
@@ -85,7 +91,7 @@ class Session:
         #if Handler.dict_conn[self.session_nb][NB_ALIVE]:  #test is life
         mod_persi = "MOD_LONELY_PERSISTENCE:default"
         if(CheckConn().sendsafe(self.session_nb, self.socket, mod_persi.encode())): #send mod persi
-            printColor("information","[+] the persistence mod was sent.\n")
+            #printColor("information","[+] the persistence mod was sent.\n")
             
             reponse = CheckConn().recvsafe(self.socket,4096).decode("utf-8","replace")
 
@@ -108,7 +114,7 @@ class Session:
         #while Handler.dict_conn[self.session_nb][3]: #If connexion is always connected (True)
         checker = True
         while Handler.dict_conn[self.session_nb][NB_ALIVE] and checker: #If connexion is always connected (True)
-            terminal = str(input("Session:"+ str(self.session_nb)+">")).split()
+            terminal = str(input(str(self.ip_client)+">")).split()
             for i in range(0,len(terminal)):   
                 try:
                     if terminal[i] == "-h" or terminal[i] == "--help":

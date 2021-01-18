@@ -10,8 +10,8 @@ class Connexion
 {
 public:
     Connexion(); //Constructor
-    int openConnexion(); //Connect serveur or re connect to server. #1
-    //int statrHandShake(); //Start handshake class and send multiple information.#2
+    int openConnexion(); //Connect serveur or re connect to server. 
+
     int main(bool is_admin, string path_prog); //Main function of client. #3
 
     int sendSafe(string command); //Sends the data and manages possible errors. 

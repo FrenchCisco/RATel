@@ -245,7 +245,7 @@ int Connexion::recvSafe(string &command,int i)
     else
     {
         //try A CHANGE !!!what():  basic_string::append
-        command.append(buffer,len_recv);
+        
         //cout << "\n\nIN recvSafe >" << command <<"<-----"<<endl;
         if(command.empty())
         {
@@ -254,6 +254,8 @@ int Connexion::recvSafe(string &command,int i)
             //system("PAUSE");
             reConnect();
         }
+        else
+        {command.append(buffer,len_recv);}
     }
     
     return 0;
@@ -294,7 +296,7 @@ void Connexion::reConnect()
     cout << "[+] Reconnect to server..." << endl;  
     //if the client has a token then reconnects without handshaking
     openConnexion();
-    //cout << "[+] Send MOD_RECONNECT to server " << endl;
+    cout << "\n\n[+] Send MOD_RECONNECT to server " << endl;
     //sendUltraSafe(sock_client, "MOD_RECONNECT");
     //cout << "[+] Send tokken to server " << endl;
     sendUltraSafe(sock_client,"MOD_RECONNECT" SPLIT  TOKEN); //send token
@@ -302,7 +304,6 @@ void Connexion::reConnect()
    
     sendUltraSafe(sock_client, "\r\n");
     //system("PAUSE");
-    
 
 }
 

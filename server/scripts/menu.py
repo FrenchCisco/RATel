@@ -15,10 +15,17 @@ from .management import Management
 from .management import CheckConn
 from .other import printColor
 from .sql import Sql
-from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN, SOCK_TIMEOUT
+from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN,NB_SELECT ,SOCK_TIMEOUT
 
 import time
-import readline
+import platform
+
+if(platform.system() == "Linux"):
+    import readline
+else: #if windows
+    import pyreadline
+   
+
 
 
 class Menu:
@@ -62,17 +69,23 @@ class Menu:
     def selectTarget(self,target):    
         #Select target.
         #session, socket, ip, port, is_he_alive, is_he_admin, path_RAT, username, token
+        '''
+        When the server(menu) selects the victim, the victim is considered dead in Handler.dict_conn (False).
+        This serves to avoid confusion when sending data. 
+        '''
+
         if(target in Handler.dict_conn.keys()):
-            printColor("information","[+] Selected target: {}".format(Handler.dict_conn[target][NB_IP]))
+            printColor("information","[+] Selected session: {}".format(Handler.dict_conn[target][NB_SESSION]))
             if(Handler.dict_conn[target][NB_ALIVE]):
+                Handler.dict_conn[target][NB_SELECT] = True
                 session = Session(Handler.dict_conn[target][NB_SOCKET],Handler.dict_conn[target][NB_IP],Handler.dict_conn[target][NB_PORT], target) #def __init__(self,socket,ip_client,port_client,session_nb): 
                 session.main() 
-                print("END\n")
+                Handler.dict_conn[target][NB_SELECT] = False
+                print("Enable target...\n")
             else:
                 printColor("information","[-] The target is currently offline.\n")
         else:
             printColor("information","[-] No target found. Please enter a valid target.\n")
-            print("YEEES")
     
     def selectAll(self):
         #Add to the start of the "MOD_ALL" command to tell the client to switch to MOD_ALL

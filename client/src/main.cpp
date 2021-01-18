@@ -18,6 +18,22 @@ int main()
 
     cout << "Start connexion in startHandShake." << endl;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     Handshake.setSock(Client.getSocket());
     Handshake.beforeHandShake();
     Handshake.startHandShake();    

