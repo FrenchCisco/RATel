@@ -79,6 +79,7 @@ class CheckConn:
         Returns true if the socket was sent if not retrun false if there was a problem.
         '''
         try:
+            print("[==] sendata")
             sock.send(payload)
         except ConnectionError as connerr: #If the connection does not answer
             if(Handler.status_connection_display):

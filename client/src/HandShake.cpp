@@ -72,10 +72,16 @@ void HandShake::startHandShake()
     string token = "MOD_HANDSHAKE_TOKEN" SPLIT + a_token;
     
     sendUltraSafe(a_sock, is_admin);
-    sendUltraSafe(a_sock, path_prog);
-    sendUltraSafe(a_sock, name_user);
-    sendUltraSafe(a_sock, token);
-    sendUltraSafe(a_sock, "\r\n");
+    cout << "send admin" << endl;
+    sendUltraSafe(a_sock,path_prog);
+    cout << "path prog " << endl;
+    sendUltraSafe(a_sock,name_user);
+    cout << "name user" << endl;
+    sendUltraSafe(a_sock,token);
+    cout << "tokken" << endl;
+    sendUltraSafe(a_sock,"\r\n"); //GOOD  !
+    //send(a_sock, "\r\n", strlen("\r\n"),0); NOT GOOD !!!
+    cout << "[++] HandShakee send all data. " << endl;
 //010101010100101010101010101001010101010010101001010101011101010100101010100101010101010010101010101010100101
 //010101010100101010101010101001010101010010101001010101011101010100101010100101010101010010101010101010100101
 

@@ -75,9 +75,10 @@ else:
         printColor("information","[-] Server down...")
     
     except KeyboardInterrupt:
+        print("KEY INTERRUPT.")
         handler.SuccessfullyQuit() 
         SqlObj.closeConn()
-        #SqlObj.removeDatabase()
+        
 
         print("[?] By cisco")
         print("[?] juanrubio.dev@gmail.com")

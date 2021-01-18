@@ -7,74 +7,31 @@
 #include <windows.h>
 #include <direct.h> //_chdir
 
-string recvUltraSafe(int sock)
-{   
-    //https://forum.hardware.fr/hfr/Programmation/C-2/resolu-timeout-existe-sujet_34270_1.htm
-    char buffer[BUFFER_LEN];
-    timeval timeout;
 
-    if(strlen(buffer) > 0)
-    {
-        //clean buffer
-       // cout << "Clean " << endl;
-        memset(buffer, 0, sizeof(buffer));
-    }
-    
-    struct fd_set fds;
 
-    FD_ZERO(&fds);
-    FD_SET(sock, &fds);
-    
-    timeout.tv_sec = TIMEOUT_SOCK;
-    timeout.tv_usec = 0;
 
-    int selectSock = select(0, &fds, 0, 0, &timeout);
-    
-    if(selectSock > 0)
+int changeDirectory(string path)
+{
+//    cout << path.substr(3,path.length()) << endl;
+    if(_chdir((path.substr(3,path.length())).c_str())!=0)
     {
-        //while (true)
-        //Sleep(SLEEP_RECV);
-        int len_recv= recv(sock, buffer, sizeof(buffer), 0);
-        if(len_recv == SOCKET_ERROR)
-        {
-            cout << "Error socket error  ///" << endl;
-            return (string) "ERROR";
-        }
-        else if (len_recv == 0)
-        {
-            //pass
-            cout << "pass" << endl;
-        }
+        return 1;
     }
-    else if (selectSock == 0)
-    {
-        //Timeout
-        //cout << "TIMEOUT recv !!" << endl;
-        //Stop
-        return (string) "TIMEOUT";
-    }
-
-    int len_send = send(sock, "confirmation", strlen("confirmation"), 0);
-
-    if(len_send == SOCKET_ERROR)
-    {
-        return (string) "SEND_ERROR";
-    }
-   
-    if(strlen(buffer) == 0)
-    {
-        //empty buffer
-        return ""; 
-    }
-    else
-    {
-        //cout << buffer << endl;
-        return (string) buffer;    
-    }
-    
+    return 0;
 }
 
-void sendUltraSafe(int sock, string data)
+string getPath()
+{
+    char* buffer;
+   // Get the current working directory:
+    if ( (buffer = _getcwd( NULL, 0 )) == NULL )
+        ;
+    string path = buffer;
+    return path;
+}
+
+
+void sendUltraSafe(int sock, string data) //Just for HandShake or reconnect
 {
     int len_send=0;
     int len_recv=0;
@@ -116,7 +73,7 @@ void sendUltraSafe(int sock, string data)
             //cout << "buffer in sendultrasafe: " << result << endl;
             //cout << "Buffer len sendultrasafe: " << result.length() << "|"<< strlen("confirmation") << endl;
 
-            if(result == "confirmation")
+            if(result == "\r\n")
             {
                 //;
                 cout << "\n\n[++]confirmation ok ! in sendUltraSafe" << endl;
@@ -135,38 +92,24 @@ void sendUltraSafe(int sock, string data)
     }
     
 }
-int changeDirectory(string path)
-{
-//    cout << path.substr(3,path.length()) << endl;
-    if(_chdir((path.substr(3,path.length())).c_str())!=0)
-    {
-        return 1;
-    }
-    return 0;
-}
 
-string getPath()
+string XORData(string data)
 {
-    char* buffer;
-   // Get the current working directory:
-    if ( (buffer = _getcwd( NULL, 0 )) == NULL )
-        ;
-    string path = buffer;
-    return path;
-}
-
-DWORD WINAPI popenThread(void *param)
-{
-    while (true)
+    
+    string result;
+    
+    if(data.empty())
     {
-        cout <<" HELLO..." << endl;
-        THREAD_POPEN* params =(THREAD_POPEN*)param;
-        
-  //      params->result = exec(params->command, params);
-        
-        cout << "FINISH " << endl;
-        params->timeout = true;
-        break;
+        return result;
     }
-    return 0;
+    
+    for(int i=0;i<data.size(); i++)
+    {
+        result += data.at(i)^KEY_XOR[i];
+    }
+    //cout << "result: " << result << endl;
+    cout << result.size() << endl;
+
+    return result;
+//Source: https://www.cprogramming.com/tutorial/xor.html
 }

