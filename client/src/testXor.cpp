@@ -14,31 +14,37 @@ string XORData(string data)
 {
     
     string result;
-    //cout << "Key: " << key << endl;
-    //cout << "strlen: " << strlen(key) << endl;
-    //cout << "size: " << sizeof(key) << endl;
+    string char_xor;
+
     for(int i=0;i<data.size(); i++)
     {
-        result += data.at(i)^key[i % strlen(key)];
-    }
-    cout << "result: " << result << endl;
-    cout << result.size() << endl;
+        char_xor = data.at(i)^key[i % (sizeof(key) / sizeof(char))];
+        
+        cout <<"KEY: "<< key[i % (sizeof(key) / sizeof(char))] << endl;
+        cout << "result calcul: "  << i % (sizeof(key) / sizeof(char)) << endl;
+        cout << "char: " << data.at(i) << " char_xor: " << char_xor << " CMPT: " << i << endl;
+        result += char_xor;
+        if(char_xor.at(0) == ' ')
+        {cout <<"erro"<<endl;}
+        
+        cout <<" \n" << endl;
 
-    return result;
+    }
+
+    cout << "-------------___>"<< result <<"<-------" << endl;
+    system("PAUSE");
+    system("cls");
     
+    return result;
+}
+s
 /*
 Source: 
 - https://www.cprogramming.com/tutorial/xor.html
 - https://github.com/KyleBanks/XOREncryption/blob/master/C%2B%2B/main.cpp
 */
-}
 
-string decryptData(string data)
-{
-    string result;
-    return result;
-    ;
-}
+
 
 int main()
 {   
@@ -48,8 +54,15 @@ int main()
 
         cout <<"data: ";getline(cin, input);
         string data_encrypted = XORData(input);
-        cout << data_encrypted << endl;
-        cout << XORData(data_encrypted) << endl;
+        
+       
+
+        ///cout << XORData(data_encrypted) << endl;
     }
     return 0;
 }
+/*
+Source:
+https://stackoverflow.com/questions/1135186/whats-wrong-with-xor-encryption
+
+*/

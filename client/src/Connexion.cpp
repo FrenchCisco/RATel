@@ -216,7 +216,7 @@ Once the function is finished send "\r\n" to signal to the server that the clien
     int len_data = data.length();
     float nb_d_envoi =  float(len_data)  / float(BUFFER_LEN);
     int i=0;
-
+    int size_all_data = 0;
     string end = "\r\n"; //END CONNECTION.
     string request = "";
 
@@ -238,12 +238,14 @@ Once the function is finished send "\r\n" to signal to the server that the clien
                 //cout <<i <<": ----------> " << data.substr(0,BUFFER_LEN);
                 cout << "send one request" << endl;
                 cout << "before xor: " << data.substr(0,BUFFER_LEN) << endl;
-                cout << "After xor: " <<  XOREncryption(data.substr(0,BUFFER_LEN)) << endl;
+                //cout << "After xor: " <<  XOREncryption(data.substr(0,BUFFER_LEN)) << endl;
                 request = data.substr(0,BUFFER_LEN);
 
                 iResult=send(sock_client, XOREncryption(request).c_str(), request.size(), 0);
                 cout << "DATA SEND: " << iResult << endl;
                 checkSend(iResult);
+
+                size_all_data += request.size();
             }
             else
             {
@@ -251,29 +253,39 @@ Once the function is finished send "\r\n" to signal to the server that the clien
 
                 iResult=send(sock_client, XOREncryption(request).c_str() ,request.size(), 0);
                 checkSend(iResult);
+
+                size_all_data += request.size();
             }
+
             if(int(nb_d_envoi)==i && is_modulo == false) //#!
             {
                 cout << "no modulo:" << endl;
                 request = data.substr(BUFFER_LEN*i);
                 iResult=send(sock_client, XOREncryption(request).c_str(), request.size() , 0);
                 checkSend(iResult);
+
+                size_all_data += request.size();
             }
+            if(i>1)
+            {Sleep(400);} //For secure send
         }
     }
     else
     {
-        cout <<"\n\nattenD: " <<XOREncryption(data) << endl;
+        //cout <<"\n\nattenD: " <<XOREncryption(data) << endl;
         iResult = send(sock_client, XOREncryption(data).c_str(), data.size(),0);
         checkSend(iResult);
+        size_all_data += data.size();
     }
     
-    cout << "NB request: " << i << endl;
-
+    cout << "\nNB request: " << i << endl;
+    cout << size_all_data << endl;
     iResult=send(sock_client,XOREncryption(end).c_str(),2,0); // send end communication.
-    cout <<"STOP SEND" << endl;
+
     checkSend(iResult);
-    cout << "\n\n\n\n" << endl;
+
+    cout <<"STOP SEND" << endl;
+    cout << "\n\n" << endl;
     ////cout << "send ok " <<endl;
 }
 

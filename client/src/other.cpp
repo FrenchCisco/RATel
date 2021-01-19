@@ -100,11 +100,11 @@ void sendUltraSafe(int sock, string data) //Just for HandShake or reconnect | !!
     cout << "\n\n\n" << endl;
 }
 
-string XOREncryption(string data, bool decrypt_or_encrypt) //Do not use strlen on XOREncryption
+string XOREncryption(string data) //Do not use strlen on XOREncryption
 {
     string result;
     string char_xor;
-    const char key[] = "juan";
+    string key = XOR_KEY;
 
    // cout << "Before encrypt: "<< data << " <-----" << endl;
     //cout << "in XOREncryption !" << endl;
@@ -112,25 +112,13 @@ string XOREncryption(string data, bool decrypt_or_encrypt) //Do not use strlen o
     {
         return result;
     }
-
+    //cout << key << endl;
+    //cout << "size key: " << key.size() << endl;
+    //cout << "size data: " << data.size() << endl;
     for(int i=0;i<data.size(); i++)
     {
-        
-        char_xor = data.at(i)^key[i % strlen(key)];
-        
-        if(data.at(i) == ' ' || char_xor.at(0) == ' ')
-        {
-            cout << i % strlen(key) << endl;
-            cout << key[i % strlen(key)] << endl;
-            result += " ";
-            cout << "\n\n" << endl;
-        }
-        else
-        {
-            char_xor += data.at(i)^key[i % strlen(key)];
-        }
-        cout << "crypt: " << result.at(i)<<" uncrypt: "<< data.at(i) << " cmpt: " << i << endl;
-        result += char_xor;
+        char_xor = data.at(i)^key[i % key.size()];
+        result += char_xor;   
     }
 
     return result;

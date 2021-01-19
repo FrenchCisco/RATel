@@ -2,3 +2,4 @@ colorama
 PTable
 readline
 pyreadline
+backports.pbkdf2

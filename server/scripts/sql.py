@@ -10,13 +10,10 @@ sqlite3
 class Sql:
     
     def __init__(self,name_db, name_file_table, name_table):
-        print("CONSTRUCTOR: \n\n")
+
         self.name_db = name_db 
         self.name_file_table = name_file_table #The ratel table file name
         self.name_table = name_table
-        print("name: ", name_db)
-        print("name file table: ", name_file_table)
-        print("Name table: ", name_table)
         self.conn = self.setConnection() #self.setConnection()
         self.cursor = self.setCursor() # self.setCursor()
         self.setDB()

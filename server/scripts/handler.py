@@ -6,22 +6,25 @@ import os
 from .other import printColor
 
 from .other import XOREncryption
+from .other import generate_PBKDF2_key
 from .sql import Sql
 from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN,NB_SELECT ,SOCK_TIMEOUT, SPLIT 
 
 
 
 class Handler(threading.Thread):
+    '''
+    This class allows to manage the incoming connection, 
+    it also has class attributes that are essential to the RATEL project such as dict_conn, number_conn, status_connection_display, etc...
+    '''
     #Manage incoming connections with a thread system
     dict_conn={}# dict of list | dict = socket,address  Stores all socket, ip, port and connection health status.
     number_conn=0  #count number of connexions
-    status_connection_display = True 
+    status_connection_display = True  #If this class attribute is true then all new connections will be displayed on the screen. 
+    PBKDF2_Key = None #Generates the key to encrypt and decrypt data using the XOR algorithm.
     start_handler = False
 
-#    ptable = PrettyTable() #Ascii tables dynamic.
-#    ptable.field_names =["Session","IP","Port","Is he alive"] #append title of row.
-
-    def __init__(self,host,port,display, ObjSql):
+    def __init__(self,host,port,display, ObjSql,password):
 
         threading.Thread.__init__(self)
         self.port = port 
@@ -30,6 +33,7 @@ class Handler(threading.Thread):
         self.display = display
         self.ObjSql = ObjSql
         
+        Handler.PBKDF2_Key = generate_PBKDF2_key(password)
 
     def initialization(self):
         """
@@ -166,7 +170,7 @@ The client first sends this information, then the server sends the parameters as
         else:   
             try:
                 print("SEND confirmation in recvultrasafe.")
-                self.conn.send(XOREncryption("\r\n").encode())
+                self.conn.send(XOREncryption("\r\n",Handler.PBKDF2_Key).encode())
             except Exception:
                 printColor("error", "[-] Error in recvUltraSafe when confirming.")
  
@@ -191,7 +195,7 @@ The client first sends this information, then the server sends the parameters as
 
         while True:
             data = self.recvUltraSafe()
-            data = XOREncryption(data)
+            data = XOREncryption(data,Handler.PBKDF2_Key)
             
             print("DATA IN LOOP____>",data, "<------")
 
