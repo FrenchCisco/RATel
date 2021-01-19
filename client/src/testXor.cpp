@@ -19,14 +19,18 @@ string XORData(string data)
     //cout << "size: " << sizeof(key) << endl;
     for(int i=0;i<data.size(); i++)
     {
-        result += data.at(i)^key[i];
-
+        result += data.at(i)^key[i % strlen(key)];
     }
     cout << "result: " << result << endl;
     cout << result.size() << endl;
 
     return result;
-//Source: https://www.cprogramming.com/tutorial/xor.html
+    
+/*
+Source: 
+- https://www.cprogramming.com/tutorial/xor.html
+- https://github.com/KyleBanks/XOREncryption/blob/master/C%2B%2B/main.cpp
+*/
 }
 
 string decryptData(string data)
@@ -43,9 +47,9 @@ int main()
         string input="";
 
         cout <<"data: ";getline(cin, input);
-        string data_encrypted = encryptData(input);
+        string data_encrypted = XORData(input);
         cout << data_encrypted << endl;
-        encryptData(data_encrypted);
+        cout << XORData(data_encrypted) << endl;
     }
     return 0;
 }

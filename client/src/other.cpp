@@ -31,12 +31,12 @@ string getPath()
 }
 
 
-void sendUltraSafe(int sock, string data) //Just for HandShake or reconnect
+void sendUltraSafe(int sock, string data) //Just for HandShake or reconnect | !!! Use XOREncryption !!!
 {
     int len_send=0;
     int len_recv=0;
     char buffer[BUFFER_LEN];
-    string result;
+    string result,tmp;
     timeval timeout;
 
 
@@ -46,8 +46,10 @@ void sendUltraSafe(int sock, string data) //Just for HandShake or reconnect
         cout << "Clean buffer in sendUltrasafe " << endl;
         memset(buffer, 0, sizeof(buffer));
     }
-
-    len_send = send(sock, data.c_str(), strlen(data.c_str()), 0);
+    cout << "strlen: "<< strlen(data.c_str()) << endl;
+    cout << "size: " << data.size() << endl;
+    
+    len_send = send(sock, data.c_str(), strlen(data.c_str()), 0); /// !!!warning !! 
     cout << "SEND IN ULTRASAE \n" << endl;
     if(len_send == SOCKET_ERROR)
     {
@@ -61,7 +63,6 @@ void sendUltraSafe(int sock, string data) //Just for HandShake or reconnect
         FD_ZERO(&fds);
         FD_SET(sock, &fds);
 
-
         timeout.tv_sec = TIMEOUT_SOCK;
         timeout.tv_usec = 0;
 
@@ -69,7 +70,8 @@ void sendUltraSafe(int sock, string data) //Just for HandShake or reconnect
         if(selectSock > 0)
         {
             len_recv = recv(sock, buffer, sizeof(buffer), 0);
-            result.append(buffer, len_recv);
+            tmp = buffer;
+            result.append(XOREncryption(tmp), len_recv);
             //cout << "buffer in sendultrasafe: " << result << endl;
             //cout << "Buffer len sendultrasafe: " << result.length() << "|"<< strlen("confirmation") << endl;
 
@@ -93,23 +95,22 @@ void sendUltraSafe(int sock, string data) //Just for HandShake or reconnect
     
 }
 
-string XORData(string data)
+string XOREncryption(string data)
 {
-    
     string result;
-    
+    const char key[] = "juan";
+
+    cout << "Before encrypt: "<< data << " <-----" << endl;
+    cout << "size data" << endl;
     if(data.empty())
     {
         return result;
     }
-    
+
     for(int i=0;i<data.size(); i++)
-    {
-        result += data.at(i)^KEY_XOR[i];
-    }
-    //cout << "result: " << result << endl;
-    cout << result.size() << endl;
+    {result += data.at(i)^key[i % strlen(key)];}
 
     return result;
-//Source: https://www.cprogramming.com/tutorial/xor.html
-}
+
+}//Source: https://www.cprogramming.com/tutorial/xor.html
+

@@ -3,8 +3,9 @@ import threading
 import time
 import socket
 import os
-import binascii
 from .other import printColor
+
+from .other import XOREncryption
 from .sql import Sql
 from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN,NB_SELECT ,SOCK_TIMEOUT, SPLIT 
 
@@ -124,7 +125,7 @@ The client first sends this information, then the server sends the parameters as
         self.address = address
         self.ObjSql = ObjSql
 
-
+    '''
     def sendUltraSafe(self, data):
         
         try:
@@ -148,6 +149,7 @@ The client first sends this information, then the server sends the parameters as
                     pass
         
         self.conn.settimeout(None)
+    '''
 
 
     def recvUltraSafe(self):
@@ -164,7 +166,7 @@ The client first sends this information, then the server sends the parameters as
         else:   
             try:
                 print("SEND confirmation in recvultrasafe.")
-                self.conn.send(b"\r\n")
+                self.conn.send(XOREncryption("\r\n").encode())
             except Exception:
                 printColor("error", "[-] Error in recvUltraSafe when confirming.")
  
@@ -185,15 +187,21 @@ The client first sends this information, then the server sends the parameters as
         name_user = "UNKNOWN"
         token = "UNKNOWN"
 
+        max_error = 0 #if max error > 4 stop  loop while. 
+
         while True:
             data = self.recvUltraSafe()
+            data = XOREncryption(data)
+            
+            print("DATA IN LOOP____>",data, "<------")
+
             #print(data)
             if(data == "\r\n"):
                 print("Stop recvFirstInfo")
                 break
-
+           
             tmp = data.split(SPLIT)
-
+            print("\nSPLIT: ",tmp,"\n")
             if(tmp[0]=="MOD_RECONNECT"): #A changer ! MOD_RECONNECT True | TOKEN fdsafafsdfsadf3454sdfasdf5
                 print("MOD RECONNECT DETECT")
                 token = tmp[1]
@@ -224,6 +232,13 @@ The client first sends this information, then the server sends the parameters as
             else:
                 printColor("error","[-] An error occurred during handshake mode.")
                 printColor("error","[-] Information may be recorded as UNKNOWN.\n")
+                
+                if(max_error > 4): #4 error max
+                    printColor("error","TROP DERREUR TA MERE")
+                    break
+                else:
+                    max_error +=1 
+                
 
 
         #append data in dict
@@ -239,24 +254,15 @@ The client first sends this information, then the server sends the parameters as
             list_info.append(token)
             return list_info
 
-
+    '''
     def sendParameterOfClient(self): #NOT USE
         #?????????
-        '''
-        if(self.auto_persistence):
-            self.sendUltraSafe("MOD_HANDSHAKE_AUTO_PERSISTENCE"+SPLIT+"True")
-            #print(" SEND MOD_HANDSHAKE_AUTO_PERSISTENCE | True")
-        
-        else:
-            self.sendUltraSafe("MOD_HANDSHAKE_AUTO_PERSISTENCE"+SPLIT+"False")
-            #print("SEND MOD_HANDSHAKE_AUTO_PERSISTENCE | False") 
-        '''
         #print("SEND TOKEN")
         #time.sleep(0.3)
         self.sendUltraSafe("\r\n") #end echange.
         
         #print("FINISH handshake")
-
+    '''
 
     def run(self):
 

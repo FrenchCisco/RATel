@@ -51,7 +51,8 @@ void HandShake::startHandShake()
 {
     // ' SPLIT ' for split data in python server.py script
     string is_admin;
-    
+    string end = "\r\n";
+
     cout << "\n\nSOCKET STARTHAND: " << a_sock << endl;
     if(a_is_admin)
     {
@@ -70,16 +71,21 @@ void HandShake::startHandShake()
     string path_prog = "MOD_HANDSHAKE_PATH_PROG" SPLIT + a_location_prog;
     string name_user = "MOD_HANDSHAKE_NAME_USER"  SPLIT + a_name_user;
     string token = "MOD_HANDSHAKE_TOKEN" SPLIT + a_token;
-    
-    sendUltraSafe(a_sock, is_admin);
+   
+    sendUltraSafe(a_sock, XOREncryption(is_admin));
     cout << "send admin" << endl;
-    sendUltraSafe(a_sock,path_prog);
+    
+    sendUltraSafe(a_sock, XOREncryption(path_prog));
     cout << "path prog " << endl;
-    sendUltraSafe(a_sock,name_user);
+     cout << "strlen before encrypt path prog: " << strlen(path_prog.c_str()) << endl;
+     cout << "size before encrypt path prog: " << path_prog.size() << endl;
+    sendUltraSafe(a_sock,XOREncryption(name_user));
     cout << "name user" << endl;
-    sendUltraSafe(a_sock,token);
+    
+    sendUltraSafe(a_sock,XOREncryption(token));
     cout << "tokken" << endl;
-    sendUltraSafe(a_sock,"\r\n"); //GOOD  !
+    
+    sendUltraSafe(a_sock,XOREncryption(end)); //GOOD  !
     //send(a_sock, "\r\n", strlen("\r\n"),0); NOT GOOD !!!
     cout << "[++] HandShakee send all data. " << endl;
 //010101010100101010101010101001010101010010101001010101011101010100101010100101010101010010101010101010100101

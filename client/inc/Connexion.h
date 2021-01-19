@@ -14,7 +14,7 @@ public:
 
     int main(bool is_admin, string path_prog); //Main function of client. #3
     void sendSafe(string command); //send data and manage errors
-    void recvSafe(string &result,int i); //receives the data and manages possible errors. 
+    string recvSafe(int i); //receives the data and manages possible errors.  and return result
     void checkSend(int &iResult);
      
     void reConnect(); //re connection to the server in case of problem.

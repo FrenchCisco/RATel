@@ -30,6 +30,8 @@ parser.add_argument("-d","--display", action="store_false", default=True, help="
 parser.add_argument("-t","--time", dest="TIME", default=5, help="the number of seconds of automatic message sending to check if the connection is alive or dead.")
 #parser.add_argument("-a","--auto", action="store_true", default=False,help="if the -a or --auto parameter is added then all victims will perform persistence automatically.")
 parser.add_argument("-c","--clean", dest="CLEAN", action="store_true", default=False, help="cleans all the data in the database.")
+parser.add_argument("-k","--key", dest="KEY", default="RATEL", help="the key to encrypting and decrypting data.")
+
 try:
     argv = vars(parser.parse_args())
 
@@ -38,6 +40,7 @@ try:
     DISPLAY = bool(argv["display"])
     TIME = int(argv["TIME"])
     CLEAN = float(argv["CLEAN"])
+    KEY = str(argv["KEY"])
 
     print(os.getcwd())
 

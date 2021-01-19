@@ -7,6 +7,7 @@ from prettytable import PrettyTable
 from .handler import Handler
 from .sql import Sql
 from .other import printColor
+from .other import XOREncryption
 from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN,NB_SELECT ,SOCK_TIMEOUT
 
 
@@ -40,7 +41,7 @@ class Management(threading.Thread):
                 if(Handler.dict_conn[key][NB_ALIVE] and bool(Handler.dict_conn[key][NB_SOCKET]) and not Handler.dict_conn[key][NB_SELECT]): #If the connection is alive (True) and the socket object is active (True)
 
                     try:
-                        Handler.dict_conn[key][NB_SOCKET].send(Management.is_life.encode())
+                        Handler.dict_conn[key][NB_SOCKET].send(XOREncryption(Management.is_life).encode())
                         #print(Handler.dict_conn[key][8])
 
                     except ConnectionError as connerr: #If the connection does not answer

