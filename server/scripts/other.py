@@ -28,13 +28,13 @@ def XOREncryption(data):
         current = data[x]
         #print("CURRENT: ",current)
         #print("CMPT:",x)
-
         current_key  = key[x % len(key)]
         #print("CURRENT KEY:", current_key)
         
         result+= chr(ord(current) ^ ord(current_key))
-        print("result char xor: ",result[x],"cmpt: ",x)
+        print("char crypt: ",current,"result char xor: ",result[x],"cmpt: ",x)
     
+    #print("payload-->", result)
     return result
 
 def exec(command):

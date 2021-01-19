@@ -74,11 +74,14 @@ void HandShake::startHandShake()
    
     sendUltraSafe(a_sock, XOREncryption(is_admin));
     cout << "send admin" << endl;
-    
+
+    //01010101001010101010101010010101010101010101001010101010
+    cout << "strlen before encrypt path prog: " << strlen(path_prog.c_str()) << endl;
+    cout << "size before encrypt path prog: " << path_prog.size() << endl;
     sendUltraSafe(a_sock, XOREncryption(path_prog));
     cout << "path prog " << endl;
-     cout << "strlen before encrypt path prog: " << strlen(path_prog.c_str()) << endl;
-     cout << "size before encrypt path prog: " << path_prog.size() << endl;
+
+    
     sendUltraSafe(a_sock,XOREncryption(name_user));
     cout << "name user" << endl;
     
@@ -86,7 +89,6 @@ void HandShake::startHandShake()
     cout << "tokken" << endl;
     
     sendUltraSafe(a_sock,XOREncryption(end)); //GOOD  !
-    //send(a_sock, "\r\n", strlen("\r\n"),0); NOT GOOD !!!
     cout << "[++] HandShakee send all data. " << endl;
 //010101010100101010101010101001010101010010101001010101011101010100101010100101010101010010101010101010100101
 //010101010100101010101010101001010101010010101001010101011101010100101010100101010101010010101010101010100101

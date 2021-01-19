@@ -100,7 +100,7 @@ PROCESS_INFORMATION Exec::createChildProcess(string &command)
     bool bSuccess = FALSE; 
 
     // Mettre en place les membres de la structure PROCESS_INFORMATION. 
-    ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION));
+    ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION)); 
     // Mettre en place les membres de la structure STARTUPINFO. 
     // Cette structure spécifie les gestionnaires STDERR et STDOUT pour la redirection.
     ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
