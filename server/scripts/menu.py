@@ -82,7 +82,7 @@ class Menu:
                 session = Session(Handler.dict_conn[target][NB_SOCKET],Handler.dict_conn[target][NB_IP],Handler.dict_conn[target][NB_PORT], target) #def __init__(self,socket,ip_client,port_client,session_nb): 
                 session.main() 
                 Handler.dict_conn[target][NB_SELECT] = False
-                print("Enable target...\n")
+                #print("Enable target...\n")
             else:
                 printColor("information","[-] The target is currently offline.\n")
         else:

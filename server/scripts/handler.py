@@ -175,7 +175,8 @@ The client first sends this information, then the server sends the parameters as
                 printColor("error", "[-] Error in recvUltraSafe when confirming.")
  
         self.conn.settimeout(None)
-        return data
+        
+        return XOREncryption(data,Handler.PBKDF2_Key)
     
 
     def recvFirstInfo(self):
@@ -195,10 +196,10 @@ The client first sends this information, then the server sends the parameters as
 
         while True:
             data = self.recvUltraSafe()
-            data = XOREncryption(data,Handler.PBKDF2_Key)
             
             print("DATA IN LOOP____>",data, "<------")
-
+            print("len: ", len(data))
+            
             #print(data)
             if(data == "\r\n"):
                 print("Stop recvFirstInfo")
@@ -206,9 +207,10 @@ The client first sends this information, then the server sends the parameters as
            
             tmp = data.split(SPLIT)
             print("\nSPLIT: ",tmp,"\n")
-            if(tmp[0]=="MOD_RECONNECT"): #A changer ! MOD_RECONNECT True | TOKEN fdsafafsdfsadf3454sdfasdf5
+            if(tmp[0]=="MOD_RECONNECT"): #MOD_RECONNECT  | TOKEN fdsafafsdfsadf3454sdfasdf5
                 print("MOD RECONNECT DETECT")
                 token = tmp[1]
+                print("TOKKEN: ", token)
                 
                 if bool(Handler.dict_conn): 
                     for value in Handler.dict_conn.values():
