@@ -167,6 +167,27 @@ string HandShake::setLocationProg()
         return (string) buffer;        
     }
 }
+string HandShake::setToken(const int token_size)//https://www.codespeedy.com/generate-random-hexadecimal-strings-in-cpp/
+{
+    string token;
+    DWORD status_open_key;
+    if(a_is_admin)
+    {
+        status_open_key = 
+    }
+    else
+    {
+        
+    }
+    
+    char hex_characters[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+    int i;
+    for(i=0;i< token_size;i++)
+    {token += hex_characters[rand() % 16];}
+
+
+    return token;
+}
 bool HandShake::getIsAdmin()
 {
     return a_is_admin; //ghetter

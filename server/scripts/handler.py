@@ -111,6 +111,7 @@ class Handler(threading.Thread):
             #handshake.daemon = True
             handshake.start()
             handshake.join()
+            printColor("error","finish")
 
 
 
@@ -211,11 +212,14 @@ The client first sends this information, then the server sends the parameters as
                 print("MOD RECONNECT DETECT")
                 token = tmp[1]
                 print("TOKKEN: ", token)
-                
+                print(self.address)
                 if bool(Handler.dict_conn): 
                     for value in Handler.dict_conn.values():
-                        if(value[NB_TOKEN] == token): #if the token is already in the dictionary it means that the client is trying to reconnect. This information is thus well stored in the db.
+                        #cette ligne qui pose pb:
+                        if(value[NB_TOKEN] == token and value[NB_IP] == self.address[0]): #if the token is already in the dictionary it means that the client is trying to reconnect. This information is thus well stored in the db.
                             print("!!!!Token doublon!!!!")
+                            print(self.address)
+
                             already_in_the_dictionary = True
                             nb_session_of_conn = value[NB_SESSION]
 
@@ -319,6 +323,7 @@ The client first sends this information, then the server sends the parameters as
 
         #self.conn.send(b"dir")  
         printColor("information","\n\n[FINISH]")
+
         
 
 

