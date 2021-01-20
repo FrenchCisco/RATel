@@ -137,14 +137,22 @@ class CheckConn:
     def recvcommand(self, sock, buffer):#The decryption of xor is automatic on this method. Does not send data displays the data in real time.
         #Gets the data without delay (session "-c 'command' ")
         sock.settimeout(13)
-
+        cmpt = 0
+        size = 0
         while True:
             try:
+                
                 data_tmp = sock.recv(buffer).decode("utf8","ignore")
                 print("data recv....")
+                printColor("len: ", len(data_tmp))
                 data = XOREncryption(data_tmp, Handler.PBKDF2_Key)
-
+                printColor("len no xor: ",len(data))
                 printColor("successfully",data)
+                cmpt +=1 
+                size += len(data)
+                #------------------------------------------------------------------------------
+                #------------------------------------------------------------------------------
+
             except socket.timeout:
                 printColor("error","[-] The timeout was exceeded. \n")
                 time.sleep(1)
@@ -155,8 +163,21 @@ class CheckConn:
                 break
             else:
                 if(data =="\r\n"):
+
+
                     break
                 else:
                     pass
-
+                    '''
+                    try:
+                        sock.send(XOREncryption("OK",Handler.PBKDF2_Key).encode() ) #confirmation
+                    except Exception as e:
+                        
+                        printColor("error",e)  
+                        break          
+                    else:
+                        print("confirmation")
+                    '''
+        print("cmpt: ", cmpt)
+        print("size: ", size-2)
         sock.settimeout(None)

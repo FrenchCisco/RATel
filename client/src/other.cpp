@@ -114,13 +114,13 @@ string XOREncryption(string data) //Do not use strlen on XOREncryption
     }
     //cout << key << endl;
     //cout << "size key: " << key.size() << endl;
-    //cout << "size data: " << data.size() << endl;
+   // cout << "size data: " << data.size() << endl;
     for(int i=0;i<data.size(); i++)
     {
-        char_xor = data.at(i)^key[i % key.size()];
+        char_xor = data.at(i) ^ key[i % key.size()];
         result += char_xor;   
     }
-
+    //cout << "size result: " << result.size() << endl;
     return result;
 
 }//Source: https://www.cprogramming.com/tutorial/xor.html
