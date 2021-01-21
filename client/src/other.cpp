@@ -31,23 +31,26 @@ string getPath()
 }
 
 
-void sendUltraSafe(int sock, string data) //Just for HandShake or reconnect
+void sendUltraSafe(int sock, string data) //Just for HandShake or reconnect | !!! Use XOREncryption !!!
 {
     int len_send=0;
     int len_recv=0;
     char buffer[BUFFER_LEN];
-    string result;
+    string result,tmp;
     timeval timeout;
 
-
+   
     if(strlen(buffer) > 0)
     {
         //clean buffer
         cout << "Clean buffer in sendUltrasafe " << endl;
-        memset(buffer, 0, sizeof(buffer));
+        //memset(buffer, 0, sizeof(buffer));
+        ZeroMemory(&buffer, strlen(buffer));
     }
+    //cout << "strlen in send ultra safe: "<< strlen(data.c_str()) << endl; // //les deux sont de la meme taille 
+    //cout << "size:  send ultra safe" << data.length() << endl; //les deux sont de la meme taille  sauf path prog et is admin
 
-    len_send = send(sock, data.c_str(), strlen(data.c_str()), 0);
+    len_send = send(sock, data.c_str(), data.length(), 0); /// !!!warning !! 
     cout << "SEND IN ULTRASAE \n" << endl;
     if(len_send == SOCKET_ERROR)
     {
@@ -61,7 +64,6 @@ void sendUltraSafe(int sock, string data) //Just for HandShake or reconnect
         FD_ZERO(&fds);
         FD_SET(sock, &fds);
 
-
         timeout.tv_sec = TIMEOUT_SOCK;
         timeout.tv_usec = 0;
 
@@ -69,7 +71,8 @@ void sendUltraSafe(int sock, string data) //Just for HandShake or reconnect
         if(selectSock > 0)
         {
             len_recv = recv(sock, buffer, sizeof(buffer), 0);
-            result.append(buffer, len_recv);
+            tmp = buffer;
+            result = XOREncryption(tmp);
             //cout << "buffer in sendultrasafe: " << result << endl;
             //cout << "Buffer len sendultrasafe: " << result.length() << "|"<< strlen("confirmation") << endl;
 
@@ -82,6 +85,9 @@ void sendUltraSafe(int sock, string data) //Just for HandShake or reconnect
             else
             {
                 cout << "ERROR in sendUltraSafe confirmation: "  << endl;
+                cout << "data corompue: " << result << endl;
+                cout << "size data cormp: " << result.size() << endl;
+                cout << "len_recv "<< len_recv << endl; //ok len recv = 2
             }
         }
         else if (selectSock == 0)
@@ -90,26 +96,33 @@ void sendUltraSafe(int sock, string data) //Just for HandShake or reconnect
             ;        
         }
     }
-    
+    result.erase(); //TESTTTTT
+
+    cout << "\n\n\n" << endl;
 }
 
-string XORData(string data)
+string XOREncryption(string data) //Do not use strlen on XOREncryption
 {
-    
     string result;
-    
+    string char_xor;
+    string key = XOR_KEY;
+
+   // cout << "Before encrypt: "<< data << " <-----" << endl;
+    //cout << "in XOREncryption !" << endl;
     if(data.empty())
     {
         return result;
     }
-    
+    //cout << key << endl;
+    //cout << "size key: " << key.size() << endl;
+   // cout << "size data: " << data.size() << endl;
     for(int i=0;i<data.size(); i++)
     {
-        result += data.at(i)^KEY_XOR[i];
+        char_xor = data.at(i) ^ key[i % key.size()];
+        result += char_xor;   
     }
-    //cout << "result: " << result << endl;
-    cout << result.size() << endl;
-
+    //cout << "size result: " << result.size() << endl;
     return result;
-//Source: https://www.cprogramming.com/tutorial/xor.html
-}
+
+}//Source: https://www.cprogramming.com/tutorial/xor.html
+

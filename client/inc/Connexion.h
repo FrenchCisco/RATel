@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include "../inc/common.h"
+#include <vector>
 using namespace std;
 
 
@@ -13,8 +14,8 @@ public:
     int openConnexion(); //Connect serveur or re connect to server. 
 
     int main(bool is_admin, string path_prog); //Main function of client. #3
-    void sendSafe(string command); //send data and manage errors
-    void recvSafe(string &result,int i); //receives the data and manages possible errors. 
+    void sendSafe(vector<string> result_of_command); //send data and manage errors
+    string recvSafe(int i); //receives the data and manages possible errors.  and return result
     void checkSend(int &iResult);
      
     void reConnect(); //re connection to the server in case of problem.
@@ -22,13 +23,14 @@ public:
 
     int getSocket(); //Ghetter of socket.
 
+    void setToken(string token);
     int setAutoPeristence(); //
 
 
 
 private:
     int sock_client; //Recupere le descripteur de fichier.
-    
+    string a_token;
 };
 #endif
 

@@ -14,6 +14,7 @@ from .session import Session
 from .management import Management
 from .management import CheckConn
 from .other import printColor
+from .other import XOREncryption
 from .sql import Sql
 from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN,NB_SELECT ,SOCK_TIMEOUT
 
@@ -81,7 +82,7 @@ class Menu:
                 session = Session(Handler.dict_conn[target][NB_SOCKET],Handler.dict_conn[target][NB_IP],Handler.dict_conn[target][NB_PORT], target) #def __init__(self,socket,ip_client,port_client,session_nb): 
                 session.main() 
                 Handler.dict_conn[target][NB_SELECT] = False
-                print("Enable target...\n")
+                #print("Enable target...\n")
             else:
                 printColor("information","[-] The target is currently offline.\n")
         else:
@@ -98,7 +99,7 @@ class Menu:
                     break
                 for key in Handler.dict_conn.keys():
                     if(Handler.dict_conn[key][NB_ALIVE]):
-                        if CheckConn().sendsafe(key,Handler.dict_conn[key][NB_SOCKET],("MOD_ALL:"+forall).encode()):
+                        if CheckConn().sendsafe(key,Handler.dict_conn[key][NB_SOCKET], "MOD_ALL:"+forall):
                             printColor("information","[+] command sent to: {}:{}".format(Handler.dict_conn[key][NB_IP],Handler.dict_conn[key][NB_PORT]))
                         else:
                             printColor("information","[+] The command could not be sent to: {}:{}".format(Handler.dict_conn[key][NB_IP],Handler.dict_conn[key][NB_PORT]))

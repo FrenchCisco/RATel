@@ -20,7 +20,10 @@ int main()
 
     Handshake.setSock(Client.getSocket());
     Handshake.beforeHandShake();
-    Handshake.startHandShake();    
+    Handshake.startHandShake(); 
+
+    Client.setToken(Handshake.getToken());
+
     cout << "[+] Handshake finished..." << endl;
     
     cout << "[+] client main go " << endl;

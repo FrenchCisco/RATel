@@ -1,4 +1,11 @@
 MOD_DESTRUCTION = Stop the connection and then remove all traces on the target machine.
-MOD_PERSISTENCE = 
+
+MOD_PERSISTENCE = adds a registry key to keep control of the computer, even after a system reboot. 
+
 MOD_ALL = Send a command every connection. The customer will not return the result of the order.
+
 MOD_HANDSHAKE = First exchange with the server, the client sends the first necessary information.
+
+MOD_RECONNECT = Allows to signal to the server that the client is already connected. The server will only have to change the values and not recreate a session. 
+
+MOD_SPAWN_SHELL =  Create a shell on the remote machine. 

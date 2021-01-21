@@ -7,7 +7,8 @@
 5- Create a make file.
 6- Optimize the customer's memory management. 
 7- Create a connection management system on the client in case the server is offline. ok 
-8- Cipher data.
+8- Cipher data. ok 20/01/21
 9- make the whole program in unicode
-
-MOD_SPAWN_SHELL:
+10- Manage ipv6 connections 
+11- create a file upload/download system.
+12- Create a file encryption system on the client (like ransomware).

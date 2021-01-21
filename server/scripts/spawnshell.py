@@ -1,6 +1,6 @@
 import threading
 import socket 
-
+#from .other import XOREncryption
 
 from colorama import Fore,Style
 
@@ -31,7 +31,7 @@ class FakeCmd:
             
             inp  = input("")
             try:
-                if(inp == "exit" or inp == "-b" or inp =="--back"):
+                if(inp == "-b" or inp =="--back"):
 
                     self.sock.send(("exit"+"\n").encode())
                     FakeCmd.thread_in_progress = False

