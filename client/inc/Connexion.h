@@ -23,13 +23,14 @@ public:
 
     int getSocket(); //Ghetter of socket.
 
+    void setToken(string token);
     int setAutoPeristence(); //
 
 
 
 private:
     int sock_client; //Recupere le descripteur de fichier.
-    
+    string a_token;
 };
 #endif
 

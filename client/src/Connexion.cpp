@@ -291,11 +291,11 @@ void Connexion::reConnect()
     openConnexion();
     
     cout << "\n\n[+] Send MOD_RECONNECT to server " << endl;
-    request = ("MOD_RECONNECT" SPLIT  TOKEN);
+    request = ("MOD_RECONNECT" SPLIT  +a_token);
     cout << "REQ" << request << endl;
 
     sendUltraSafe(sock_client, XOREncryption(request)); //send token
-    cout << "[+] Send tokken to server: "<< TOKEN  << endl;
+    cout << "[+] Send tokken to server: "<< a_token  << endl;
 
     sendUltraSafe(sock_client, XOREncryption("\r\n"));
     cout << "Sendultrasafe sucess !!!" << endl;
@@ -309,3 +309,22 @@ int Connexion::getSocket()
     return sock_client;
 }
 
+void Connexion::setToken(string token)
+{
+    if(!token.empty())
+    {
+        a_token = token;
+    }
+    else
+    {
+        //if token is empty.
+        char hex_characters[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+        int i;
+
+        srand(0); 
+
+        for(i=0;i< 24 ;i++){token += hex_characters[rand()%16];}
+        a_token;
+    }
+    
+}
