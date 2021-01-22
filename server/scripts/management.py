@@ -78,7 +78,6 @@ class CheckConn:
         Returns true if the socket was sent if not retrun false if there was a problem.
         '''
         try:
-
             sock.send(XOREncryption(payload, Handler.PBKDF2_Key).encode())
         except ConnectionError as connerr: #If the connection does not answer
             if(Handler.status_connection_display):

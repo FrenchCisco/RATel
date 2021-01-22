@@ -50,8 +50,12 @@ except SystemExit:
 else:
     #print("[+] Server started.\n")
     if(CLEAN):
-        os.remove("sql/RAT-el.sqlite3")
-    
+        try:
+            os.remove("sql/RAT-el.sqlite3")
+        except Exception as e:
+            print(e)
+            pass
+        
     SqlObj = Sql("sql/RAT-el.sqlite3", "sql/table_ratel.sql", "table_ratel")
 
     handler= Handler(HOST,PORT,DISPLAY,SqlObj,PASSWORD) 

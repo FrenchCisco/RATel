@@ -31,7 +31,7 @@ class FakeCmd:
             
             inp  = input("")
             try:
-                if(inp == "-b" or inp =="--back"):
+                if(inp == "-b" or inp =="--back" or inp == "exit"):
 
                     self.sock.send(("exit"+"\n").encode())
                     FakeCmd.thread_in_progress = False

@@ -54,6 +54,7 @@ class Session:
     def executeCommand(self,cmd_list):
         '''-c'''
        # print("-->",cmd_list)
+        print("\n")
         cmd_list.pop(0) #delete "-c"
         
         tmp_cmd = " ".join(cmd_list) #list to string
@@ -80,7 +81,7 @@ class Session:
         '''--command or --powershell'''
 
         #Opens a shell on the remote machine. 
-        printColor("information","\n[?] Execute -b or --back to return to sessions mode.\n\n") 
+        printColor("information","\n[?] Execute -b or --back or exit to return to sessions mode.\n\n") 
         
         if(CheckConn().sendsafe(self.session_nb, self.socket, "MOD_SPAWN_SHELL:"+prog) ):
             FakeCmd(self.socket).main() #Run cmd
