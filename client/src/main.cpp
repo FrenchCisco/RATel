@@ -1,6 +1,6 @@
 #include "../inc/Connexion.h"
 #include "../inc/HandShake.h"
-#include <windows.h>
+
 
 
 int main()

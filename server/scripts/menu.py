@@ -55,6 +55,7 @@ class Menu:
         else:
             printColor("information","[-]The connection display is deactivated.\n")
     
+    
     def printTarget(self):
         #Print all target.
 
@@ -66,6 +67,7 @@ class Menu:
             ptable.add_row([key,Handler.dict_conn[key][NB_IP],Handler.dict_conn[key][NB_PORT],Handler.dict_conn[key][NB_ALIVE],Handler.dict_conn[key][NB_ADMIN],Handler.dict_conn[key][NB_PATH],Handler.dict_conn[key][NB_USERNAME]])
 
         print(Fore.GREEN,(ptable),Fore.BLUE)
+
 
     def selectTarget(self,target):    
         #Select target.
@@ -88,6 +90,7 @@ class Menu:
         else:
             printColor("information","[-] No target found. Please enter a valid target.\n")
     
+
     def selectAll(self):
         #Add to the start of the "MOD_ALL" command to tell the client to switch to MOD_ALL
         
@@ -110,6 +113,7 @@ class Menu:
             printColor("error","[+] No connection is enabled.\n")
         
         printColor("information", "[-] Back to menu\n")
+
 
     def main(self):
         

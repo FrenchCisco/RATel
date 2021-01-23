@@ -1,8 +1,7 @@
 #ifndef OTHER_H
 #define OTHER_H
-#include <iostream>
-#include <windows.h>
-#include <string>
+
+#include "../inc/master.h"
 
 using namespace  std;
 

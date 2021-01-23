@@ -1,9 +1,7 @@
 #ifndef PERSI_H
 #define PERSI_H
 
-#include <iostream>
-#include <string>
-
+#include "../inc/master.h"
 
 using namespace std;
 

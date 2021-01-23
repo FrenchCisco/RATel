@@ -18,15 +18,17 @@ class Sql:
         self.cursor = self.setCursor() # self.setCursor()
         self.setDB()
 
+
     def setConnection(self):
     #create a database connection to a SQLite database 
         conn = None
         try:
-            print(self.name_db)
+           
             conn = sqlite3.connect(self.name_db, check_same_thread=False) #https://stackoverflow.com/questions/48218065/programmingerror-sqlite-objects-created-in-a-thread-can-only-be-used-in-that-sa/60902437
-            print(conn)
+          
         except sqlite3.Error as e:
-            print("setConnection: ",e)
+            printColor("error","setConnection: {}".format(e))
+            
         finally:
             return conn
 
@@ -43,6 +45,7 @@ class Sql:
 
     def closeConn(self):
         self.conn.close()
+
 
     def readFile(self,name_file):
         #read external file.
@@ -93,14 +96,14 @@ class Sql:
         each row in the database and store in a tuple.
         '''        
         try:
-            print("""SELECT * FROM {}""".format(self.name_table))
+            #print("""SELECT * FROM {}""".format(self.name_table))
 
             self.cursor.execute("""SELECT * FROM {}""".format(self.name_table))
             rows = self.cursor.fetchall()
             
             for row in rows: #row = tuple
                 list_of_rows.append(row)
-                print(row)
+                #print(row)
 
         except sqlite3.Error as e:
             print("Error in selectAll ",e)
@@ -119,10 +122,10 @@ class Sql:
 
     def updateValue(self, column, value, session,is_string=False):#https://www.tutorialspoint.com/sqlite/sqlite_update_query.htm
         if not(is_string):
-            print("""UPDATE {} SET {} = {} WHERE session = {} """.format(self.name_table, column, value, session))
+            #print("""UPDATE {} SET {} = {} WHERE session = {} """.format(self.name_table, column, value, session))
             self.execSqlCode("""UPDATE {} SET {} = {} WHERE session = {} """.format(self.name_table, column, value, session),True)
         else:
-            print("""UPDATE {} SET {} = "{}" WHERE session = {} """.format(self.name_table, column, value, session))
+            #print("""UPDATE {} SET {} = "{}" WHERE session = {} """.format(self.name_table, column, value, session))
             self.execSqlCode("""UPDATE {} SET {} = "{}" WHERE session = {} """.format(self.name_table, column, value, session),True)
         
         #print("[+] UPDATE OK.")
@@ -135,12 +138,13 @@ class Sql:
             #print("""SELECT {} FROM {} WHERE session = {} """.format(column, self.name_table ,session))
             self.cursor.execute("""SELECT {} FROM {} WHERE session = {} """.format(column, self.name_table ,int(session) ))
             row = self.cursor.fetchone()  #return tuple
-            print("returnValue -->",row)
+            #print("returnValue -->",row)
         except sqlite3.Error as e:
             print("Error in returnValue: ",e)
         finally:
             self.conn.commit()
             return str(row[0])
+    
     
     def returnLastSession(self):
         '''returns the last session.'''
@@ -159,7 +163,6 @@ class Sql:
 
     def setDB(self):
         '''insert code sql for create table ratel.'''
-        print("steDB gooo: ")
         self.execSqlCode(self.readFile(self.name_file_table),True) #Create table if no exists
  
 
@@ -171,10 +174,3 @@ class Sql:
             return True
         else:
             return data
-
-    
-#INSERT INTO tables_ratel(session,ip,port,is_he_alive,is_he_admin,path_RAT,username,token) VALUES(1,"8888","127.0.0.1", 1 ,0 , "C:", "cisco", "01010101");
-
-'''
-https://stackoverflow.com/questions/15415835/how-to-commit-a-update-in-raw-sql-in-python
-'''

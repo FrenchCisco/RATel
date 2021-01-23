@@ -1,9 +1,3 @@
-#include <iostream>
-#include <windows.h>
-
-#include <lmcons.h> // GetUserName UNLEN
-#include <direct.h> // _getcwd
-//#include <stdlib.h>
 
 #include "../inc/HandShake.h"
 #include "../inc/Persistence.h"

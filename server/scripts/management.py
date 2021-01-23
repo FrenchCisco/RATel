@@ -115,19 +115,23 @@ class CheckConn:
     
     def recvsafe(self,sock,buffer): #Receives a single secure data (no need for "\r\n") to finish the connection 
         
-        result = b""
+        result = ""
         sock.settimeout(SOCK_TIMEOUT)
         try:            
-            data_tmp = sock.recv(buffer).decode("uftf8","ignore")
-            result = XOREncryption(data_tmp, Handler.PBKDF2_Key)
+            data_tmp = sock.recv(buffer).decode("utf8","ignore")
+            result = XOREncryption(data_tmp, Handler.PBKDF2_Key)        
+        
         except socket.timeout:
             printColor("error", "[-] timeout in recvsafe.")
-            result = b"ERROR"
+            result = "ERROR"
+        
         except socket.timeout:
             printColor("error","[-] The timeout was exceeded. \n")
+        
         except ConnectionError as connerr:
             printColor("error", "[-] error in recvsafe: {}".format(connerr))
-            result = b"ERROR"
+            result = "ERROR"
+        
         finally:
             sock.settimeout(None)
             return result #empty return
@@ -136,8 +140,8 @@ class CheckConn:
     def recvcommand(self, sock, buffer):#The decryption of xor is automatic on this method. Does not send data displays the data in real time.
         #Gets the data without delay (session "-c 'command' ")
         sock.settimeout(13)
-        cmpt = 0
-        size = 0
+        #cmpt = 0
+        #size = 0
 
         while True:
             try:
@@ -147,10 +151,8 @@ class CheckConn:
                 data = XOREncryption(data_tmp, Handler.PBKDF2_Key)
                 printColor("successfully",data)
                 
-                cmpt +=1 
-                size += len(data)
-                #------------------------------------------------------------------------------
-                #------------------------------------------------------------------------------
+                #cmpt +=1 
+                #size += len(data)
 
             except socket.timeout:
                 printColor("error","[-] The timeout was exceeded. \n")
@@ -167,6 +169,5 @@ class CheckConn:
                 else:
                     pass
 
-        print("cmpt: ", cmpt)
-        print("size: ", size-2)
+
         sock.settimeout(None)

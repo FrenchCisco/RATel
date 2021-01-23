@@ -1,7 +1,7 @@
 #ifndef HANDSHAKE_H
 #define HANDSHAKE_H
-#include <iostream>
-#include <windows.h>
+
+#include "../inc/master.h"
 
 using namespace  std;
 
@@ -57,8 +57,6 @@ Sends the primary information when the client connects.
         string a_current_directory; //Location of programme execute.
         string a_location_prog; //Location of the program once moved or not moved
         string a_token;
-
-        timeval a_timeout;
     
         int a_sock;
 };

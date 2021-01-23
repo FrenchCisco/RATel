@@ -1,14 +1,6 @@
 #include "../inc/other.h"
 #include "../inc/common.h"
 
-#include <iostream>
-#include <stdio.h>
-#include <string>
-#include <windows.h>
-#include <direct.h> //_chdir
-
-
-
 
 int changeDirectory(string path)
 {

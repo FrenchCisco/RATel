@@ -1,10 +1,8 @@
 #ifndef EXEC_H
 #define EXEC_H
 
-#include <iostream>
-#include <string>
-#include <windows.h>
-#include <vector>
+#include "../inc/master.h"
+
 using namespace std;
 
 

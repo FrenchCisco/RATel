@@ -1,9 +1,8 @@
 #ifndef CONNEXION_H
 #define CONNEXION_H
 
-#include <iostream>
-#include "../inc/common.h"
-#include <vector>
+#include "../inc/master.h"
+
 using namespace std;
 
 
