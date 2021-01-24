@@ -3,3 +3,4 @@ PTable
 readline
 pyreadline
 backports.pbkdf2
+s

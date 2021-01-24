@@ -12,6 +12,7 @@ int changeDirectory(string path)
     return 0;
 }
 
+
 string getPath()
 {
     char* buffer;
@@ -39,15 +40,12 @@ void sendUltraSafe(int sock, string data) //Just for HandShake or reconnect | !!
         //memset(buffer, 0, sizeof(buffer));
         ZeroMemory(&buffer, strlen(buffer));
     }
-    //cout << "strlen in send ultra safe: "<< strlen(data.c_str()) << endl; // //les deux sont de la meme taille 
-    //cout << "size:  send ultra safe" << data.length() << endl; //les deux sont de la meme taille  sauf path prog et is admin
 
     len_send = send(sock, data.c_str(), data.length(), 0); /// !!!warning !! 
-    cout << "SEND IN ULTRASAE \n" << endl;
     if(len_send == SOCKET_ERROR)
     {
         //error
-        cout << "error " << endl;
+        ;
     }
     else
     {   
@@ -65,22 +63,13 @@ void sendUltraSafe(int sock, string data) //Just for HandShake or reconnect | !!
             len_recv = recv(sock, buffer, sizeof(buffer), 0);
             tmp = buffer;
             result = XOREncryption(tmp);
-            //cout << "buffer in sendultrasafe: " << result << endl;
-            //cout << "Buffer len sendultrasafe: " << result.length() << "|"<< strlen("confirmation") << endl;
 
             if(result == "\r\n")
             {
-                //;
-                cout << "\n\n[++]confirmation ok ! in sendUltraSafe" << endl;
+                ;
+                //cout << "\n\n[++]confirmation ok ! in sendUltraSafe" << endl;
             }
             
-            else
-            {
-                cout << "ERROR in sendUltraSafe confirmation: "  << endl;
-                cout << "data corompue: " << result << endl;
-                cout << "size data cormp: " << result.size() << endl;
-                cout << "len_recv "<< len_recv << endl; //ok len recv = 2
-            }
         }
         else if (selectSock == 0)
         {
@@ -88,10 +77,9 @@ void sendUltraSafe(int sock, string data) //Just for HandShake or reconnect | !!
             ;        
         }
     }
-    result.erase(); //TESTTTTT
-
-    cout << "\n\n\n" << endl;
+    result.erase(); 
 }
+
 
 string XOREncryption(string data) //Do not use strlen on XOREncryption
 {
@@ -99,21 +87,17 @@ string XOREncryption(string data) //Do not use strlen on XOREncryption
     string char_xor;
     string key = XOR_KEY;
 
-   // cout << "Before encrypt: "<< data << " <-----" << endl;
-    //cout << "in XOREncryption !" << endl;
     if(data.empty())
     {
         return result;
     }
-    //cout << key << endl;
-    //cout << "size key: " << key.size() << endl;
-   // cout << "size data: " << data.size() << endl;
+
     for(int i=0;i<data.size(); i++)
     {
         char_xor = data.at(i) ^ key[i % key.size()];
         result += char_xor;   
     }
-    //cout << "size result: " << result.size() << endl;
+
     return result;
 
 }//Source: https://www.cprogramming.com/tutorial/xor.html

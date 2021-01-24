@@ -12,7 +12,6 @@ class FakeCmd:
     def __init__(self,sock):
         self.sock = sock
 
-    
     def recvthread(self):
 
         while FakeCmd.thread_in_progress:

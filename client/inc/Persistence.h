@@ -8,6 +8,7 @@ using namespace std;
 class Persistence
 {//Change the registry key according to the user's permission.
     public:
+    
         Persistence();
         Persistence(bool is_admin,string path_prog);
         void defaultPersi(); //Create persistence with ModShell and whith the default directories.
