@@ -24,7 +24,8 @@
 #define BUFFER_LEN 4096
 #define TIMEOUT_SOCK 5 
 #define SLEEP_RECV 200 
-#define MICRO_SLEEP 100 
+#define TIMEOUT_POPEN 5000 
+#define MICRO_SLEEP 100 //micro sleep for timeout
 #define SPLIT "|SPLIT|" 
 
 
