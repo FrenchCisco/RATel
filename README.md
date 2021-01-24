@@ -8,11 +8,15 @@
 RAT-el is an open source penetration test tool that allows you to take control of a windows machine.
 It works on the client-server model, the server sends commands and the client executes the commands and sends the result back to the server. 
 The client is completely undetectable by anti-virus software.
+
 ---
+
 ## Screenshots
 ![Screenshot](https://github.com/FrenchCisco/RATel/raw/main/docs/banner.png)
 ![Screenshot](https://github.com/FrenchCisco/RATel/raw/main/docs/--list.png)
+
 ---
+
 ## Features
 
 ###### RATelServer:
@@ -35,6 +39,7 @@ The client is completely undetectable by anti-virus software.
 - Automatic client compilation
 
 ---
+
 ## Documentations
 - **Installations:**
 - **RATelServer:**
@@ -46,11 +51,15 @@ The client is completely undetectable by anti-virus software.
 ## Motivation
 I decided to create this project to improve my C++ skills, to learn new notions I didn't know and to learn English. 
 I intend to maintain and improve the project continuously by adding new features. 
+
 --- 
+
 ## informations
 If you are interested in the development of my RATel project and would like to contribute to it, please contact me by email (juanrubio.dev@gmail.com).
 If you have any ideas for features, code improvements or bugs, you can leave me a issues.
+
 ---
+
 ## Disclaimer:
 The use of this software on any device that is not yours is prohibited. If you use RATel on a machine that does not belong 
 to you, I will in no way be responsible for your actions.
