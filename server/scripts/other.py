@@ -48,6 +48,7 @@ def generate_PBKDF2_key(password, salt="CISCOTHEBOSS",iteration=10000 ,length=51
 
     return binascii.hexlify(pbkdf2_hmac("sha256", password, salt, iteration, length)).decode("utf8")
 
+
 def exec(command):
     with Popen(str(command), stdout=PIPE,stderr=PIPE,shell=True) as cmd:
         out,err = str(cmd.stdout.read(),"UTF8",errors="ignore"),str(cmd.stderr.read(),"UTF8",errors="ignore")

@@ -242,12 +242,12 @@ The client first sends this information, then the server sends the parameters as
             
             elif(tmp[0] == "MOD_HANDSHAKE_IS_ADMIN"):
                 is_admin = self.checkString(tmp[1], 10)
-
+                
             elif(tmp[0] == "MOD_HANDSHAKE_PATH_PROG"):
                 path_prog = self.checkString(tmp[1], 256) 
             
             elif(tmp[0] == "MOD_HANDSHAKE_NAME_USER"):
-                name_user = is_admin = self.checkString(tmp[1], 80)
+                name_user  = self.checkString(tmp[1], 80)
 
             elif(tmp[0]=="MOD_HANDSHAKE_TOKEN"):
                 token = self.checkString(tmp[1], 40)
@@ -287,8 +287,7 @@ The client first sends this information, then the server sends the parameters as
             if type(info) == list:
                 if(self.ObjSql.checkFileExists("sql/RAT-el.sqlite3")):
                     self.ObjSql.insertInDatabase(Handler.number_conn ,self.address[0], int(self.address[1]), True, info[0], info[1], info[2],info[3])
-                    #print("IP IN DATABASE IS: ", self.ObjSql.returnValue(Handler.number_conn, "socket"))
-                                                                                                                                                                        #select       
+                    #print("IP IN DATABASE IS: ", self.ObjSql.returnValue(Handler.number_conn, "socket"))                                                                                                                                                     #select       
                 Handler.dict_conn[Handler.number_conn] = [Handler.number_conn,self.conn, self.address[0], int(self.address[1]), True, info[0], info[1], info[2],info[3], False] #3 #True = Connexion is life 
                 Handler.number_conn+=1 #4
                 #print("type of dict_conn ----->",type(Handler.dict_conn))

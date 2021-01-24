@@ -1,6 +1,6 @@
 # RAT-el 
 
- [![Python 3.x](https://img.shields.io/badge/Language-Python3-blue.svg)](https://www.python.org/)  [![C++](https://img.shields.io/badge/Language-C++-ff69b4.svg)](https://www.cplusplus.com/) [![C++](https://img.shields.io/badge/Language-SQL-grey.svg)](https://en.wikipedia.org/wiki/SQL) 
+ [![Python 3.x](https://img.shields.io/badge/Language-Python3-blue.svg)](https://www.python.org/)  [![C++](https://img.shields.io/badge/Language-C++-ff69b4.svg)](https://www.cplusplus.com/) [![C++](https://img.shields.io/badge/Language-SQL-grey.svg)](https://en.wikipedia.org/wiki/SQL) [![Version](https://img.shields.io/badge/Version-Beta-green.svg)](https://github.com/FrenchCisco/RATel) 
 
 ---
 ## Description
@@ -19,14 +19,14 @@ The client is completely undetectable by anti-virus software.
 
 ## Features
 
-###### RATelServer:
+###### **RATelServer**:
 - Multiple Connections 
 - Broadcast commands to all clients 
 - Stores client informations in the database
 - Encryption of data on the network via XOR 
 - Token management system to identify clients
 
-###### Client: 
+###### **Client**: 
 - Encryption of data send over the network 
 - Startup persistence 
 - Remote command execution via CMD 
@@ -35,7 +35,7 @@ The client is completely undetectable by anti-virus software.
 - Automatic persistence when running the client 
 - Automatic reconnection  
 
-######  RATelGenerator:
+######  **RATelGenerator**:
 - Automatic client compilation
 
 ---
@@ -43,7 +43,7 @@ The client is completely undetectable by anti-virus software.
 ## Documentations
 - **Installations:**
 - **RATelServer:**
-- **RATelGenerato:r**
+- **RATelGenerator:**
 - **Simple usage:**
 - **Advanced usage:**
 ---
