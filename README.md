@@ -1,17 +1,15 @@
 # RAT-el 
 
----
  [![Python 3.x](https://img.shields.io/badge/Language-Python3-blue.svg)](https://www.python.org/)  [![C++](https://img.shields.io/badge/Language-C++-ff69b4.svg)](https://www.cplusplus.com/) [![C++](https://img.shields.io/badge/Language-SQL-grey.svg)](https://en.wikipedia.org/wiki/SQL) 
 
 ## Description
----
+
 RAT-el is an open source penetration test tool that allows you to take control of a windows machine.
 It works on the client-server model, the server sends commands and the client executes the commands and sends the result back to the server. 
 The client is completely undetectable by anti-virus software.
----
+
 ## Screenshots
 ![Screenshot](https://github.com/FrenchCisco/RATel/raw/main/docs/banner.png)
-![Screenshot](https://github.com/FrenchCisco/RATel/raw/main/docs/client.png)
 ![Screenshot](https://github.com/FrenchCisco/RATel/raw/main/docs/--list.png)
 ---
 ## Features
