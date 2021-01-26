@@ -46,8 +46,8 @@ The client is completely undetectable by anti-virus software.
     - [Linux Installation](https://github.com/FrenchCisco/RATel/wiki/Windows-Installation-Tutorial)
 - **RATelServer:**
     - [Arguments RATelServer](https://github.com/FrenchCisco/RATel/wiki/Documentation-RATelServer-Argument)
-    - [**Usage RATelServer**](https://github.com/FrenchCisco/RATel/wiki/Usage--RATelServer)
-- **RATelGenerator:**
+    - [Usage RATelServer](https://github.com/FrenchCisco/RATel/wiki/Usage--RATelServer)
+- [RATelGenerator](https://github.com/FrenchCisco/RATel/wiki/Usage-RATelGenerator)
 - **Simple usage:**
 - **Advanced usage:**
 ---
@@ -58,7 +58,7 @@ I intend to maintain and improve the project continuously by adding new features
 
 --- 
 
-## informations
+## Informations
 If you are interested in the development of my RATel project and would like to contribute to it, please contact me by email (juanrubio.dev@gmail.com).
 If you have any ideas for features, code improvements or bugs, you can leave me a issues.
 
