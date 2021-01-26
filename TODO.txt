@@ -4,7 +4,7 @@
 2- Create a log system. 
 3- Create an anti reverse engineering system.
 4- Create a network sniffer mode on the client.
-5- Create a make file.
+5- créer un system de suppression de toutes les traces du client 
 6- Optimize the customer's memory management. 
 7- Create a connection management system on the client in case the server is offline. ok 
 8- Cipher data. ok 20/01/21

@@ -91,7 +91,6 @@ class GeneratePayload:
             out,err = str(cmd.stdout.read(),"UTF8",errors="ignore"),str(cmd.stderr.read(),"UTF8",errors="ignore")
             if not err:
                 print(out)
-
                 
             else:
                 other.printColor("error","[-] An error is triggered when compiling the RAT.")

@@ -140,7 +140,7 @@ class CheckConn:
     
     def recvcommand(self, sock, buffer):#The decryption of xor is automatic on this method. Does not send data displays the data in real time.
         #Gets the data without delay (session "-c 'command' ")
-        sock.settimeout(13)
+        sock.settimeout(20)
         #cmpt = 0
         #size = 0
 

