@@ -12,8 +12,8 @@ The client is completely undetectable by anti-virus software.
 ---
 
 ## Screenshots
-![Screenshot](https://github.com/FrenchCisco/RATel/raw/main/docs/pics/banner.png)
-![Screenshot](https://github.com/FrenchCisco/RATel/raw/main/docs/pics/--list.png)
+![Screenshot](https://i.postimg.cc/nzQpd7Ps/banner.png)
+![Screenshot](https://i.postimg.cc/5yd1D0hs/list.png)
 
 ---
 
@@ -43,9 +43,10 @@ The client is completely undetectable by anti-virus software.
 ## Documentations
 - **Installations:** 
     - [Windows Installation](https://github.com/FrenchCisco/RATel/wiki/Windows-Installation-Tutorial)
-    - [Linux Installation]
-    
+    - [Linux Installation](https://github.com/FrenchCisco/RATel/wiki/Windows-Installation-Tutorial)
 - **RATelServer:**
+    - [Arguments RATelServer](https://github.com/FrenchCisco/RATel/wiki/Documentation-RATelServer-Argument)
+    - **Command RATelServer**
 - **RATelGenerator:**
 - **Simple usage:**
 - **Advanced usage:**

@@ -35,12 +35,11 @@ class Menu:
         printColor("help","""
  -h or --help : Displays all server commands.
 
- -t X  or --target X : Selects a victim to be able to execute RAT commands. 
- Example: -t 10 | start session 10. Execute --list to list all sessions.
+ -t session_id  or --target session_id : Selects a session (client) to be able to execute commands (mod session). 
 
- -ls or --list : List all sessions connected to the server.
+ -ls or --list : Displays all clients with their information.
 
- -sa or --selectAll : Start a session with all targets.
+ -sa or --selectAll : Start a session with all targets (mod broadcast).
 
  -cde or --connectionDisplayEnable : Activate the display of client information (Logoff and incoming connection).
 
@@ -78,6 +77,7 @@ class Menu:
         '''
 
         if(target in Handler.dict_conn.keys()):
+            printColor("information","[+] MOD SESSION")
             printColor("information","[+] Selected session: {}".format(Handler.dict_conn[target][NB_SESSION]))
             if(Handler.dict_conn[target][NB_ALIVE]):
                 Handler.dict_conn[target][NB_SELECT] = True
@@ -89,15 +89,17 @@ class Menu:
                 printColor("information","[-] The target is currently offline.\n")
         else:
             printColor("information","[-] No target found. Please enter a valid target.\n")
-    
+
+        printColor("information","[?] MOD MAIN\n")
 
     def selectAll(self):
         #Add to the start of the "MOD_ALL" command to tell the client to switch to MOD_ALL
         
         if len(Handler.dict_conn) != 0:
+            printColor("information","[?] MOD BROADCAST")
             printColor("help","[?] Execute -b or --back to return to sessions mode.\n") 
             while True:
-                forall = str(input("AllTarget>"))
+                forall = str(input("broadcast>"))
                 if(forall == "--back" or forall == "-b"):
                     break
                 for key in Handler.dict_conn.keys():

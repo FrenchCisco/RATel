@@ -100,7 +100,10 @@ class Handler(threading.Thread):
                 print("\n")
                 
         Handler.start_handler = True #You can start the management 
+        
         self.sock_server.listen(10)
+        printColor("information","[+] the server listens on the port {}".format(self.port))
+
         while True:               
             
             try:
@@ -221,8 +224,6 @@ The client first sends this information, then the server sends the parameters as
                         if(target[NB_TOKEN] == token and target[NB_IP] == self.address[0]): #if the token is already in the dictionary it means that the client is trying to reconnect. This information is thus well stored in the db.
                             #print("!!!!Token doublon!!!!")
                             
-                            if(Handler.status_connection_display):
-                                printColor("information","[+] a client is trying to reconnect to the server: session: {} {}:{}\n".format(target[0],self.address[0],self.address[1]) )
                             
                             if not (target[NB_ALIVE]): #if target is not already alive:
                                 '''
@@ -233,6 +234,10 @@ The client first sends this information, then the server sends the parameters as
                                 '''
                                 already_in_the_dictionary = True
                                 nb_session_of_conn = target[NB_SESSION]
+                            
+                                if(Handler.status_connection_display):
+                                    printColor("information","[+] a client is trying to reconnect to the server: session: {} {}:{}\n".format(target[0],self.address[0],self.address[1]) )
+                            
                             else:        
                                 pass
 

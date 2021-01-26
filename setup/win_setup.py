@@ -60,7 +60,7 @@ def setup_windows():
 
     result_command = exec("py -c \"print('test')\" ")
     if(result_command[0]):
-        print("[+] Pythn3 is well installed on the machine.\n")
+        print("[+] Python3 is well installed on the machine.\n")
     else:
         print(result_command[1])
         print("[-] Python3 is not installed on the machine. You need to install Python3. You can follow the Windows installation tutorial at https://github.com/FrenchCisco/RATel/wiki/Windows-Installation-Tutorial")
