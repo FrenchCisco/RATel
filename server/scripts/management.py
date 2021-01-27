@@ -14,7 +14,7 @@ from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMI
 class Management(threading.Thread):
     is_life = "is_life?" 
     """
-    Send is life.
+    Send is life. (ping)
     If the customer responds when he wants.
     if the client does not respond then an exception is declared and management puts inactive status (dead) via CheckConn
     """
@@ -141,7 +141,7 @@ class CheckConn:
     def recvcommand(self, sock, buffer):#The decryption of xor is automatic on this method. Does not send data displays the data in real time.
         #Gets the data without delay (session "-c 'command' ")
         sock.settimeout(20)
-        #cmpt = 0
+        cmpt = 0
         #size = 0
 
         while True:
@@ -152,9 +152,9 @@ class CheckConn:
                 data = XOREncryption(data_tmp, Handler.PBKDF2_Key)
                 printColor("successfully",data)
                 
-                #cmpt +=1 
+                cmpt +=1 
                 #size += len(data)
-
+                print(cmpt)
             except socket.timeout:
                 printColor("error","[-] The timeout was exceeded. \n")
                 time.sleep(1)

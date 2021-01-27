@@ -5,7 +5,7 @@
 
 int main()
 {
-    ShowWindow(GetConsoleWindow(),SW_HIDE);
+    //ShowWindow(GetConsoleWindow(),SW_HIDE);
 
     Connexion Client; 
     HandShake Handshake;

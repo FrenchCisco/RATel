@@ -118,6 +118,8 @@ PROCESS_INFORMATION Exec::createChildProcess(string &command)
     {
         //if timeout
         a_timeout = TRUE;
+        cout << "timeout !!" << endl; 
+        //system("pause");
     }
 
     CloseHandle(a_hChildStd_ERR_Wr);
@@ -143,50 +145,50 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
 
     string out,err;
     vector<string> result;
+    
     while(true)
     {
-        if(!ReadFile(a_hChildStd_OUT_Rd, chBuf, BUFSIZE,&dwRead,NULL))
+        if(!ReadFile(a_hChildStd_OUT_Rd, &chBuf, BUFSIZE,&dwRead,NULL))
         {
-            //cout << "Error in read pipe childen out" << endl;
+            cout << " readFromPipe Error in read pipe childen out" << endl;
             break;
         }
-        // Check for EOF reached
-        if(dwRead == 0)
-        {
-            //cout << "OEF FIND !!" << endl;
-            break;
-        }
+        /*
+        IF I don't display the chBuf, the size of the buffer and from 10 to 50 .
+        This makes my program crash because if there is a lot of data in the result of the command, it is very problematic.
 
+        But if I display the chBuf the buffer size is 4096.
+        I don't understand where the problem comes from. 
+        */
+
+        cout << "IN readFromPipe chBuf: " << sizeof(chBuf) <<  endl;
+        cout << "IN readFromPipe size dwRead: "<< dwRead << endl;
+       
         string s(chBuf, dwRead);
 
         result.push_back(s);
-
+        result.push_back("------------------------------------------------------------------------------------------");
         ZeroMemory(&chBuf,strlen(chBuf));
+        s.erase();
     }
-    
+
     ZeroMemory(&chBuf,strlen(chBuf));
     
+    //read stderr
+    cout << "-------------------------------------\n\n" << endl;
     while (true)
     {
         if(!ReadFile(a_hChildStd_ERR_Rd, chBuf, BUFSIZE,&dwRead,NULL))
         {
-            //cout << "Error in read pipe childen out " << endl;
-            break;
-        }
-        // Check for EOF reached
-        if(dwRead == 0)
-        {
-            //cout << "OEF FIND !!" << endl;
+            cout << "stderr: Error in read pipe childen out " << endl;
             break;
         }
 
-        cout << dwRead << endl;
         string s(chBuf, dwRead);
 
         result.push_back(s);
         
         ZeroMemory(&chBuf,strlen(chBuf));
-
     }
     
     return result;
@@ -214,6 +216,7 @@ vector<string> Exec::executeCommand(string command)
         else if(a_timeout) //If the command has passed the timeout then don't read the pipes and try to kill the process that is causing the problem. 
         {
             //test if the process is stuck:
+            cout << "TIMEOUT!!!!" << endl;
             vector<DWORD> pids = returnPid((command.substr(0, command.find(" ")))+".exe"); //list all pid
             
             if(!pids.empty()) //if the number of pid found is different from 0 then it means that there are several times the same process
@@ -231,6 +234,7 @@ vector<string> Exec::executeCommand(string command)
             else
             {
                 //esult_of_command = "[-] TIMEOUT IN CREATEPROCESS, but no process was killed.";
+                cout << "No process was killed" << endl;
                 result_of_command = readFromPipe(piProcInfo);
             }
         }
@@ -284,3 +288,6 @@ Exec::~Exec()
     CloseHandle(a_hChildStd_ERR_Rd);
 }
 
+
+//https://stackoverflow.com/questions/15694445/using-readfile-function-to-read-binary-data-in-windows
+//https://stackoverflow.com/questions/28197891/win32-readfile-output-without-waiting-for-buffer
