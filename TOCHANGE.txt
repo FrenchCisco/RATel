@@ -1,8 +1,0 @@
-the parameters  that the user has to change:
-
-1- IP in client
-2- PORT in client
-3- PORT server
-4- Timeout in server (management.py) 
-5- Timeout in client (connect) 
-6- 
