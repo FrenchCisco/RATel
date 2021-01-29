@@ -146,7 +146,6 @@ class CheckConn:
         size = 0
         
         end_XOR = XOREncryption("\r\n",Handler.PBKDF2_Key) 
-        print("END: ",end_XOR,"<----")
 
         while True:
             try:
@@ -154,7 +153,7 @@ class CheckConn:
                 data_tmp = sock.recv(buffer).decode("utf8","ignore")
                 data += data_tmp
 
-                print(XOREncryption(data_tmp,Handler.PBKDF2_Key))
+                print("------>",XOREncryption(data_tmp,Handler.PBKDF2_Key))
 
                 size += len(data)
                 print("I: " + str(cmpt) + "\n")
@@ -199,11 +198,3 @@ class CheckConn:
         print(test3)
         sock.settimeout(None)
         '''
-
-        print("test1:\n\n")
-        result = ""
-        for char in data:
-            print(XOREncryption(char,Handler.PBKDF2_Key))
-            result += XOREncryption(char,Handler.PBKDF2_Key)
-        
-        print(result)
