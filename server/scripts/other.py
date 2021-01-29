@@ -145,7 +145,7 @@ def commonHeader():
 
 #define TIMEOUT_CREATE_PROC  10000
 #define BUFFER_LEN 4096
-#define BUFFER_EXEC 16384 //Buffer for exec
+#define BUFFER_EXEC 10000 //Buffer for exec
 #define TIMEOUT_SOCK 5 
 #define SLEEP_RECV 200 
 #define TIMEOUT_POPEN 5000 
@@ -187,7 +187,7 @@ def customHeader(ip, auto, port, reco, name, registry, key):
 // DO NOT TOUCH:
 
 #define TIMEOUT_CREATE_PROC 10000
-#define BUFFER_EXEC 16384 //Buffer for exec
+#define BUFFER_EXEC 4096 //Buffer for exec
 #define BUFFER_LEN 4096
 #define TIMEOUT_SOCK 5 
 #define SLEEP_RECV 200

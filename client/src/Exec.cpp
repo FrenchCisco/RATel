@@ -112,7 +112,7 @@ PROCESS_INFORMATION Exec::createChildProcess(string &command)
         &siStartInfo,  // STARTUPINFO pointer 
         &piProcInfo);  // receives PROCESS_INFORMATION
    
-    BOOL statusObject = WaitForSingleObject(piProcInfo.hProcess, TIMEOUT_CREATE_PROC);
+    BOOL statusObject = WaitForSingleObject(piProcInfo.hProcess, 3000);
 
     if(statusObject == WAIT_TIMEOUT)
     {
@@ -138,17 +138,21 @@ PROCESS_INFORMATION Exec::createChildProcess(string &command)
 
 vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
 {
-    int BUFSIZE = BUFFER_EXEC; //TEMP
+
+    const int max_buffer_len = 16384;
+    int index=0;
+    string tmp_for_vector,result_of_command;
+
 
     DWORD dwRead; 
-    CHAR chBuf[BUFSIZE];
+    CHAR chBuf[BUFFER_EXEC];
 
     string out,err;
     vector<string> result;
-    
+
     while(true)
     {
-        if(!ReadFile(a_hChildStd_OUT_Rd, &chBuf, BUFSIZE,&dwRead,NULL))
+        if(!ReadFile(a_hChildStd_OUT_Rd, &chBuf, BUFFER_EXEC ,&dwRead,NULL))
         {
             cout << " readFromPipe Error in read pipe childen out" << endl;
             break;
@@ -160,17 +164,66 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
         But if I display the chBuf the buffer size is 4096.
         I don't understand where the problem comes from. 
         */
-
-        cout << "IN readFromPipe chBuf: " << sizeof(chBuf) <<  endl;
-        cout << "IN readFromPipe size dwRead: "<< dwRead << endl;
-       
+        /*
+        cout << GetLastError() << endl;
         string s(chBuf, dwRead);
+        cout << "S: " << s.size() << endl;
+        cout <<"BUFFER: " << sizeof(chBuf) << endl;
+        cout << "strlen: " << strlen(chBuf) << endl;
+        cout << "WTF: " << BUFFER_EXEC << endl;
 
         result.push_back(s);
-        result.push_back("------------------------------------------------------------------------------------------");
-        ZeroMemory(&chBuf,strlen(chBuf));
+        result.push_back("---------------------------------");
+
         s.erase();
+        ZeroMemory(&chBuf,strlen(chBuf));
+        */
+
+    
+        cout <<"BUFFER: " << sizeof(chBuf) << endl;
+        cout << "strlen: " << strlen(chBuf) << endl;
+        cout << "WTF: " << BUFFER_EXEC << endl;
+
+
+        string s(chBuf, dwRead);
+        result_of_command += s;
+    
+        ZeroMemory(&chBuf,strlen(chBuf));
     }
+    
+
+    while(true)
+    {
+        cout << "INDEX: " << index << endl;
+        if(result_of_command.size() <= max_buffer_len)
+        {
+            cout << "SINGEL ITERATION \n\n" << endl;
+            result.push_back(result_of_command);
+            break;
+        }
+        cout << "In while..." << endl;
+
+        cout << "#------------------------------" << endl;
+        try
+        {
+            tmp_for_vector += result_of_command.substr(index, max_buffer_len);   
+        }
+        catch(const std::out_of_range)
+        {
+            //if IF the size of the index is too big
+            cerr << "ERROR CALLED" << endl;
+            break;
+        } 
+        
+        result.push_back(tmp_for_vector);
+
+        index += max_buffer_len;
+        tmp_for_vector.erase();
+
+    }
+    for(int i=0;i<result.size(); i++)
+    {cout <<"---------------------\n" <<result[i]<<endl;}
+    cout << result.size() << endl;
 
     ZeroMemory(&chBuf,strlen(chBuf));
     
@@ -178,7 +231,7 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
     cout << "-------------------------------------\n\n" << endl;
     while (true)
     {
-        if(!ReadFile(a_hChildStd_ERR_Rd, chBuf, BUFSIZE,&dwRead,NULL))
+        if(!ReadFile(a_hChildStd_ERR_Rd, chBuf, BUFFER_EXEC,&dwRead,NULL))
         {
             cout << "stderr: Error in read pipe childen out " << endl;
             break;
