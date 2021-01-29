@@ -142,14 +142,18 @@ class CheckConn:
         #Gets the data without delay (session "-c 'command' ")
         sock.settimeout(20)
         cmpt = 0
+        data = ""
         #size = 0
+        
+        end_XOR = XOREncryption("\r\n",Handler.PBKDF2_Key) 
+        print("END: ",end_XOR)
 
         while True:
             try:
                 
                 data_tmp = sock.recv(buffer).decode("utf8","ignore")
                 
-                data = XOREncryption(data_tmp, Handler.PBKDF2_Key)
+                data += data_tmp
                 printColor("successfully",data)
                 
                 cmpt +=1 
@@ -164,11 +168,15 @@ class CheckConn:
                 time.sleep(1)
                 break
             else:
-                if(data =="\r\n"):
+                if(data_tmp == end_XOR):
+                    print("end")
                     break
                 
                 else:
                     pass
+        
+        print(XOREncryption(data,Handler.PBKDF2_Key))
+
 
 
         sock.settimeout(None)
