@@ -138,7 +138,7 @@ PROCESS_INFORMATION Exec::createChildProcess(string &command)
 
 vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
 {
-    int BUFSIZE = 4096; //TEMP
+    int BUFSIZE = BUFFER_EXEC; //TEMP
 
     DWORD dwRead; 
     CHAR chBuf[BUFSIZE];

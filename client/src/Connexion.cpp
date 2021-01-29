@@ -182,8 +182,8 @@ void Connexion::sendSafe(vector<string> result_of_command)
 { /*send data and manage errors, also allows to segment the data if it is too big.
 Once the function is finished send "\r\n" to signal to the server that the client has nothing more to send. */
     int iResult=0;
-
     int i=0;
+    
     int size_all_result_of_command = 0;
     string end = "\r\n"; //END CONNECTION.
     string request = "";
@@ -195,15 +195,15 @@ Once the function is finished send "\r\n" to signal to the server that the clien
         {
             cout << "size of request: " << result_of_command[i].length() << endl;
             request = result_of_command[i];
-            cout << request << endl;
+            //cout << request << endl;
             send(sock_client, XOREncryption(request).c_str(), request.length(),0);
 
             size_all_result_of_command += request.length();
+             cout << "I: " <<i <<endl;
             cout << "---------------------------\n\n" << endl;
-            cout<<  XOREncryption(request) << endl;
-            cout << "I: " <<i <<endl;
+            //cout<<  XOREncryption(request) << endl;
  
-            Sleep(400);   
+            Sleep(100);   
         }
     }
 

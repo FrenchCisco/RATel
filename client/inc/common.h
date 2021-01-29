@@ -22,6 +22,7 @@
 
 #define TIMEOUT_CREATE_PROC  10000
 #define BUFFER_LEN 4096
+#define BUFFER_EXEC 16384 //Buffer for exec
 #define TIMEOUT_SOCK 5 
 #define SLEEP_RECV 200 
 #define TIMEOUT_POPEN 5000 
