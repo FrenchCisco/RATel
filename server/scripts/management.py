@@ -146,19 +146,24 @@ class CheckConn:
         #size = 0
         
         end_XOR = XOREncryption("\r\n",Handler.PBKDF2_Key) 
-        print("END: ",end_XOR)
+        print("END: ",end_XOR,"<----")
 
         while True:
             try:
                 
                 data_tmp = sock.recv(buffer).decode("utf8","ignore")
-                
                 data += data_tmp
-                printColor("successfully",data)
+
+                print(XOREncryption(data_tmp,Handler.PBKDF2_Key))
+
+                print("I: " + str(cmpt) + "\n")
+                print("Len: " + str(len(data_tmp)))
+
+                print("----------------------------------------------------\n")
                 
                 cmpt +=1 
                 #size += len(data)
-                print(cmpt)
+    
             except socket.timeout:
                 printColor("error","[-] The timeout was exceeded. \n")
                 time.sleep(1)
@@ -174,9 +179,21 @@ class CheckConn:
                 
                 else:
                     pass
-        
-        print(XOREncryption(data,Handler.PBKDF2_Key))
 
 
+        '''
+        print("avant: ",len(data))
+        tmp = XOREncryption(data,Handler.PBKDF2_Key)
+        print(tmp)
+        print(len(tmp))
+        #-----
+        #test@:
+        print("test2: \n\n")
+        test2 = XOREncryption(data[0:4096],Handler.PBKDF2_Key)
+        print(test2)
 
+        print("test3: \n\n")
+        test3 = test2 = XOREncryption(data[-4096],Handler.PBKDF2_Key)
+        print(test3)
         sock.settimeout(None)
+        '''

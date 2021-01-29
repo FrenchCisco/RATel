@@ -164,7 +164,7 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
         But if I display the chBuf the buffer size is 4096.
         I don't understand where the problem comes from. 
         */
-        /*
+        
         cout << GetLastError() << endl;
         string s(chBuf, dwRead);
         cout << "S: " << s.size() << endl;
@@ -173,13 +173,13 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
         cout << "WTF: " << BUFFER_EXEC << endl;
 
         result.push_back(s);
-        result.push_back("---------------------------------");
+        //result.push_back("---------------------------------");
 
         s.erase();
         ZeroMemory(&chBuf,strlen(chBuf));
-        */
+    }
 
-    
+        /*
         cout <<"BUFFER: " << sizeof(chBuf) << endl;
         cout << "strlen: " << strlen(chBuf) << endl;
         cout << "WTF: " << BUFFER_EXEC << endl;
@@ -224,7 +224,7 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
     for(int i=0;i<result.size(); i++)
     {cout <<"---------------------\n" <<result[i]<<endl;}
     cout << result.size() << endl;
-
+    */
     ZeroMemory(&chBuf,strlen(chBuf));
     
     //read stderr
