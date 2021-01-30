@@ -11,9 +11,6 @@ int main()
     HandShake Handshake;
 
     Client.openConnexion();
-    //cout << "[+] Connected." << endl;
-
-    //cout << "Start connexion in startHandShake." << endl;
 
     Handshake.setSock(Client.getSocket());
     Handshake.beforeHandShake();
@@ -21,10 +18,7 @@ int main()
 
     Client.setToken(Handshake.getToken());
 
-    //cout << "[+] Handshake finished..." << endl;
-    
-    //cout << "[+] client main go " << endl;
     Client.main(Handshake.getIsAdmin(), Handshake.getPathProg());    
     Client.closeConnexion();
-    //cout << "[+] Finished." << endl;
+    
 }

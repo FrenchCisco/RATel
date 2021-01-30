@@ -112,7 +112,7 @@ PROCESS_INFORMATION Exec::createChildProcess(string &command)
         &siStartInfo,  // STARTUPINFO pointer 
         &piProcInfo);  // receives PROCESS_INFORMATION
    
-    BOOL statusObject = WaitForSingleObject(piProcInfo.hProcess, 3000);
+    BOOL statusObject = WaitForSingleObject(piProcInfo.hProcess, TIMEOUT_CREATE_PROC);
 
     if(statusObject == WAIT_TIMEOUT)
     {

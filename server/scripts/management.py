@@ -149,7 +149,7 @@ class CheckConn:
         end_XOR = XOREncryption("\r\n",Handler.PBKDF2_Key).encode()
 
         #printColor("information", "[?] waiting for the client answer...\n")
-        printColor("information", "[?] the command can take up to {} seconds to complete.".format(timeout))
+        printColor("information", "[?] the command can take up to {} seconds before triggering an exception (timeout).\n\n".format(timeout))
         
         while True:
             

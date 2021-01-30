@@ -68,10 +68,7 @@ void HandShake::startHandShake()
     sendUltraSafe(a_sock, XOREncryption(path_prog));
     sendUltraSafe(a_sock,XOREncryption(name_user));
     sendUltraSafe(a_sock,XOREncryption(token));
-    sendUltraSafe(a_sock,XOREncryption(end)); //GOOD  !
-//010101010100101010101010101001010101010010101001010101011101010100101010100101010101010010101010101010100101
-//010101010100101010101010101001010101010010101001010101011101010100101010100101010101010010101010101010100101
-
+    sendUltraSafe(a_sock,XOREncryption(end)); 
 }
 bool HandShake::setIsAdmin()
 {
