@@ -155,13 +155,15 @@ class CheckConn:
 
                 print("------>",XOREncryption(data_tmp,Handler.PBKDF2_Key))
 
-                size += len(data)
+                size += len(data_tmp)
                 print("I: " + str(cmpt) + "\n")
                 print("Len: " + str(len(data_tmp)))
                 print("Size: ", size)
 
-                print("----------------------------------------------------\n")
-                
+                print("----------------------------------------------------\n\n")
+                data_no_encode = sock.recv(buffer).decode("utf8","ignore")
+                printColor("error",data_no_encode)
+                print("----------------------------------------------------\n\n")
                 cmpt +=1 
                 
     
