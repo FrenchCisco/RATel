@@ -152,7 +152,8 @@ class CheckConn:
 
         while True:
             try:
-
+                print(buffer)
+                time.sleep(0.2)
                 data_tmp = sock.recv(buffer)#.decode("utf8","replace")
                 list_request.append(data_tmp)                
 
@@ -200,8 +201,10 @@ class CheckConn:
         last_request = list_request[-1] #last request in list.
         
         for i in range(len(list_request) - 1 ): #-1 for last request
-            data += XOREncryption(list_request[i].decode("utf8","replace"), Handler.PBKDF2_Key)
-        
+            data += list_request[i].decode("utf8","replace")
+
+        data = XOREncryption(data, Handler.PBKDF2_Key)
+
         data += XOREncryption(last_request.decode("utf8","ignore"), Handler.PBKDF2_Key)
 
         print(data)

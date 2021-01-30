@@ -117,7 +117,7 @@ class Handler(threading.Thread):
             else:
                 pass
             
-            printColor("error",Handler.PBKDF2_Key)
+         
             handshake = HandShake(conn,address,self.ObjSql)
             #handshake.daemon = True
             handshake.start()
