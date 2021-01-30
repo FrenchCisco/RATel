@@ -36,7 +36,7 @@ void sendUltraSafe(int sock, string data) //Just for HandShake or reconnect | !!
     if(strlen(buffer) > 0)
     {
         //clean buffer
-        cout << "Clean buffer in sendUltrasafe " << endl;
+        //cout << "Clean buffer in sendUltrasafe " << endl;
         //memset(buffer, 0, sizeof(buffer));
         ZeroMemory(&buffer, strlen(buffer));
     }

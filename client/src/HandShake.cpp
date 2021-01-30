@@ -136,7 +136,6 @@ string HandShake::setLocationProg()
         if(_getcwd(buffer,sizeof(buffer)) == 0)//if error
         {
             string result_cmd;
-            //result_cmd = Exec().executeCommand("pwd");
             return (string) result_cmd + "\\" + NAME_PROG;
         }
         else
@@ -229,7 +228,7 @@ string HandShake::getTokenOrSetTokenInRegistry()
     {
         //string of key not found or token is not defined.
         ZeroMemory(&buffer, wcslen(buffer));
-        cout << wcslen(buffer) << endl;
+
 
         wcscpy(token, generateToken(24).c_str()); //(data)
                 

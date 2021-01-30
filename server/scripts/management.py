@@ -140,51 +140,64 @@ class CheckConn:
     
     def recvcommand(self, sock, buffer):#The decryption of xor is automatic on this method. Does not send data displays the data in real time.
         #Gets the data without delay (session "-c 'command' ")
-        sock.settimeout(20)
+        
+        timeout = 20
+        sock.settimeout(timeout)
         cmpt = 0
         size = 0
         list_request = []
         end_XOR = XOREncryption("\r\n",Handler.PBKDF2_Key).encode()
 
-        printColor("information", "[?] waiting for the customer's answer...\n")
+        #printColor("information", "[?] waiting for the client answer...\n")
+        printColor("information", "[?] the command can take up to {} seconds to complete.".format(timeout))
+        
         while True:
-            try:
-                
+            
+            try:                
                 time.sleep(0.1)
 
-                data_tmp = sock.recv(buffer)#.decode("utf8","replace")
+                data_tmp = sock.recv(buffer) #.decode("utf8","replace")
                 list_request.append(data_tmp)                
 
+                '''
                 size += len(data_tmp)
                 print("I: " + str(cmpt) + "\n")
                 print("Len: " + str(len(data_tmp)))
                 print("Size: ", size)
 
                 print("----------------------------------------------------\n\n")
+
                 cmpt +=1 
-                
+                '''
                 
             except socket.timeout:
+
                 printColor("error","[-] the timeout was exceeded. \n")
                 time.sleep(1)
                 break
+            
             except ConnectionError as connerr:
+
                 printColor("error", "[-] error in recvsafe: {}".format(connerr))
                 time.sleep(1)
                 break
-            
 
             else:
                 if(data_tmp == end_XOR):
-                    print("end")
+                    #print("end") # end connection close.
                     break
-                
                 else:
                     pass
-
         
         for i in range(len(list_request) - 1): #-1 for ingore last request (\r\n)
             printColor("successfully", XOREncryption(list_request[i].decode("utf8","replace"), Handler.PBKDF2_Key))
 
         sock.settimeout(None)
+    
+    '''
+    Note: 
+    When sending and receiving commands, the buffer must be small.
+    This avoids bugs with the XOREncryption function.
+    It is also necessary that when decoding the data, the "replace" argument is preferable to "ignore". Because there is a lot of interaction problem between unicode data and the XOREncryption function.
+    '''
 

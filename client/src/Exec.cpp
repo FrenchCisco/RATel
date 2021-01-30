@@ -13,7 +13,7 @@ Exec::Exec()
 
 vector<DWORD> Exec::returnPid(string stringTargetProcessName)
 {
-    cout << "name Proc>" <<  stringTargetProcessName << endl;
+    //cout << "name Proc>" <<  stringTargetProcessName << endl;
     wstring targetProcessName(stringTargetProcessName.begin(), stringTargetProcessName.end());
     
     vector<DWORD> pids; //stock all pid in vector.
@@ -154,7 +154,7 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
     {
         if(!ReadFile(a_hChildStd_OUT_Rd, &chBuf, 1024 ,&dwRead,NULL))
         {
-            cout << " readFromPipe Error in read pipe childen out" << endl;
+            //cout << " readFromPipe Error in read pipe childen out" << endl;
             break;
         }
         /*
@@ -166,10 +166,10 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
         */
         
         string s(chBuf, dwRead);
-        cout << "S: " << s.size() << endl;
+       // cout << "S: " << s.size() << endl;
         cout <<"BUFFER: " << sizeof(chBuf) << endl;
-        cout << "strlen: " << strlen(chBuf) << endl;
-        cout << "WTF: " << 2000 << endl;
+       // cout << "strlen: " << strlen(chBuf) << endl;
+       // cout << "WTF: " << 2000 << endl;
 
         result.push_back(s);
         //result.push_back("---------------------------------");
@@ -178,64 +178,17 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
         ZeroMemory(&chBuf,strlen(chBuf));
         
     }
-        /*
-        cout <<"BUFFER: " << sizeof(chBuf) << endl;
-        cout << "strlen: " << strlen(chBuf) << endl;
-        cout << "WTF: " << BUFFER_EXEC << endl;
-
-
-        string s(chBuf, dwRead);
-        result_of_command += s;
-    
-        ZeroMemory(&chBuf,strlen(chBuf));
-        s.erase();
-    }
-    
-
-    while(true) //adds to the final vector, the result of the packet command of 16384
-    {
-        cout << "INDEX: " << index << endl;
-        if(result_of_command.size() <= max_buffer_len)
-        {
-            cout << "SINGEL ITERATION \n\n" << endl;
-            result.push_back(result_of_command);
-            break;
-        }
-        cout << "In while..." << endl;
-
-        cout << "#------------------------------" << endl;
-        try
-        {
-            tmp_for_vector += result_of_command.substr(index, max_buffer_len);   
-        }
-        catch(const std::out_of_range)
-        {
-            //if IF the size of the index is too big
-            cerr << "ERROR CALLED" << endl;
-            break;
-        } 
-        
-        result.push_back(tmp_for_vector);
-
-        index += max_buffer_len;
-        tmp_for_vector.erase();
-
-    }
-    for(int i=0;i<result.size(); i++)
-    {cout <<"---------------------\n" <<result[i]<<endl;}
-    cout << result.size() << endl;
-    */
-
+   
     ZeroMemory(&chBuf,strlen(chBuf));
     
     //read stderr
-    cout << "-------------------------------------\n\n" << endl;
+    //cout << "-------------------------------------\n\n" << endl;
 
     while (true)
     {
         if(!ReadFile(a_hChildStd_ERR_Rd, chBuf, BUFFER_EXEC,&dwRead,NULL))
         {
-            cout << "stderr: Error in read pipe childen out " << endl;
+            //cout << "stderr: Error in read pipe childen out " << endl;
             break;
         }
 
@@ -271,7 +224,6 @@ vector<string> Exec::executeCommand(string command)
         else if(a_timeout) //If the command has passed the timeout then don't read the pipes and try to kill the process that is causing the problem. 
         {
             //test if the process is stuck:
-            cout << "TIMEOUT!!!!" << endl;
             vector<DWORD> pids = returnPid((command.substr(0, command.find(" ")))+".exe"); //list all pid
             
             if(!pids.empty()) //if the number of pid found is different from 0 then it means that there are several times the same process
@@ -289,7 +241,7 @@ vector<string> Exec::executeCommand(string command)
             else
             {
                 //esult_of_command = "[-] TIMEOUT IN CREATEPROCESS, but no process was killed.";
-                cout << "No process was killed" << endl;
+               // cout << "No process was killed" << endl;
                 result_of_command = readFromPipe(piProcInfo);
             }
         }
