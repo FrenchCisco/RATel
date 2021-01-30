@@ -145,11 +145,26 @@ class CheckConn:
         data = ""
         size = 0
         
-        end_XOR = XOREncryption("\r\n",Handler.PBKDF2_Key) 
+        end_XOR = XOREncryption("\r\n",Handler.PBKDF2_Key).encode()
+        
+        list_request = []
+        
 
         while True:
             try:
+
+                data_tmp = sock.recv(buffer)#.decode("utf8","replace")
+                list_request.append(data_tmp)                
+
+                size += len(data_tmp)
+                print("I: " + str(cmpt) + "\n")
+                print("Len: " + str(len(data_tmp)))
+                print("Size: ", size)
+
+                print("----------------------------------------------------\n\n")
+                cmpt +=1 
                 
+                '''
                 data_tmp = sock.recv(buffer).decode("utf8","replace")
                 data += data_tmp
 
@@ -162,6 +177,7 @@ class CheckConn:
 
                 print("----------------------------------------------------\n\n")
                 cmpt +=1 
+                '''
                 
             except socket.timeout:
                 printColor("error","[-] The timeout was exceeded. \n")
@@ -179,7 +195,16 @@ class CheckConn:
                 else:
                     pass
 
-        printColor("successfully",XOREncryption(data, Handler.PBKDF2_Key))
+#        printColor("successfully",XOREncryption(data, Handler.PBKDF2_Key))
+        
+        last_request = list_request[-1] #last request in list.
+        
+        for i in range(len(list_request) - 1 ): #-1 for last request
+            data += XOREncryption(list_request[i].decode("utf8","replace"), Handler.PBKDF2_Key)
+        
+        data += XOREncryption(last_request.decode("utf8","ignore"), Handler.PBKDF2_Key)
+
+        print(data)
 
         '''
         print("avant: ",len(data))

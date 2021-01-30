@@ -135,7 +135,9 @@ int Connexion::main(bool is_admin, string path_prog)
                 {;} //if error not append path.
                 else
                 {
-                    result.push_back(getPath());}
+                    result.push_back("\n\n"); //test
+                    result.push_back(getPath());
+                }
                 
                 sendSafe(result);
             }

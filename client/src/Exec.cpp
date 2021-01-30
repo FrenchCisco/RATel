@@ -119,7 +119,7 @@ PROCESS_INFORMATION Exec::createChildProcess(string &command)
         //if timeout
         a_timeout = TRUE;
         cout << "timeout !!" << endl; 
-        //system("pause");
+        
     }
 
     CloseHandle(a_hChildStd_ERR_Wr);
@@ -139,7 +139,7 @@ PROCESS_INFORMATION Exec::createChildProcess(string &command)
 vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
 {
 
-    const int max_buffer_len = 16384;
+    //const int max_buffer_len = 16384;
     int index=0;
     string tmp_for_vector,result_of_command;
 
@@ -150,7 +150,7 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
     string out,err;
     vector<string> result;
 
-    while(true)
+    while(true) //Read buffer of anonymous pipe and append the result in result_of_command
     {
         if(!ReadFile(a_hChildStd_OUT_Rd, &chBuf, BUFFER_EXEC ,&dwRead,NULL))
         {
@@ -177,8 +177,8 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
 
         s.erase();
         ZeroMemory(&chBuf,strlen(chBuf));
+        
     }
-
         /*
         cout <<"BUFFER: " << sizeof(chBuf) << endl;
         cout << "strlen: " << strlen(chBuf) << endl;
@@ -189,10 +189,11 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
         result_of_command += s;
     
         ZeroMemory(&chBuf,strlen(chBuf));
+        s.erase();
     }
     
 
-    while(true)
+    while(true) //adds to the final vector, the result of the packet command of 16384
     {
         cout << "INDEX: " << index << endl;
         if(result_of_command.size() <= max_buffer_len)
@@ -225,10 +226,12 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
     {cout <<"---------------------\n" <<result[i]<<endl;}
     cout << result.size() << endl;
     */
+
     ZeroMemory(&chBuf,strlen(chBuf));
     
     //read stderr
     cout << "-------------------------------------\n\n" << endl;
+
     while (true)
     {
         if(!ReadFile(a_hChildStd_ERR_Rd, chBuf, BUFFER_EXEC,&dwRead,NULL))
