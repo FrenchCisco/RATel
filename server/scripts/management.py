@@ -150,7 +150,7 @@ class CheckConn:
         while True:
             try:
                 
-                data_tmp = sock.recv(buffer).decode("utf8","ignore")
+                data_tmp = sock.recv(buffer).decode("utf8","replace")
                 data += data_tmp
 
                 print("------>",XOREncryption(data_tmp,Handler.PBKDF2_Key))
@@ -161,12 +161,8 @@ class CheckConn:
                 print("Size: ", size)
 
                 print("----------------------------------------------------\n\n")
-                data_no_encode = sock.recv(buffer).decode("utf8","ignore")
-                printColor("error",data_no_encode)
-                print("----------------------------------------------------\n\n")
                 cmpt +=1 
                 
-    
             except socket.timeout:
                 printColor("error","[-] The timeout was exceeded. \n")
                 time.sleep(1)

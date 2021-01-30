@@ -204,7 +204,7 @@ Once the function is finished send "\r\n" to signal to the server that the clien
             cout << "---------------------------\n\n" << endl;
             //cout<<  XOREncryption(request) << endl;
             size_all_result_of_command += request.length();
-            send(sock_client, request.c_str(), request.length(),0);
+        
             Sleep(100);   
         }
     }
