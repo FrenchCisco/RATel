@@ -90,13 +90,13 @@ class Menu:
         else:
             printColor("information","[-] No target found. Please enter a valid target.\n")
 
-        printColor("information","[?] MOD MAIN\n")
+        printColor("information","[?] In MOD_MAIN\n")
 
     def selectAll(self):
         #Add to the start of the "MOD_ALL" command to tell the client to switch to MOD_ALL
         
         if len(Handler.dict_conn) != 0:
-            printColor("information","[?] MOD BROADCAST")
+            printColor("information","[?] In MOD_BROADCAST")
             printColor("help","[?] Execute -b or --back to return to sessions mode.\n") 
             while True:
                 forall = str(input("broadcastO>"))
@@ -114,7 +114,7 @@ class Menu:
         else:
             printColor("error","[+] No connection is enabled.\n")
         
-        printColor("information", "[-] MOD MAIN\n")
+        printColor("information", "[-] In MOD_MAIN\n")
 
 
     def main(self):

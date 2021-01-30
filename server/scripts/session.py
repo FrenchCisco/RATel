@@ -135,7 +135,6 @@ class Session:
                         self.executeCommand(terminal)
 
                     elif terminal[i] == "-b" or terminal[i] == "--back":
-                        printColor("information","[-] Session stop.\n")
                         checker = False
                     
                     elif terminal[i] == "-p" or terminal[i] == "--persistence":

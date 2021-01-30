@@ -1,6 +1,7 @@
 # RAT-el 
 
- [![Python 3.x](https://img.shields.io/badge/Language-Python3-blue.svg)](https://www.python.org/)  [![C++](https://img.shields.io/badge/Language-C++-ff69b4.svg)](https://www.cplusplus.com/) [![C++](https://img.shields.io/badge/Language-SQL-grey.svg)](https://en.wikipedia.org/wiki/SQL) [![Version](https://img.shields.io/badge/Version-Beta-green.svg)](https://github.com/FrenchCisco/RATel) 
+ [![Python 3.x](https://img.shields.io/badge/Language-Python3-blue.svg)](https://www.python.org/)  [![C++](https://img.shields.io/badge/Language-C++-ff69b4.svg)](https://www.cplusplus.com/) [![C++](https://img.shields.io/badge/Language-SQL-grey.svg)](https://en.wikipedia.org/wiki/SQL) [![Version](https://img.shields.io/badge/Version-Beta-green.svg)](https://github.com/FrenchCisco/RATel) [![commit](https://img.shields.io/github/commit-activity/m/FrenchCisco/ratel)] [![stars]( https://img.shields.io/github/stars/frenchcisco/ratel?style=social)]
+
 
 ---
 ## Description

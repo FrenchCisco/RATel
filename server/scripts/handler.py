@@ -81,7 +81,7 @@ class Handler(threading.Thread):
             pass
         
         self.sock_server.close()
-        printColor("error","\r[-] Connexion server closed.")
+        printColor("error","\n[-] Connexion server closed.")
     
 
     def run(self):
