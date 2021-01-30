@@ -153,7 +153,7 @@ class CheckConn:
                 data_tmp = sock.recv(buffer).decode("utf8","replace")
                 data += data_tmp
 
-                print("------>",XOREncryption(data_tmp,Handler.PBKDF2_Key))
+                #print("------>",XOREncryption(data_tmp,Handler.PBKDF2_Key))
 
                 size += len(data_tmp)
                 print("I: " + str(cmpt) + "\n")
@@ -179,6 +179,7 @@ class CheckConn:
                 else:
                     pass
 
+        printColor("successfully",XOREncryption(data, Handler.PBKDF2_Key))
 
         '''
         print("avant: ",len(data))
