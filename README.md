@@ -43,7 +43,7 @@ The client is completely undetectable by anti-virus software.
 ## Documentations
 - **Installations:** 
     - [Windows Installation](https://github.com/FrenchCisco/RATel/wiki/Windows-Installation-Tutorial)
-    - [Linux Installation](https://github.com/FrenchCisco/RATel/wiki/Windows-Installation-Tutorial)
+    - [Linux Installation](https://github.com/FrenchCisco/RATel/wiki/Linux-Installation-Tutorial)
 - **RATelServer:**
     - [Arguments RATelServer](https://github.com/FrenchCisco/RATel/wiki/Documentation-RATelServer-Argument)
     - [Usage RATelServer](https://github.com/FrenchCisco/RATel/wiki/Usage--RATelServer)
