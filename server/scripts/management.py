@@ -142,18 +142,16 @@ class CheckConn:
         #Gets the data without delay (session "-c 'command' ")
         sock.settimeout(20)
         cmpt = 0
-        data = ""
         size = 0
-        
-        end_XOR = XOREncryption("\r\n",Handler.PBKDF2_Key).encode()
-        
         list_request = []
-        
+        end_XOR = XOREncryption("\r\n",Handler.PBKDF2_Key).encode()
 
+        printColor("information", "[?] waiting for the customer's answer...\n")
         while True:
             try:
-                print(buffer)
-                time.sleep(0.2)
+                
+                time.sleep(0.1)
+
                 data_tmp = sock.recv(buffer)#.decode("utf8","replace")
                 list_request.append(data_tmp)                
 
@@ -165,29 +163,17 @@ class CheckConn:
                 print("----------------------------------------------------\n\n")
                 cmpt +=1 
                 
-                '''
-                data_tmp = sock.recv(buffer).decode("utf8","replace")
-                data += data_tmp
-
-                #print("------>",XOREncryption(data_tmp,Handler.PBKDF2_Key))
-
-                size += len(data_tmp)
-                print("I: " + str(cmpt) + "\n")
-                print("Len: " + str(len(data_tmp)))
-                print("Size: ", size)
-
-                print("----------------------------------------------------\n\n")
-                cmpt +=1 
-                '''
                 
             except socket.timeout:
-                printColor("error","[-] The timeout was exceeded. \n")
+                printColor("error","[-] the timeout was exceeded. \n")
                 time.sleep(1)
                 break
             except ConnectionError as connerr:
                 printColor("error", "[-] error in recvsafe: {}".format(connerr))
                 time.sleep(1)
                 break
+            
+
             else:
                 if(data_tmp == end_XOR):
                     print("end")
@@ -196,32 +182,9 @@ class CheckConn:
                 else:
                     pass
 
-#        printColor("successfully",XOREncryption(data, Handler.PBKDF2_Key))
         
-        last_request = list_request[-1] #last request in list.
-        
-        for i in range(len(list_request) - 1 ): #-1 for last request
-            data += list_request[i].decode("utf8","replace")
+        for i in range(len(list_request) - 1): #-1 for ingore last request (\r\n)
+            printColor("successfully", XOREncryption(list_request[i].decode("utf8","replace"), Handler.PBKDF2_Key))
 
-        data = XOREncryption(data, Handler.PBKDF2_Key)
-
-        data += XOREncryption(last_request.decode("utf8","ignore"), Handler.PBKDF2_Key)
-
-        print(data)
-
-        '''
-        print("avant: ",len(data))
-        tmp = XOREncryption(data,Handler.PBKDF2_Key)
-        print(tmp)
-        print(len(tmp))
-        #-----
-        #test@:
-        print("test2: \n\n")
-        test2 = XOREncryption(data[0:4096],Handler.PBKDF2_Key)
-        print(test2)
-
-        print("test3: \n\n")
-        test3 = test2 = XOREncryption(data[-4096],Handler.PBKDF2_Key)
-        print(test3)
         sock.settimeout(None)
-        '''
+

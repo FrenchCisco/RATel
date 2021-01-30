@@ -145,14 +145,14 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
 
 
     DWORD dwRead; 
-    CHAR chBuf[BUFFER_EXEC];
+    CHAR chBuf[1024];
 
     string out,err;
     vector<string> result;
 
     while(true) //Read buffer of anonymous pipe and append the result in result_of_command
     {
-        if(!ReadFile(a_hChildStd_OUT_Rd, &chBuf, BUFFER_EXEC ,&dwRead,NULL))
+        if(!ReadFile(a_hChildStd_OUT_Rd, &chBuf, 1024 ,&dwRead,NULL))
         {
             cout << " readFromPipe Error in read pipe childen out" << endl;
             break;
@@ -165,12 +165,11 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
         I don't understand where the problem comes from. 
         */
         
-        cout << GetLastError() << endl;
         string s(chBuf, dwRead);
         cout << "S: " << s.size() << endl;
         cout <<"BUFFER: " << sizeof(chBuf) << endl;
         cout << "strlen: " << strlen(chBuf) << endl;
-        cout << "WTF: " << BUFFER_EXEC << endl;
+        cout << "WTF: " << 2000 << endl;
 
         result.push_back(s);
         //result.push_back("---------------------------------");
