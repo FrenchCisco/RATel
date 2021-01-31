@@ -99,7 +99,8 @@ class Menu:
             printColor("information","[?] In MOD_BROADCAST")
             printColor("help","[?] Execute -b or --back to return to sessions mode.\n") 
             while True:
-                forall = str(input("broadcastO>"))
+                forall = str(input("broadcast>")).split()
+                
                 if(forall == "--back" or forall == "-b"):
                     break
                 for key in Handler.dict_conn.keys():

@@ -1,8 +1,10 @@
 - MOD_DESTRUCTION = Stop the connection and then remove all traces on the target machine.
-    - all 
-    -  total_destruction =Removes all traces of the RAT (token in the registry, persistence in the registry, deletes the RAT and cuts the connection to the server). 
+    - default = Removes all traces of RAT. Deletes the RAT and cuts the connection to the server then informs the server whether the action was performed successfully or not. 
+    - broadcast (comming soon)
 
 - MOD_PERSISTENCE = adds a registry key to keep control of the computer, even after a system reboot. 
+    - default (The client sends a response to the server to report whether the persistence was successfully completed.)
+    - broadcast (Removes all traces of RAT. Deletes the RAT and cuts the connection to the server then does not inform the server whether the action was performed successfully or not. )
 
 - MOD_ALL = Send a command every connection. The customer will not return the result of the order.
 

