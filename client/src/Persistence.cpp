@@ -15,7 +15,8 @@ Persistence::Persistence(bool admin,string path_prog)
 
 
 void Persistence::defaultPersi()
-{//Create persistence with the default directories
+{
+    //Create persistence with the default directories
     //HKEY_CURRENT_USER \ Software \ Microsoft \ Windows \ CurrentVersion \ Run
     //HKEY_LOCAL_MACHINE \ Software \ Microsoft \ Windows \ CurrentVersion \ Run
     string result;
@@ -35,7 +36,8 @@ void Persistence::defaultPersi()
 
 
 int Persistence::customPersi()
-{//Coming soon.
+{
+    //Coming soon.
     return 0;
 }
 

