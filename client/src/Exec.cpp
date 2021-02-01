@@ -17,7 +17,7 @@ vector<DWORD> Exec::returnPid(string stringTargetProcessName)
     wstring targetProcessName(stringTargetProcessName.begin(), stringTargetProcessName.end());
     
     vector<DWORD> pids; //stock all pid in vector.
-    
+    DWORD my_pid = GetCurrentProcessId();
     HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0); //all processes
 
     PROCESSENTRY32W entry; 
@@ -25,7 +25,8 @@ vector<DWORD> Exec::returnPid(string stringTargetProcessName)
 
     if (!Process32FirstW(snap, &entry)) 
     { //start with the first in snapshot
-        //wcout << "ERROR" << endl;
+        wcout << "ERROR" << endl;
+        return pids;
     }
 
     do 
@@ -33,12 +34,20 @@ vector<DWORD> Exec::returnPid(string stringTargetProcessName)
        // wcout << entry.szExeFile << endl;
         if (wstring(entry.szExeFile) == targetProcessName) 
         {
-            pids.push_back(entry.th32ProcessID); //name matches; add to list
+            if(my_pid != entry.th32ProcessID)
+            {
+                //test
+                pids.push_back(entry.th32ProcessID); //name matches; add to list
+            }
+            else
+            {wcout << "My pid is find ! : " << my_pid << " : "<<  entry.th32ProcessID<< endl;}
         }
     } while (Process32NextW(snap, &entry)); //keep going until end of snapshot
 
     return pids;
 }
+
+
 void Exec::setupAllPipe()
 {
     SECURITY_ATTRIBUTES sa; 

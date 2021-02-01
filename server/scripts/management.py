@@ -46,7 +46,7 @@ class Management(threading.Thread):
                     except ConnectionError as connerr: #If the connection does not answer
                         if(Handler.status_connection_display):
                             printColor("information","\n[-] The client's connection is disconnected.")
-                            printColor("error",str(connerr))
+                            #printColor("error",str(connerr))
                         else:
                             pass
                         CheckConn().connexionIsDead(key) #Change status to dead (False)

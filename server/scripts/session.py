@@ -114,7 +114,7 @@ class Session:
         '''--destruction '''
         #send MOD_DESTRUCTION | stop the connection and then remove all traces on the target machine.
 
-        mod_destruction  = "MOD_DESTRUCTION:"
+        mod_destruction  = "MOD_DESTRUCTION:default"
         if(CheckConn().sendsafe(self.session_nb, self.socket, mod_destruction)):
             
             reponse = CheckConn().recvsafe(self.socket, 4096)

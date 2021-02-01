@@ -16,6 +16,6 @@ string getPath();
 
 int changeDirectory(string path);
 
-int totalDestruction(string path_prog);
+int totalDestruction();
 
 #endif
