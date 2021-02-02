@@ -1,57 +1,65 @@
 #include "../inc/Destruction.h"
 #include "../inc/Exec.h"
+#include "../inc/other.h"
 
 
 using namespace std;
 
-Destruction::Destruction(string name_prog)
+
+Destruction::Destruction(wstring name_prog)
 {
     a_name_prog = name_prog; 
-    a_name_file_batch = "setup.bat"; //Name of file batch
-} 
+    a_path_prog = L"Z:\\client\\test\\destruction.exe";
+
+}
 
 
-int Destruction::createBatchFile()
+void Destruction::createBatchFile()
 {
+    wcout << "CREATEBATCH FILE: \n\n" <<endl;
     HANDLE hFile; //use in CreateFile and WriteFile
     //const char fileName[] = "lefichier.txt"; //use in CreateFile
-    string content = "timeout 3\ndel " +a_path_prog + "\n"; // use in WriteFile
-    cout << "CONTENT: " << content << endl;
-    //DWORD dwBytesToWrite = (DWORD) strlen(content);// use in WriteFile
+    wstring content = L"@echo off\ntimeout 3\ndel " + a_path_prog + L"\n"; // use in WriteFile
+    cout << "CONTENT UTF8: " << to_utf8(content) << endl;
+
     DWORD dwBytesToWrite = (DWORD) content.length();// use in WriteFile
     DWORD dwBytesWritten = 0; // use in WriteFile
     BOOL status; // use in WriteFile
 
-    hFile = CreateFileA(a_name_file_batch.c_str(),  GENERIC_WRITE,  0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL); //Crée ou ouvre un fichier ou un périphérique d'E / S. 
+    hFile = CreateFileW(a_name_file_batch.c_str(),  GENERIC_WRITE,  0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL); //Crée ou ouvre un fichier ou un périphérique d'E / S. 
     
-
     if(hFile == INVALID_HANDLE_VALUE)
     {
         //error when creating the batch file.
         cout << "impossible to open or write to the file. "<< GetLastError() << endl;
+        a_error = TRUE;
         //exit(0);
-    }
+    }//ERROR_ALREADY_EXISTS
 
-    status = WriteFile( 
+
+    status = WriteFile(          //https://stackoverflow.com/questions/28618715/c-writefile-unicode-characters
                 hFile,           // open file handle
-                content.c_str(),      // start of data to write
+                to_utf8(content).c_str(), // start of data to write
                 dwBytesToWrite,  // number of bytes to write
                 &dwBytesWritten, // number of bytes that were written
-                NULL);            // no overlapped structure
+                NULL);           // no overlapped structure
 
     cout << "Status of WriteFile: " << status << endl;
-
+    if(status == 0)
+    {
+        //If error
+        a_error = TRUE;
+    }
     CloseHandle(hFile);
 
-    return 0;
 }
 
 
-int Destruction::kills_all_same_process() 
+void Destruction::kills_all_same_process() 
 {
-    
+    wcout << "kills_all_same_process : \n\n" <<endl;
     vector <DWORD> pids;
-    string current_prog  = _argv[0];
+    string current_prog  = _argv[0]; //To change for unicode 
     DWORD my_pid = GetCurrentProcessId();
 
     cout << current_prog << endl;
@@ -72,39 +80,39 @@ int Destruction::kills_all_same_process()
             
             TerminateProcess(proc, 1);
             CloseHandle(proc);
-            
         }
     }
     else
     {
-        cout << "Empty pid error" << endl;
+        cout << "Empty pid" << endl;
+        ;
     }
-
-    return 0;
 }
 
 
-int Destruction::startBatchFile()
+void Destruction::startBatchFile()
 {
-    PROCESS_INFORMATION piProcInfo; 
-    STARTUPINFOA siStartInfo;
-    bool bSuccess = FALSE; 
+    wcout << "startBatchFile : \n\n" <<endl;
 
-    // Mettre en place les membres de la structure PROCESS_INFORMATION. 
+    PROCESS_INFORMATION piProcInfo; 
+    STARTUPINFOW siStartInfo;
+    BOOL bSuccess = FALSE; 
+
     ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION)); 
     ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
 
     siStartInfo.cb = sizeof(STARTUPINFO); 
 
-   // Créer le processus de l'enfant.
-    string argument_string = "/C " + a_name_file_batch + "&& del " + a_name_file_batch;
-    //const char 
-    
-    char argument[argument_string.length()+1];
-    strcpy(argument, argument_string.c_str());
-    cout << "argument: " << argument << endl;
 
-    bSuccess = CreateProcessA("C:\\windows\\system32\\cmd.exe",  //command line 
+    wstring argument_string = L"/C " + a_name_file_batch + L" && del " + a_name_file_batch;
+    
+    WCHAR argument[argument_string.length()+1];
+
+    wcscpy(argument, argument_string.c_str());
+    
+    wcout << "argument: " << argument << endl;
+
+    bSuccess = CreateProcessW(L"C:\\windows\\system32\\cmd.exe",  //command line 
         argument,     // argv of cmd
         NULL,          // process security attributes 
         NULL,          // primary thread security attributes 
@@ -114,23 +122,86 @@ int Destruction::startBatchFile()
         NULL,          // use parent's current directory 
         &siStartInfo,  // STARTUPINFO pointer 
         &piProcInfo);  // receives PROCESS_INFORMATION
-    cout << "finish..." << endl;
+    cout << "finish: "<< bSuccess << endl;
+    cout << GetLastError() << endl;
     //exit(0);
-    return 0;
+
 }
 
 
 int Destruction::main()
 {
+    //-----------------------
+    createBatchFile();
+    if(testIfError())
+    {
+        return 1;
+    }
+    //-----------------------
     kills_all_same_process();
+    if(testIfError())
+    {
+        return 1;
+    }
+    system("pause");
+
+    //-----------------------
     startBatchFile();
+    if(testIfError())
+    {
+        return 1;
+    }
 
+    //exit(0); //TO change
+    //-----------------------
 
-    return 0;
+    if(testIfError()) //test final
+    {
+        return 1;
+    }
+    else
+    {return 0;}
 }
-/*echo "test timeout...."
-timeout 2
-del broadcast1.exe
-pause
 
-*/
+
+int Destruction::testIfError()
+{
+    if(a_error)
+    {
+        cout << "error detect in testIfError (Destruction)" << endl;
+        delete_batch_file();
+        return 1;
+    }
+    else
+    {return 0;}
+}
+
+
+void Destruction::delete_batch_file()
+{
+    //Test if file batch exist:
+    cout << "Test if file batch exist: " << endl;
+
+    DWORD status = GetFileAttributesW(a_name_file_batch.c_str());
+    
+    if(status == INVALID_FILE_ATTRIBUTES)
+    {
+        //THE FILE DOESN'T EXIST ANYMORE
+        cout << "LE FICHIER N'EXISTE PLUS. " << endl; 
+    }
+    else
+    {
+        //THE FILE EXISTS 
+        a_error = TRUE;
+        //error (file not exist or file with higher rights)
+        system("pause");
+        DeleteFileW(a_name_file_batch.c_str());
+        cout << "file exist wala: " <<GetLastError()  << endl;
+    }
+
+}//https://stackoverflow.com/questions/4403986/c-which-is-the-best-method-of-checking-for-file-existence-on-windows-platform
+
+Destruction::~Destruction()
+{
+    cout << "Destructor !!!!" << endl;
+}

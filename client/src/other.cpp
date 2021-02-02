@@ -102,32 +102,20 @@ string XOREncryption(string data) //Do not use strlen on XOREncryption
 
 }//Source: https://www.cprogramming.com/tutorial/xor.html
 
-int totalDestruction() //MOD_DESTRUCTION:
+
+string to_utf8(const wstring &s)
 {
-    //deletes the program on reboot. 
+    /*
+    wstring_convert<codecvt_utf8_utf16<wchar_t>> utf16conv;
+    return utf16conv.to_bytes(s);
+    */
 
-    WCHAR path[MAX_PATH];
-    DWORD status;
-    if(status = GetModuleFileNameW(NULL,path,MAX_PATH) == 0)
+    string utf8;
+    int len = WideCharToMultiByte(CP_UTF8, 0, s.c_str(), s.length(), NULL, 0, NULL, NULL);
+    if (len > 0)
     {
-        //error
-        return 1;
+        utf8.resize(len);
+        WideCharToMultiByte(CP_UTF8, 0, s.c_str(), s.length(), &utf8[0], len, NULL, NULL);
     }
-
-    cout << "STATUS TOTAL DESC: " << status << endl;
-    wcout << "path prog: " << path << endl;
-    BOOL test = MoveFileExW(path,NULL,MOVEFILE_DELAY_UNTIL_REBOOT);
-    cout << "Tes: " << test << endl;
-    if(test != 0)
-    {
-        cout << "Operation delete prog ok" << endl;
-        return 0;
-    }
-    else
-    {
-        // error
-        cout << "klast err-->" << GetLastError() << endl;
-        return 1;
-    }
-
+    return utf8;
 }

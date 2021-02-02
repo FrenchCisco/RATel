@@ -18,4 +18,6 @@ int changeDirectory(string path);
 
 int totalDestruction();
 
+string to_utf8(const wstring &s);
+
 #endif
