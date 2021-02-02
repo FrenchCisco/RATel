@@ -81,6 +81,22 @@ def printColor(status,message):
         print(SUCCESSFULLY_COLOR+message+TERMINAL_COLOR)
 
 
+def areYouSure():
+    #test the input is y or n and return True if yes else return False.
+
+    inp = str(input("YesOrNo> ")).lower()
+    
+
+    if(inp == "y" or inp == "yes"):
+        return True
+    
+    elif(inp == "n" or inp == "no"):
+        return False
+    else:
+        printColor("error","[-] Unknown argument.\n")
+        return False
+
+
 def myBanner():
     return """
  ███████████     █████████   ███████████                     ████      █████████                                                   

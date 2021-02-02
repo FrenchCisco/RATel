@@ -122,7 +122,7 @@ class CheckConn:
         try:            
             data_tmp = sock.recv(buffer).decode("utf8","replace")
             result = XOREncryption(data_tmp, Handler.PBKDF2_Key)        
-            print("IN RECVFASE",result)
+            
         except socket.timeout:
             printColor("error", "[-] timeout in recvsafe.")
             result = "ERROR"

