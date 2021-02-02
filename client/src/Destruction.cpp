@@ -6,10 +6,10 @@
 using namespace std;
 
 
-Destruction::Destruction(wstring name_prog)
+Destruction::Destruction(wstring name_prog, wstring path_prog)
 {
     a_name_prog = name_prog; 
-    a_path_prog = L"Z:\\client\\test\\destruction.exe";
+    a_path_prog = path_prog;
 
 }
 
@@ -19,7 +19,7 @@ void Destruction::createBatchFile()
     wcout << "CREATEBATCH FILE: \n\n" <<endl;
     HANDLE hFile; //use in CreateFile and WriteFile
     //const char fileName[] = "lefichier.txt"; //use in CreateFile
-    wstring content = L"@echo off\ntimeout 3\ndel " + a_path_prog + L"\n"; // use in WriteFile
+    wstring content = L"@echo off\ntimeout 4\ndel " + a_path_prog + L"\n"; // use in WriteFile
     cout << "CONTENT UTF8: " << to_utf8(content) << endl;
 
     DWORD dwBytesToWrite = (DWORD) content.length();// use in WriteFile
@@ -33,7 +33,6 @@ void Destruction::createBatchFile()
         //error when creating the batch file.
         cout << "impossible to open or write to the file. "<< GetLastError() << endl;
         a_error = TRUE;
-        //exit(0);
     }//ERROR_ALREADY_EXISTS
 
 
@@ -59,7 +58,7 @@ void Destruction::kills_all_same_process()
 {
     wcout << "kills_all_same_process : \n\n" <<endl;
     vector <DWORD> pids;
-    string current_prog  = _argv[0]; //To change for unicode 
+    string current_prog  = NAME_PROG; //To change for unicode 
     DWORD my_pid = GetCurrentProcessId();
 
     cout << current_prog << endl;
@@ -124,7 +123,6 @@ void Destruction::startBatchFile()
         &piProcInfo);  // receives PROCESS_INFORMATION
     cout << "finish: "<< bSuccess << endl;
     cout << GetLastError() << endl;
-    //exit(0);
 
 }
 
@@ -143,7 +141,7 @@ int Destruction::main()
     {
         return 1;
     }
-    system("pause");
+    //system("pause");
 
     //-----------------------
     startBatchFile();
@@ -152,7 +150,6 @@ int Destruction::main()
         return 1;
     }
 
-    //exit(0); //TO change
     //-----------------------
 
     if(testIfError()) //test final
@@ -194,7 +191,7 @@ void Destruction::delete_batch_file()
         //THE FILE EXISTS 
         a_error = TRUE;
         //error (file not exist or file with higher rights)
-        system("pause");
+        //system("pause");
         DeleteFileW(a_name_file_batch.c_str());
         cout << "file exist wala: " <<GetLastError()  << endl;
     }

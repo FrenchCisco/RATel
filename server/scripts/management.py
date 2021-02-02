@@ -45,7 +45,8 @@ class Management(threading.Thread):
 
                     except ConnectionError as connerr: #If the connection does not answer
                         if(Handler.status_connection_display):
-                            printColor("information","\n[-] The client's connection is disconnected.")
+                            printColor("information","\n[-] Client number {} {}:{} was disconnected.".format(Handler.dict_conn[key][NB_SESSION], Handler.dict_conn[key][NB_IP], Handler.dict_conn[key][NB_PORT]))
+
                             #printColor("error",str(connerr))
                         else:
                             pass
@@ -119,9 +120,9 @@ class CheckConn:
         result = ""
         sock.settimeout(SOCK_TIMEOUT)
         try:            
-            data_tmp = sock.recv(buffer).decode("utf8","ignore")
+            data_tmp = sock.recv(buffer).decode("utf8","replace")
             result = XOREncryption(data_tmp, Handler.PBKDF2_Key)        
-        
+            print("IN RECVFASE",result)
         except socket.timeout:
             printColor("error", "[-] timeout in recvsafe.")
             result = "ERROR"

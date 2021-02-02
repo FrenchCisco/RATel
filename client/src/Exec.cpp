@@ -15,7 +15,7 @@ vector<DWORD> Exec::returnPid(string stringTargetProcessName)
 {
     //cout << "name Proc>" <<  stringTargetProcessName << endl;
     wstring targetProcessName(stringTargetProcessName.begin(), stringTargetProcessName.end());
-    
+    wcout << targetProcessName  << endl;
     vector<DWORD> pids; //stock all pid in vector.
     DWORD my_pid = GetCurrentProcessId();
     HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0); //all processes
@@ -154,14 +154,14 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
 
 
     DWORD dwRead; 
-    CHAR chBuf[1024];
+    CHAR chBuf[BUFFER_EXEC];
 
     string out,err;
     vector<string> result;
 
     while(true) //Read buffer of anonymous pipe and append the result in result_of_command
     {
-        if(!ReadFile(a_hChildStd_OUT_Rd, &chBuf, 1024 ,&dwRead,NULL))
+        if(!ReadFile(a_hChildStd_OUT_Rd, &chBuf, BUFFER_EXEC ,&dwRead,NULL))
         {
             //cout << " readFromPipe Error in read pipe childen out" << endl;
             break;
@@ -176,7 +176,7 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
         
         string s(chBuf, dwRead);
        // cout << "S: " << s.size() << endl;
-        cout <<"BUFFER: " << sizeof(chBuf) << endl;
+        
        // cout << "strlen: " << strlen(chBuf) << endl;
        // cout << "WTF: " << 2000 << endl;
 
@@ -202,9 +202,11 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
         }
 
         string s(chBuf, dwRead);
-
-        result.push_back(s);
+        cout <<"BUFFER: " << sizeof(chBuf) << endl;
         
+        result.push_back(s);
+        s.erase();
+
         ZeroMemory(&chBuf,strlen(chBuf));
     }
     

