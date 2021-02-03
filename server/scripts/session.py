@@ -136,7 +136,7 @@ class Session:
 
                     printColor("successfully","\n[+] The destruction mode is executed successfully.\n")
                     for key in Handler.dict_conn.keys():
-                        if(Handler.dict_conn[key][NB_IP] == Handler.dict_conn[self.session_nb][NB_IP]):
+                        if(Handler.dict_conn[key][NB_IP] == Handler.dict_conn[self.session_nb][NB_IP] and Handler.dict_conn[key][NB_SOCKET] != bool() ):
                             #print("wtf->",Handler.dict_conn[key][NB_SOCKET])
                             try:
                                 Handler.dict_conn[key][NB_SOCKET].close()

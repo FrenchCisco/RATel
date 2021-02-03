@@ -177,7 +177,7 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
         string s(chBuf, dwRead);
        // cout << "S: " << s.size() << endl;
         
-       // cout << "strlen: " << strlen(chBuf) << endl;
+        cout << "strlen: " << strlen(chBuf) << endl;
        // cout << "WTF: " << 2000 << endl;
 
         result.push_back(s);

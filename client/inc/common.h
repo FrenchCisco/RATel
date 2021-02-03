@@ -24,7 +24,7 @@
 #define BUFFER_LEN 4096
 #define BUFFER_EXEC 1024 //Buffer for exec
 #define TIMEOUT_SOCK 5 
-#define TIMEOUT_SOCK_RECONNECT 4000// timeout between each connection
+#define TIMEOUT_SOCK_RECONNECT 2000// timeout between each connection
 #define SLEEP_RECV 200 
 #define TIMEOUT_POPEN 5000 
 #define MICRO_SLEEP 100 //micro sleep for timeout

