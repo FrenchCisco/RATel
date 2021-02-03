@@ -3,8 +3,8 @@ import threading
 import time
 import socket
 import os
-from .other import printColor
 
+from .other import printColor
 from .other import XOREncryption
 from .other import generate_PBKDF2_key
 from .sql import Sql

