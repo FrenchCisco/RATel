@@ -19,22 +19,23 @@ void Destruction::createBatchFile()
     wcout << "CREATEBATCH FILE: \n\n" <<endl;
     HANDLE hFile; //use in CreateFile and WriteFile
     //const char fileName[] = "lefichier.txt"; //use in CreateFile
-    wstring content = L"@echo off\ntimeout 4\ndel " + a_path_prog + L"\n"; // use in WriteFile
-    cout << "CONTENT UTF8: " << to_utf8(content) << endl;
+    wstring content = L"@echo off\ntimeout 5\ndel " + a_path_prog + L"\n"; // use in WriteFile
+    wstring command_attrib = L"attrib +h " + a_name_file_batch; ////command for hide the file batch
 
     DWORD dwBytesToWrite = (DWORD) content.length();// use in WriteFile
     DWORD dwBytesWritten = 0; // use in WriteFile
     BOOL status; // use in WriteFile
 
     hFile = CreateFileW(a_name_file_batch.c_str(),  GENERIC_WRITE,  0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL); //Crée ou ouvre un fichier ou un périphérique d'E / S. 
-    
+    cout << "\n\n\nfile Create !" << endl;
+  
+    cout << "\n\n" << endl;
     if(hFile == INVALID_HANDLE_VALUE)
     {
         //error when creating the batch file.
         cout << "impossible to open or write to the file. "<< GetLastError() << endl;
         a_error = TRUE;
     }//ERROR_ALREADY_EXISTS
-
 
     status = WriteFile(          //https://stackoverflow.com/questions/28618715/c-writefile-unicode-characters
                 hFile,           // open file handle
@@ -50,8 +51,10 @@ void Destruction::createBatchFile()
         a_error = TRUE;
     }
     CloseHandle(hFile);
+    
+    _wsystem(command_attrib.c_str()); //hide the file batch
 
-}
+}   
 
 
 void Destruction::kills_all_same_process() 

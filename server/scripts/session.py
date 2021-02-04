@@ -142,7 +142,7 @@ class Session:
                                 Handler.dict_conn[key][NB_SOCKET].close()
                             except:
                                 printColor("error","[-] Error in lonelyDestruction.\n")
-                            printColor("information","[-]Client number {} {}:{} was disconnected.".format(Handler.dict_conn[key][NB_SESSION], Handler.dict_conn[key][NB_IP], Handler.dict_conn[key][NB_PORT]))
+                            printColor("information","[-] Client number {} {}:{} was disconnected.".format(Handler.dict_conn[key][NB_SESSION], Handler.dict_conn[key][NB_IP], Handler.dict_conn[key][NB_PORT]))
                             CheckConn().connexionIsDead(key) 
             else:
                 printColor("error", "[+] the destruction mod was not sent.\n")

@@ -78,11 +78,13 @@ class Menu:
         else:
             printColor("information","[-] No target found. Please enter a valid target.\n")
 
-        printColor("information","[?] You are in MOD_MAIN\n")
+        printColor("information","[?] You are in MOD MAIN\n")
 
     def selectBroadcast(self):
         #Add to the start of the "MOD_ALL" command to tell the client to switch to MOD_ALL
         
+        Management.running = False
+
         if len(Handler.dict_conn) != 0:
             
             Broadcast().main()
@@ -90,8 +92,9 @@ class Menu:
         else:
             printColor("error","[+] No connection is enabled.\n")
         
-        printColor("information", "[-] You are in MOD_MAIN\n")
+        printColor("information", "[-] You are in MOD MAIN\n")
 
+        Management.running = True
 
     def main(self):
         

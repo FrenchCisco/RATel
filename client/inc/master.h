@@ -1,6 +1,7 @@
 #ifndef MASTER_H
 #define MASTER_H
 
+
 #include <iostream>
 #include <vector>
 #include <string> 

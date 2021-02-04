@@ -23,7 +23,7 @@ NB_TOKEN = 8
 NB_SELECT = 9  #When the server(menu) selects the victim, the victim is considered dead in Handler.dict_conn (False). This serves to avoid confusion when sending data. 
 NB_CONNEXION = 10 
 
-SOCK_TIMEOUT = 4
+SOCK_TIMEOUT = 6
 
 SPLIT = "|SPLIT|"
 #session, False, ip,port, is_he_alive, is_he_admin, path_rat, usename, token

