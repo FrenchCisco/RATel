@@ -192,6 +192,8 @@ int Connexion::main()
                     closeConnexion();
                     exit(0);
                 }
+
+                cout << "\n\n---------------NOT EXIT ??? " << endl;
             }
 
             else
@@ -327,7 +329,7 @@ void Connexion::reConnect()
     closeConnexion();
     openConnexion();
 
-    request = ("MOD_RECONNECT" SPLIT  +a_token);
+    request = ("MOD_RECONNECT" SPLIT  + a_token);
     
     sendUltraSafe(sock_client, XOREncryption(request)); //send token
     sendUltraSafe(sock_client, XOREncryption("\r\n"));
@@ -349,10 +351,11 @@ void Connexion::setToken(string token)
     else
     {
         //if token is empty.
+        cout << "TOKEN EMPTY GO TO GENERATE NEW A TOKEN" << endl;
         char hex_characters[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
         int i;
 
-        srand(0); 
+        srand(time(0)); 
 
         for(i=0;i< 24 ;i++){token += hex_characters[rand()%16];}
         a_token;

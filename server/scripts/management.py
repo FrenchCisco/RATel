@@ -40,8 +40,8 @@ class Management(threading.Thread):
 
                 #print("TEST SOCK--->",bool(Handler.dict_conn[key][NB_SOCKET]))
                 
-                if(Handler.dict_conn[key][NB_ALIVE] and bool(Handler.dict_conn[key][NB_SOCKET]) and not Handler.dict_conn[key][NB_SELECT] and Management.running): #If the connection is alive (True) and the socket object is active (True)
-
+                #if(Handler.dict_conn[key][NB_ALIVE] and bool(Handler.dict_conn[key][NB_SOCKET]) and not Handler.dict_conn[key][NB_SELECT] and Management.running): #If the connection is alive (True) and the socket object is active (True)
+                if(Handler.dict_conn[key][NB_ALIVE] and bool(Handler.dict_conn[key][NB_SOCKET]) and not Handler.dict_conn[key][NB_SELECT]): #If the connection is alive (True) and the socket object is active (True)
                     try:
                         Handler.dict_conn[key][NB_SOCKET].send(XOREncryption(Management.is_life, Handler.PBKDF2_Key).encode())
                         #print(Handler.dict_conn[key][8])

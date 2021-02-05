@@ -70,6 +70,8 @@ void HandShake::startHandShake()
     sendUltraSafe(a_sock,XOREncryption(token));
     sendUltraSafe(a_sock,XOREncryption(end)); 
 }
+
+
 bool HandShake::setIsAdmin()
 {
     vector <string> result;
@@ -155,9 +157,9 @@ wstring HandShake::generateToken(const int token_size)//https://www.codespeedy.c
     int i;
 
 
-    srand(0); //https://stackoverflow.com/questions/1190689/problem-with-rand-in-c
-
+    srand(time(0)); //https://stackoverflow.com/questions/1190689/problem-with-rand-in-c
     for(i=0;i< token_size;i++){token += hex_characters[rand()%16];}
+    wcout << "\n\nTOKEN:  " << token << endl;
 
     return token;
 }
@@ -173,9 +175,10 @@ string HandShake::getTokenOrSetTokenInRegistry()
     LONG status; //allows to check the situation of the functions 
     HKEY hKey;
 
-    DWORD lpType; //RegQueryValueExW
-    WCHAR buffer[128]; //RegQueryValueExW lpData (token)
-    DWORD lpcbData = sizeof(buffer); 
+    WCHAR buffer[32]; //RegQueryValueExW lpData (token)
+     
+    DWORD lpData = REG_SZ; //RegQueryValueExW
+    DWORD lpcbData = 512; 
 
     //--------------------------------------------------------------------------------
 
@@ -220,13 +223,14 @@ string HandShake::getTokenOrSetTokenInRegistry()
     //cout << "[+] Key is open. " << endl;
 
     //get value (string)
-    status = RegQueryValueExW(hKey, name ,NULL , &lpType, (LPBYTE) buffer , &lpcbData); 
-    if(status != 0)
+    status = RegQueryValueExW(hKey, name ,NULL , &lpData, (LPBYTE) &buffer[0] , &lpcbData); 
+    cout << "Status RegQueryValueExW: " << status << endl;
+    wcout << "Buffer(token): " << buffer << endl;
+    
+    if(status != 0)//If token no set
     {
         //string of key not found or token is not defined.
         ZeroMemory(&buffer, wcslen(buffer));
-
-
         wcscpy(token, generateToken(24).c_str()); //(data)
                 
         //set key:
@@ -234,7 +238,7 @@ string HandShake::getTokenOrSetTokenInRegistry()
         if(status != 0)
         {
             //If an error lores the attribution of the token. (fuck windows)
-            //cout << "FATAL ERROR" << endl;
+            cout << "FATAL ERROR" << endl;
             ;
         }
         //the token was well initialized.
@@ -243,14 +247,14 @@ string HandShake::getTokenOrSetTokenInRegistry()
     else
     {
         tmp_return = buffer;
-        return string(tmp_return.begin(), tmp_return.end());
+     
+        return to_utf8(tmp_return);
     }
 
     RegCloseKey(hKey);
 
     tmp_return = token;
-    string result(tmp_return.begin(), tmp_return.end());
-    return result;
+    return to_utf8(tmp_return);
 }
 
 

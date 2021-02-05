@@ -1,3 +1,4 @@
+
 #ifndef MASTER_H
 #define MASTER_H
 
@@ -15,5 +16,6 @@
 #include <stdio.h>//move
 #include <cstdio> //remove
 #include <lmcons.h> // GetUserName UNLEN
+#include <time.h>
 
 #endif

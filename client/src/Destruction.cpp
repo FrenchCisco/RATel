@@ -26,16 +26,29 @@ void Destruction::createBatchFile()
     DWORD dwBytesWritten = 0; // use in WriteFile
     BOOL status; // use in WriteFile
 
-    hFile = CreateFileW(a_name_file_batch.c_str(),  GENERIC_WRITE,  0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL); //Crée ou ouvre un fichier ou un périphérique d'E / S. 
+    hFile = CreateFileW(a_name_file_batch.c_str(),  GENERIC_WRITE,  0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL); //Crée ou ouvre un fichier ou un périphérique d'E / S. 
     cout << "\n\n\nfile Create !" << endl;
   
     cout << "\n\n" << endl;
+
+   
+    if (GetLastError() == ERROR_FILE_EXISTS)
+    {
+        cout << "ERROR_FILE_EXISTS" << endl;
+        delete_batch_file();
+        hFile = CreateFileW(a_name_file_batch.c_str(),  GENERIC_WRITE,  0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL); //Crée ou ouvre un fichier ou un périphérique d'E / S. 
+        cout << "EST LA: " << GetLastError() << "    " << hFile << endl ;
+        cout << "a_error:" << a_error << endl;
+
+    }
+    
     if(hFile == INVALID_HANDLE_VALUE)
     {
         //error when creating the batch file.
         cout << "impossible to open or write to the file. "<< GetLastError() << endl;
         a_error = TRUE;
     }//ERROR_ALREADY_EXISTS
+
 
     status = WriteFile(          //https://stackoverflow.com/questions/28618715/c-writefile-unicode-characters
                 hFile,           // open file handle
@@ -106,7 +119,7 @@ void Destruction::startBatchFile()
     siStartInfo.cb = sizeof(STARTUPINFO); 
 
 
-    wstring argument_string = L"/C " + a_name_file_batch + L" && del " + a_name_file_batch;
+    wstring argument_string = L"/C " + a_name_file_batch + L" && del " + a_name_file_batch + L"/A";
     
     WCHAR argument[argument_string.length()+1];
 
