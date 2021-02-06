@@ -8,7 +8,6 @@ from scripts.menu import Menu
 from scripts.management import Management
 from scripts.other import printColor
 from scripts.other import myBanner
-from scripts.other import bannerCisco
 
 from scripts.other import exec
 from scripts.sql import Sql

@@ -49,7 +49,7 @@ class Session:
 
 --powershell : Start the powershell on the remote machine.
 
--p or --persistence : Makes the client persistent at startup by changing the registry keys.
+--persistence : Makes the client persistent at startup by changing the registry keys.
 
 --destruction : Supprime le client  sur la machine distance et coupe la connexion.
 

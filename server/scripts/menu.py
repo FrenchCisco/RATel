@@ -36,15 +36,19 @@ class Menu:
         printColor("help","""
  -h or --help : Displays all server commands.
 
+ -ls or --list : Displays all clients with their information.
+
  -t session_id  or --target session_id : Selects a session (client) to be able to execute commands (mod session). 
 
- -ls or --list : Displays all clients with their information.
 
  -cde or --connectionDisplayEnable : Activate the display of client information (Logoff and incoming connection).
 
  -cdd or --connectionDisplayDisable : Disables the display of client information (Logoff and incoming connection).
  
  --broadcast : Start a session with all targets (mod broadcast).
+
+ --exit : Stop the server. 
+ 
 """)
 
     def changeStatusDisplay(self,true_or_false): 

