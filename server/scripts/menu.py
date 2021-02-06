@@ -83,7 +83,7 @@ class Menu:
     def selectBroadcast(self):
         #Add to the start of the "MOD_ALL" command to tell the client to switch to MOD_ALL
         
-        Management.running = False
+        #Management.running = False test
 
         if len(Handler.dict_conn) != 0:
             
@@ -94,10 +94,9 @@ class Menu:
         
         printColor("information", "[-] You are in MOD MAIN\n")
 
-        Management.running = True
+        #Management.running = True test
 
     def main(self):
-        
         
         if(Handler.status_connection_display):
             printColor("help","[?] By default, the connection display is active.To avoid being generated, you can deactivate it with the -cdd command.")
@@ -132,4 +131,11 @@ class Menu:
                 
                 elif(choice[i] == "--broadcast"):
                     self.selectBroadcast()
+                
+                elif (choice[i] == "--exit"):
+                    print("exit")
+                    break
+
+                else:
+                    pass 
                 

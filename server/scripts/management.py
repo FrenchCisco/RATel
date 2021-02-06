@@ -8,60 +8,46 @@ from .handler import Handler
 from .sql import Sql
 from .other import printColor
 from .other import XOREncryption
+from .other import pingAllTarget
 from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN,NB_SELECT ,SOCK_TIMEOUT
 
 
 class Management(threading.Thread):
     is_life = "is_life?" 
     
-    running = True
+    #running = True
 
     """
     Send is life. (ping)
     If the customer responds when he wants.
     if the client does not respond then an exception is declared and management puts inactive status (dead) via CheckConn
     """
+
     def __init__(self,timeout,ObjSql):
         threading.Thread.__init__(self)
         self.timeout = timeout #How long for each check connexion.
         self.ObjSql = ObjSql
- 
+        
+
  
     def run(self):
-        
+        checkConnObjt = CheckConn()
         while(True):
             
             time.sleep(self.timeout)
-            for key in Handler.dict_conn.keys():
-                       
-                if(Handler.dict_conn[key][NB_ALIVE] ==True and Handler.dict_conn[key][NB_SOCKET] ==False):
-                    print("\n\n\nChange value Is he alive true to false.")
-                    Handler.dict_conn[key][NB_ALIVE] = False
+            pingAllTarget(Handler.dict_conn, checkConnObjt) 
 
-                #print("TEST SOCK--->",bool(Handler.dict_conn[key][NB_SOCKET]))
-                
-                #if(Handler.dict_conn[key][NB_ALIVE] and bool(Handler.dict_conn[key][NB_SOCKET]) and not Handler.dict_conn[key][NB_SELECT] and Management.running): #If the connection is alive (True) and the socket object is active (True)
-                if(Handler.dict_conn[key][NB_ALIVE] and bool(Handler.dict_conn[key][NB_SOCKET]) and not Handler.dict_conn[key][NB_SELECT]): #If the connection is alive (True) and the socket object is active (True)
-                    try:
-                        Handler.dict_conn[key][NB_SOCKET].send(XOREncryption(Management.is_life, Handler.PBKDF2_Key).encode())
-                        #print(Handler.dict_conn[key][8])
-
-                    except ConnectionError as connerr: #If the connection does not answer
-                        if(Handler.status_connection_display):
-                            printColor("information","\n[-] Client number {} {}:{} was disconnected.".format(Handler.dict_conn[key][NB_SESSION], Handler.dict_conn[key][NB_IP], Handler.dict_conn[key][NB_PORT]))
-
-                            #printColor("error",str(connerr))
-                        else:
-                            pass
-                        CheckConn().connexionIsDead(key) #Change status to dead (False)
-
-                else:#If the connection is dead
-                    #print(key, "connexion is dead no send msg")
-                    pass 
 
 class CheckConn:
     
     #his class allows you to send and receive data on the network in complete security.
+    
+    def empty_socket(self,sock,timeout=5, buffer=1024):
+        sock.settimeout(timeout)
+        pass
+
+
+
     def connexionIsDead(self, nb_session):
         #print(Handler.dict_conn[nb_session][3])
         Handler.dict_conn[nb_session][NB_ALIVE] = False
@@ -163,17 +149,6 @@ class CheckConn:
 
                 data_tmp = sock.recv(buffer) #.decode("utf8","replace")
                 list_request.append(data_tmp)                
-
-                '''
-                size += len(data_tmp)
-                print("I: " + str(cmpt) + "\n")
-                print("Len: " + str(len(data_tmp)))
-                print("Size: ", size)
-
-                print("----------------------------------------------------\n\n")
-
-                cmpt +=1 
-                '''
                 
             except socket.timeout:
 

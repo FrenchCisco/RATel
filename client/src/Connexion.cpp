@@ -180,7 +180,10 @@ int Connexion::main()
                     //not send status
                     cout << "BROADCAST DESTRUCTION !!!!" << endl; 
                 }
+                closeConnexion();
+                exit(0);
                 
+                /*
                 if(status_destruction) //If an error does not finish the connection.
                 {
                     ;
@@ -194,6 +197,8 @@ int Connexion::main()
                 }
 
                 cout << "\n\n---------------NOT EXIT ??? " << endl;
+                */
+
             }
 
             else

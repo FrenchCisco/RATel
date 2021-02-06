@@ -77,10 +77,12 @@ else:
     management.start()
 
     try:
-
         menu.main()
     
     except KeyboardInterrupt:
+        pass
+
+    finally: 
         handler.SuccessfullyQuit() 
         SqlObj.closeConn()
         

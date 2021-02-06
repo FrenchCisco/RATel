@@ -119,7 +119,6 @@ class Handler(threading.Thread):
             
          
             handshake = HandShake(conn,address,self.ObjSql)
-            #handshake.daemon = True
             handshake.start()
             handshake.join()
 
