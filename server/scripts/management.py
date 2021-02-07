@@ -42,7 +42,7 @@ class CheckConn:
     
     #his class allows you to send and receive data on the network in complete security.
     
-    def empty_socket(self,sock,timeout=5, buffer=1024):
+    def empty_socket(self,sock,timeout=5, buffer=1024): #comming soon
         sock.settimeout(timeout)
         pass
 
@@ -134,8 +134,6 @@ class CheckConn:
         
         timeout = 20
         sock.settimeout(timeout)
-        cmpt = 0
-        size = 0
         list_request = []
         end_XOR = XOREncryption("\r\n",Handler.PBKDF2_Key).encode()
 

@@ -156,11 +156,9 @@ wstring HandShake::generateToken(const int token_size)//https://www.codespeedy.c
     WCHAR hex_characters[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
     int i;
 
-
     srand(time(0)); //https://stackoverflow.com/questions/1190689/problem-with-rand-in-c
     for(i=0;i< token_size;i++){token += hex_characters[rand()%16];}
-    wcout << "\n\nTOKEN:  " << token << endl;
-
+    //wcout << "\n\nTOKEN:  " << token << endl;
     return token;
 }
 
@@ -224,8 +222,6 @@ string HandShake::getTokenOrSetTokenInRegistry()
 
     //get value (string)
     status = RegQueryValueExW(hKey, name ,NULL , &lpData, (LPBYTE) &buffer[0] , &lpcbData); 
-    cout << "Status RegQueryValueExW: " << status << endl;
-    wcout << "Buffer(token): " << buffer << endl;
     
     if(status != 0)//If token no set
     {
@@ -238,7 +234,7 @@ string HandShake::getTokenOrSetTokenInRegistry()
         if(status != 0)
         {
             //If an error lores the attribution of the token. (fuck windows)
-            cout << "FATAL ERROR" << endl;
+            //cout << "FATAL ERROR" << endl;
             ;
         }
         //the token was well initialized.
@@ -298,7 +294,7 @@ void HandShake::moveProg()
         //if not adminW
         if((rename(a_name_prog.c_str(),(a_location_prog).c_str()))!= 0)
         {
-            perror("Error in move prog ");  
+            //perror("Error in move prog ");  
             a_location_prog = a_current_directory + "\\" + a_name_prog; 
         }
     }

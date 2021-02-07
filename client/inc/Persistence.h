@@ -11,8 +11,7 @@ class Persistence
     
         Persistence();
         Persistence(bool is_admin,string path_prog);
-        void defaultPersi(); //Create persistence with ModShell and whith the default directories.
-        int customPersi(); //FUTUR
+        int customPersi(); //Comming soon
         
         void main();
                

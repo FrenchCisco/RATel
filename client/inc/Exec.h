@@ -10,9 +10,7 @@ class Exec
 {
     /*Executes a command and returns the result. 
     The only drawback of this class is that if the process executing is waiting for a user input (stdin) then the program becomes a zombie.
-
     The only solution I found is to put a timeout in CreateProcess (in createChildProcess) then list all processes with the same name and kill them all.
-
     If you have ideas to make this code less brutal, don't hesitate to contact me. 
     */
     public:

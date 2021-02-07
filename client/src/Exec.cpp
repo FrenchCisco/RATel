@@ -25,7 +25,7 @@ vector<DWORD> Exec::returnPid(string stringTargetProcessName)
 
     if (!Process32FirstW(snap, &entry)) 
     { //start with the first in snapshot
-        wcout << "ERROR" << endl;
+        //wcout << "ERROR" << endl;
         return pids;
     }
 
@@ -40,7 +40,10 @@ vector<DWORD> Exec::returnPid(string stringTargetProcessName)
                 pids.push_back(entry.th32ProcessID); //name matches; add to list
             }
             else
-            {wcout << "My pid is find ! : " << my_pid << " : "<<  entry.th32ProcessID<< endl;}
+            {
+                //wcout << "My pid is find ! : " << my_pid << " : "<<  entry.th32ProcessID<< endl;
+                ;
+            }
         }
     } while (Process32NextW(snap, &entry)); //keep going until end of snapshot
 
@@ -127,7 +130,7 @@ PROCESS_INFORMATION Exec::createChildProcess(string &command)
     {
         //if timeout
         a_timeout = TRUE;
-        cout << "timeout !!" << endl; 
+        //cout << "timeout !!" << endl; 
         
     }
 
@@ -175,15 +178,12 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
         */
         
         string s(chBuf, dwRead);
-       // cout << "S: " << s.size() << endl;
         
         cout << "strlen: " << strlen(chBuf) << endl;
-       // cout << "WTF: " << 2000 << endl;
 
         result.push_back(s);
-        //result.push_back("---------------------------------");
-
         s.erase();
+
         ZeroMemory(&chBuf,strlen(chBuf));
         
     }
@@ -202,8 +202,9 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
         }
 
         string s(chBuf, dwRead);
-        cout <<"BUFFER: " << sizeof(chBuf) << endl;
         
+        cout <<"BUFFER: " << sizeof(chBuf) << endl;
+
         result.push_back(s);
         s.erase();
 

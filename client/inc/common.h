@@ -17,9 +17,7 @@
 #define PATH_ADMIN "C:\\Windows" //Persistence path if the client is running admin mode.
 #define PATH_NOT_ADMIN "C:\\Users\\$USER\\AppData\\Roaming" // DO NOT TOUCH
 
-//0101101010101010100101101001010101010100101010100101011001010101010101100101101001010101
 // DO NOT TOUCH:
-
 #define TIMEOUT_CREATE_PROC  10000
 #define BUFFER_LEN 4096
 #define BUFFER_EXEC 1024 //Buffer for exec
@@ -32,7 +30,3 @@
 
 
 #endif
-
-/*
-$USER is changed by the user who executed the program.
-*/

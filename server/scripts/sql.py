@@ -64,7 +64,7 @@ class Sql:
             true_or_false = True
 
         except IOError:
-            print("File not accessible")
+            #print("File not accessible")
             true_or_false = False
         
         finally:
@@ -83,7 +83,6 @@ class Sql:
             print("Error in execSqlCode: ",e)
         finally:
             if(commit):
-                #print("commit ok")
                 self.conn.commit()
             else:
                 pass
@@ -96,19 +95,17 @@ class Sql:
         each row in the database and store in a tuple.
         '''        
         try:
-            #print("""SELECT * FROM {}""".format(self.name_table))
 
             self.cursor.execute("""SELECT * FROM {}""".format(self.name_table))
             rows = self.cursor.fetchall()
             
-            for row in rows: #row = tuple
+            for row in rows: 
                 list_of_rows.append(row)
-                #print(row)
+                
 
         except sqlite3.Error as e:
             print("Error in selectAll ",e)
         finally:        
-            #print("commit ok")
             self.conn.commit()
             
             return list_of_rows
@@ -117,25 +114,18 @@ class Sql:
     def insertInDatabase(self, session, ip, port, is_he_alive, is_he_admin, path_RAT, username, token):
         #https://stackoverflow.com/questions/35415469/sqlite3-unique-constraint-failed-error ERROR WINDOWS
         self.execSqlCode("""INSERT or REPLACE INTO {}(session, ip, port, is_he_alive, is_he_admin, path_RAT, username, token) VALUES({},"{}",{},"{}","{}","{}","{}","{}")""".format(self.name_table, session ,ip, port, is_he_alive, is_he_admin, path_RAT, username, token),True)
-        #print("[+] Insert in database ok.")       
         
 
     def updateValue(self, column, value, session,is_string=False):#https://www.tutorialspoint.com/sqlite/sqlite_update_query.htm
         if not(is_string):
-            #print("""UPDATE {} SET {} = {} WHERE session = {} """.format(self.name_table, column, value, session))
             self.execSqlCode("""UPDATE {} SET {} = {} WHERE session = {} """.format(self.name_table, column, value, session),True)
         else:
-            #print("""UPDATE {} SET {} = "{}" WHERE session = {} """.format(self.name_table, column, value, session))
             self.execSqlCode("""UPDATE {} SET {} = "{}" WHERE session = {} """.format(self.name_table, column, value, session),True)
         
-        #print("[+] UPDATE OK.")
-
-    
     def returnValue(self, session, column): 
         '''returns a value in the db.'''
         row = ""
         try:
-            #print("""SELECT {} FROM {} WHERE session = {} """.format(column, self.name_table ,session))
             self.cursor.execute("""SELECT {} FROM {} WHERE session = {} """.format(column, self.name_table ,int(session) ))
             row = self.cursor.fetchone()  #return tuple
             #print("returnValue -->",row)

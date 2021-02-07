@@ -14,27 +14,6 @@ Persistence::Persistence(bool admin,string path_prog)
 }
 
 
-void Persistence::defaultPersi()
-{
-    //Create persistence with the default directories
-    //HKEY_CURRENT_USER \ Software \ Microsoft \ Windows \ CurrentVersion \ Run
-    //HKEY_LOCAL_MACHINE \ Software \ Microsoft \ Windows \ CurrentVersion \ Run
-    string result;
-    cout << "IS admin ? " << a_is_admin << endl;
-    if(a_is_admin)
-    {
-        //If admin   
-        //result = Exec().executeCommand("reg add HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /t REG_SZ /d " +a_path_prog+  " /v " NAME_KEY_REGISTER);
-        cout <<"Result admin: " <<result << endl;
-    }
-    else
-    {
-        ;
-        //result = Exec().executeCommand("reg add HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /t REG_SZ /d "+a_path_prog+" /v " NAME_KEY_REGISTER);    }
-    }
-}
-
-
 int Persistence::customPersi()
 {
     //Coming soon.
