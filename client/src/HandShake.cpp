@@ -15,7 +15,6 @@ HandShake::HandShake()
     a_current_directory = setCurrentDirectory();
     a_name_prog = NAME_PROG;
     a_token = getTokenOrSetTokenInRegistry();
-    cout << strlen(a_token.c_str()) << endl;
     
     if(strlen(a_token.c_str()) != a_size_token) //If an error occurred and the token is not the size of a_size_token:
     {
@@ -23,8 +22,6 @@ HandShake::HandShake()
         a_token = to_utf8(generateToken(a_size_token));
         //cout << "New token: " << a_token << endl;
     }
-    else 
-    {cout << "token is ok" << endl;}
     a_location_prog = setLocationProg();
 }
 

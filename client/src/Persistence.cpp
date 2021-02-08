@@ -10,7 +10,6 @@ Persistence::Persistence(bool admin,string path_prog)
 {
     a_is_admin = admin;
     a_path_prog = path_prog;
-    cout << NAME_KEY_REGISTER << endl;
 }
 
 
@@ -65,7 +64,7 @@ void  Persistence::main()
         }
         else
         {
-            cout << statusOpen << endl;
+            //cout << statusOpen << endl;
             error = true;
         }
     }

