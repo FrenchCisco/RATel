@@ -117,5 +117,6 @@ string to_utf8(const wstring &s)
         utf8.resize(len);
         WideCharToMultiByte(CP_UTF8, 0, s.c_str(), s.length(), &utf8[0], len, NULL, NULL);
     }
+
     return utf8;
 }

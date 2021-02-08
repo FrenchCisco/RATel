@@ -53,6 +53,7 @@ Sends the primary information when the client connects.
         string a_token;
     
         int a_sock;
+        const int a_size_token = 24;
 };
 
 #endif

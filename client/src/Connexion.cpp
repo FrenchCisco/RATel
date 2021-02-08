@@ -36,7 +36,7 @@ int Connexion::openConnexion()
     address_client.sin_addr.s_addr= inet_addr(IP_ADDRESS);
     address_client.sin_family = AF_INET;
     address_client.sin_port = htons(PORT);
-
+    
     while(connect(sock_client,(SOCKADDR *)&address_client, sizeof(address_client)))
     {   
         Sleep(TIMEOUT_SOCK_RECONNECT);

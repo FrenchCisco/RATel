@@ -85,7 +85,7 @@ else:
         handler.SuccessfullyQuit() 
         SqlObj.closeConn()
         
-        printColor("successfully","\n\nBy @cisco")
-        print("[?] juanrubio.dev@gmail.com")
+        printColor("successfully","\n\nVersion: Beta-v0")
+        printColor("successfully","By @cisco")
         print(Style.RESET_ALL) #Restore color terminal
         sys.exit(0)

