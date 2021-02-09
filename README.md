@@ -25,7 +25,7 @@ The client is completely undetectable by anti-virus software.
 ## Screenshots
 ![Screenshot](https://github.com/FrenchCisco/RATel/blob/main/docs/pics/banner.png)
 ![Screenshot](https://github.com/FrenchCisco/RATel/blob/main/docs/pics/--list.png)
-[![virus-total.png](https://i.postimg.cc/PrrfDCf4/virus-total.png)]
+![virus-total](https://i.postimg.cc/PrrfDCf4/virus-total.png)
 
 ---
 
