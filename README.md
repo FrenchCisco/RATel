@@ -1,9 +1,19 @@
+
 # RAT-el 
 
- [![Python 3.x](https://img.shields.io/badge/Language-Python3-blue.svg)](https://www.python.org/)  [![C++](https://img.shields.io/badge/Language-C++-ff69b4.svg)](https://www.cplusplus.com/) [![C++](https://img.shields.io/badge/Language-SQL-grey.svg)](https://en.wikipedia.org/wiki/SQL) [![Version](https://img.shields.io/badge/Version-Beta-green.svg)](https://github.com/FrenchCisco/RATel) [![committ](https://img.shields.io/github/commit-activity/m/FrenchCisco/ratel)] [![stars]( https://img.shields.io/github/stars/frenchcisco/ratel?style=social)]
-
+ [![Python 3.x](https://img.shields.io/badge/Language-Python3-blue.svg)](https://www.python.org/)  [![C++](https://img.shields.io/badge/Language-C++-ff69b4.svg)](https://www.cplusplus.com/) [![C++](https://img.shields.io/badge/Language-SQL-grey.svg)](https://en.wikipedia.org/wiki/SQL) [![Version](https://img.shields.io/badge/Version-Beta-green.svg)](https://github.com/FrenchCisco/RATel) [![License](https://img.shields.io/badge/License-MIT-green.svg)] [![committ](https://img.shields.io/github/commit-activity/m/FrenchCisco/ratel)] [![stars]( https://img.shields.io/github/stars/frenchcisco/ratel?style=social)]
 
 ---
+
+##  [![alert-1.png](https://i.postimg.cc/kXryfM9b/alert-1.png)](https://postimg.cc/RqRf0BWS)[![alert-1.png](https://i.postimg.cc/kXryfM9b/alert-1.png)](https://postimg.cc/RqRf0BWS) Please do not upload to virustotal ! [![alert-1.png](https://i.postimg.cc/kXryfM9b/alert-1.png)](https://postimg.cc/RqRf0BWS)[![alert-1.png](https://i.postimg.cc/kXryfM9b/alert-1.png)](https://postimg.cc/RqRf0BWS) 
+
+
+To prevent RATel from being detected by antivirus, please do not upload the payload to TOTAL VIRUS.
+Each month I will test myself if the payload gets detected by antivirus.
+So you’ll have a photo every month to prove RAtel’s discretion.
+
+---
+
 ## Description
 
 RAT-el is an open source penetration test tool that allows you to take control of a windows machine.
@@ -15,6 +25,7 @@ The client is completely undetectable by anti-virus software.
 ## Screenshots
 ![Screenshot](https://github.com/FrenchCisco/RATel/blob/main/docs/pics/banner.png)
 ![Screenshot](https://github.com/FrenchCisco/RATel/blob/main/docs/pics/--list.png)
+[![virus-total.png](https://i.postimg.cc/PrrfDCf4/virus-total.png)]
 
 ---
 

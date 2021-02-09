@@ -1,0 +1,16 @@
+20/12/20
+
+1- Create a persistence system. OK 27/12/20
+2- Create a log system. 
+3- Create an anti reverse engineering system.
+4- Create a network sniffer mode on the client.
+5- Create a system for deleting all traces of the customer. OK 07/02/21
+6- Optimize the customer's memory management. 
+7- Create a connection management system on the client in case the server is offline. OK 
+8- Cipher data. OK 20/01/21
+9- make the whole program in unicode
+10- Manage ipv6 connections 
+11- create a file upload/download system.
+12- Create a file encryption system on the client (like ransomware).
+
+**Do you have any ideas of what features I could add to RATel ?** 
