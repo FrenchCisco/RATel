@@ -59,8 +59,9 @@ The client is completely undetectable by anti-virus software.
     - [Arguments RATelServer](https://github.com/FrenchCisco/RATel/wiki/Documentation-RATelServer-Argument)
     - [Usage RATelServer](https://github.com/FrenchCisco/RATel/wiki/Usage--RATelServer)
 - [RATelGenerator](https://github.com/FrenchCisco/RATel/wiki/Usage-RATelGenerator)
-- **Simple usage:**
+- [Simple usage](https://github.com/FrenchCisco/RATel/wiki/Simple-usage)
 - **Advanced usage:**
+- [Demonstration video](https://www.youtube.com/watch?v=71Cs0qb9B-Y)
 ---
 
 ## Motivation
