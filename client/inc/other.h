@@ -6,12 +6,15 @@
 using namespace  std;
 
 
-void sendUltraSafe(int sock, string data); //for HandShake or reconnect !!! Use XOREncryption !!!
-string generateToken(int length);
-string XOREncryption(string data);
-string getPath();
-int changeDirectory(string path);
+void sendUltraSafe(int sock, wstring data); //for HandShake or reconnect !!! Use XOREncryption !!!
+
+wstring generateToken(int length);
+wstring XOREncryption(wstring data);
+wstring getPath();
+
+int changeDirectory(wstring path);
 int totalDestruction();
+
 string to_utf8(const wstring &s);
 
 #endif

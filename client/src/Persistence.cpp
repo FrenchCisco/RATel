@@ -3,6 +3,7 @@
 #include "../inc/common.h"
 #include "../inc/Exec.h"
 
+
 using namespace std;
 
 
@@ -73,9 +74,7 @@ void  Persistence::main()
     {
         //defaultPersi();
         ;
-    }
-
-    
+    }    
 }
     
 /*

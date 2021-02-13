@@ -9,7 +9,7 @@ class Destruction
 {
     public:
         Destruction(); //Launches a process (.bat file) to delete the program and then exits the program. 
-        Destruction(wstring name_prog, wstring path_prog);
+        Destruction(wstring path_prog);
 
         void createBatchFile(); //Create the batch file
         void kills_all_same_process(); //Deletes all processes that have the same name. 
@@ -23,7 +23,6 @@ class Destruction
         ~Destruction();
     private:
         wstring a_path_prog;
-        wstring a_name_prog;
         wstring a_name_file_batch = L"setup.bat";;
         BOOL a_error = FALSE; 
 

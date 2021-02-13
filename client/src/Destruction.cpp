@@ -6,18 +6,15 @@
 using namespace std;
 
 
-Destruction::Destruction(wstring name_prog, wstring path_prog)
+Destruction::Destruction(wstring path_prog)
 {
-    a_name_prog = name_prog; 
     a_path_prog = path_prog;
-
 }
 
 
 void Destruction::createBatchFile()
 {
     HANDLE hFile; //use in CreateFile and WriteFile
-    //const char fileName[] = "lefichier.txt"; //use in CreateFile
     wstring content = L"@echo off\ntimeout 5\ndel " + a_path_prog + L"\n"; // use in WriteFile
     wstring command_attrib = L"attrib +h " + a_name_file_batch; ////command for hide the file batch
 
@@ -63,7 +60,8 @@ void Destruction::createBatchFile()
 void Destruction::kills_all_same_process() 
 {
     vector <DWORD> pids;
-    string current_prog  = NAME_PROG; //To change for unicode 
+    wstring current_prog  = NAME_PROG; //To change for unicode TO CHANGE !!
+    
     DWORD my_pid = GetCurrentProcessId();
     
     pids = Exec().returnPid(current_prog);
