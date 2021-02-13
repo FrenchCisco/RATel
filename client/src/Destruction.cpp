@@ -60,8 +60,8 @@ void Destruction::createBatchFile()
 void Destruction::kills_all_same_process() 
 {
     vector <DWORD> pids;
-    wstring current_prog  = NAME_PROG; //To change for unicode TO CHANGE !!
-    
+    wstring current_prog  = find_name_process(); //To monitor !!!!
+    wcout << "\n\nName prog: "<<current_prog << endl;
     DWORD my_pid = GetCurrentProcessId();
     
     pids = Exec().returnPid(current_prog);
@@ -186,4 +186,20 @@ void Destruction::delete_batch_file()
 Destruction::~Destruction()
 {
     ;
+}
+
+wstring Destruction::find_name_process()
+{
+    int index = 0;
+    for(int i=0; i < a_path_prog.length(); i++)
+    {
+        if(a_path_prog.at(i) == L'\\')
+        {
+            wcout << "back slash find: "<< i << endl;
+            index = i;
+        }
+    }
+    index += 1;
+
+    return a_path_prog.substr(index);
 }

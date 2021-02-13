@@ -12,6 +12,7 @@ int changeDirectory(wstring path)
         {
             //if error
             ; // TO change
+            return 1;
         }
         else
         {
@@ -22,14 +23,6 @@ int changeDirectory(wstring path)
     {
         return 0;
     }
-//    cout << path.substr(3,path.length()) << endl;
-    /*
-    if(_chdir((path.substr(3,path.length())).c_str())!=0)
-    {
-        return 1;
-    }
-    return 0;
-    */
 }
 
 
@@ -109,7 +102,7 @@ wstring XOREncryption(wstring data) //Do not use strlen on XOREncryption
 {
     wstring result;
     wstring char_xor;
-    wstring key = XOR_KEY;
+    wstring key = L"" XOR_KEY;
 
     if(data.empty())
     {

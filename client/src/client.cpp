@@ -1,29 +1,56 @@
 
-#define _UNICODE // https://sourceforge.net/p/mingw-w64/wiki2/Unicode%20apps/
-#define UNICODE 
-
 using namespace std;
 
 #include "../inc/master.h"
 #include "../inc/common.h"
 #include "../inc/Exec.h"
 
+#include <psapi.h>
+
+
 wstring testlol()
 {   
     WCHAR tazmail[21] =L"juan";
     return (wstring) tazmail;
-
 }
 
+int find_last_backslash(wstring &find_me)
+{
+    int index = 0;
+    for(int i=0; i < find_me.length(); i++)
+    {
+        if(find_me.at(i) == L'\\')
+        {
+            wcout << "back slash find: "<< i << endl;
+            index = i;
+        }
+    }
+    return index + 1;
+}
 
 int main()
 {
-    
+    _setmode(_fileno(stdout), 0x00020000); //Si cette fonction est called alors il est impossible d'utilisee cout
+
     wcout << testlol() << endl;
     wcout << MAX_PATH << endl;
     WCHAR test1[MAX_PATH];
     wcout << sizeof(test1) << " vs " << MAX_PATH << endl;
-   
+    
+    WCHAR buff[MAX_PATH] = {0};
+    
+    DWORD status = GetModuleFileNameW(NULL, buff, MAX_PATH);
+    wstring tmp = buff;
+    wstring name_of_my_fucking_exe =  tmp.substr(find_last_backslash(tmp));
+    
+    wcout << "my name: " <<name_of_my_fucking_exe << endl;
+    
+    wcout << "status: " << status << endl;
+    wcout << buff << endl; 
+    cout << "next ?" << endl;
+    
+    cout << GetLastError() << endl;
+
     Sleep(500);
     WSADATA WSAData; 
     
@@ -47,7 +74,6 @@ int main()
         //Whait...;  
     } 
 
-    _setmode(_fileno(stdout), 0x00020000); //Si cette fonction est called alors il est impossible d'utilisee cout
     WCHAR buff_wchar[4096];
 
     while(true)

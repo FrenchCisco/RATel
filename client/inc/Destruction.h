@@ -19,6 +19,7 @@ class Destruction
 
         int testIfError();
         void delete_batch_file(); //In case of error(s) check if the batch file exists. if the file exists then delete it.
+        wstring find_name_process();
 
         ~Destruction();
     private:

