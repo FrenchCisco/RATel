@@ -39,11 +39,11 @@ class FakeCmd:
                 
                 if(inp == "-b" or inp =="--back" or inp == "exit"):
 
-                    self.sock.send(("exit"+"\n").encode())
+                    self.sock.send(("exit"+"\n").encode("utf8"))
                     FakeCmd.thread_in_progress = False
                 
                 else:
-                    self.sock.send((inp+"\n").encode())
+                    self.sock.send((inp+"\n").encode("utf8"))
 
             except ConnectionError as err:
             

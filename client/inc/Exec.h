@@ -20,9 +20,9 @@ class Exec
         void setupAllPipe(); 
         PROCESS_INFORMATION createChildProcess(wstring &command); //create process childen and execute command.
         
-        vector<wstring> readFromPipe(PROCESS_INFORMATION piProcInfo);  //read pipe and return result (string)
+        vector<string> readFromPipe(PROCESS_INFORMATION piProcInfo);  //read pipe and return result (string)
         
-        vector<wstring> executeCommand(wstring command);
+        vector<string> executeCommand(wstring command);
 
         void spawnSHELL(int sock,wchar_t *prog); 
        
@@ -34,7 +34,8 @@ class Exec
 
         HANDLE a_hChildStd_ERR_Rd = NULL;
         HANDLE a_hChildStd_ERR_Wr = NULL;
-        
+        SECURITY_ATTRIBUTES security; 
+
         BOOL a_error = FALSE;
         BOOL a_timeout= FALSE; //check if timeout in createProcess
         //string result;

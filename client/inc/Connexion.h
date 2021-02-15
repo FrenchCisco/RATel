@@ -15,14 +15,14 @@ class Connexion
         int openConnexion(); //Connect serveur or re connect to server. 
 
         //int main(bool is_admin, string path_prog); //Main function of client. #3
-        void setToken(wstring token); //set a_token
+        void setToken(string token); //set a_token
         void setIsAdmin(BOOL is_admin);// set a_is_admin
         void setPathProg(wstring path_prog); // set a_path_prog
         int setAutoPeristence(); //
 
 
         int main(); //Main function of client. #3
-        void sendSafe(vector<wstring> result_of_command); //send data and manage errors
+        void sendSafe(vector<string> result_of_command); //send data and manage errors
         wstring recvSafe(); //receives the data and manages possible errors.  and return result
         void checkSend(int &iResult);
         
@@ -35,7 +35,7 @@ class Connexion
     private:
 
         int sock_client; 
-        wstring a_token;
+        string a_token;
         BOOL a_is_admin;
         wstring a_path_prog;
 

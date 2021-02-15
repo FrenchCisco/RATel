@@ -25,7 +25,7 @@ void  Persistence::main()
 {       
     wstring path_prog = a_path_prog + L'\0'; //don't forget "\0"
     WCHAR value[] = L"" NAME_KEY_REGISTER; 
-    
+    wcout << "VALUE: " << value << endl;
     HKEY hKey, HKEY_admin_or_not;
     
     LONG status;

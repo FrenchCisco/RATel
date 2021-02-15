@@ -69,7 +69,9 @@ class CheckConn:
         '''
         
         try:
+
             sock.send(XOREncryption(payload, Handler.PBKDF2_Key).encode())
+
         except ConnectionError as connerr: #If the connection does not answer
             if(Handler.status_connection_display and display):
                 printColor("error","[-] The connection to the client was cut {}:{}.\n".format(Handler.dict_conn[nb_session][NB_IP],Handler.dict_conn[nb_session][NB_PORT]))
@@ -86,7 +88,7 @@ class CheckConn:
         
         while True:
             try:            
-                data_tmp = sock.recv(buffer).decode("utf8","ignore")
+                data_tmp = sock.recv(buffer).decode("utf8","replace")
                 data = XOREncryption(data_tmp, Handler.PBKDF2_Key)
             except socket.timeout:
                 result = b"ERRROR"
@@ -134,7 +136,7 @@ class CheckConn:
         timeout = 20
         sock.settimeout(timeout)
         list_request = []
-        end_XOR = XOREncryption("\r\n",Handler.PBKDF2_Key).encode()
+        end_XOR = XOREncryption("\r\n",Handler.PBKDF2_Key).encode("utf8")
 
         #printColor("information", "[?] waiting for the client answer...\n")
         printColor("information", "[?] the command can take up to {} seconds before triggering an exception (timeout).\n".format(timeout))
@@ -168,6 +170,7 @@ class CheckConn:
         
         for i in range(len(list_request) - 1): #-1 for ingore last request (\r\n)
             printColor("successfully", XOREncryption(list_request[i].decode("utf8","replace"), Handler.PBKDF2_Key))
+
 
         sock.settimeout(None)
     

@@ -107,11 +107,8 @@ class Handler(threading.Thread):
 
         while True:               
             
-            try:
-                conn,address = self.sock_server.accept()
-            except Exception as e:
-                printColor("error","\n[+] error on listening (Handler)\n[+] forcing on process closure.\n\n")
-                os.kill(os.getpid()) #in test
+            conn,address = self.sock_server.accept()
+
             
             handshake = HandShake(conn,address,self.ObjSql)
             handshake.start()
@@ -178,7 +175,7 @@ The client first sends this information, then the server sends the parameters as
             printColor("error", "[-] Error in recvUltraSafe: {} .\n".format(e))
         else:   
             try:
-                self.conn.send(XOREncryption("\r\n",Handler.PBKDF2_Key).encode())
+                self.conn.send(XOREncryption("\r\n",Handler.PBKDF2_Key).encode("utf8"))
             except Exception:
                 printColor("error", "[-] Error in recvUltraSafe when confirming.")
  
@@ -212,7 +209,7 @@ The client first sends this information, then the server sends the parameters as
             if(tmp[0]=="MOD_RECONNECT"): #MOD_RECONNECT  | TOKEN fdsafafsdfsadf3454sdfasdf5
 
                 token = tmp[1]
-                
+                print(token)
                 if bool(Handler.dict_conn): 
                     for target in Handler.dict_conn.values():
                         if(target[NB_TOKEN] == token and target[NB_IP] == self.address[0]): #if the token is already in the dictionary it means that the client is trying to reconnect. This information is thus well stored in the db.

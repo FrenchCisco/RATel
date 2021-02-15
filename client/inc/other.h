@@ -6,15 +6,17 @@
 using namespace  std;
 
 
-void sendUltraSafe(int sock, wstring data); //for HandShake or reconnect !!! Use XOREncryption !!!
+void sendUltraSafe(int sock, string data); //for HandShake or reconnect !!! Use XOREncryption !!!
 
-wstring generateToken(int length);
-wstring XOREncryption(wstring data);
+string generateToken(int length);
+string XOREncryption(string data);
 wstring getPath();
 
 int changeDirectory(wstring path);
 int totalDestruction();
 
-string to_utf8(const wstring &s);
+string ConvertWideToUtf8(const wstring &s);
+wstring ConvertUtf8ToWide(const string& str); //https://stackoverflow.com/questions/6693010/how-do-i-use-multibytetowidechar
+
 
 #endif
