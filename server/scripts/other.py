@@ -28,10 +28,9 @@ SPLIT = "|SPLIT|"
 
 def XOREncryption(data,key):
 
-    print("data: ",data )
     result = ""
     char_xor = ""
-    i = 0
+
     for x in range(len(data)):
        
         current = data[x]
@@ -43,9 +42,7 @@ def XOREncryption(data,key):
         #print("i: ",i,"current: ",current, " | current key: ", current_key, " | char xor",char_xor )
 
         result += char_xor
-        i +=1
-    print("\n")
-    print("result: ",result)
+
     return result
 
 

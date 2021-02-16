@@ -70,7 +70,7 @@ class CheckConn:
         
         try:
 
-            sock.send(XOREncryption(payload, Handler.PBKDF2_Key).encode())
+            sock.send(XOREncryption(payload, Handler.PBKDF2_Key).encode("utf-16-le"))
 
         except ConnectionError as connerr: #If the connection does not answer
             if(Handler.status_connection_display and display):
