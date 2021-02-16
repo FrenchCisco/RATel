@@ -3,7 +3,7 @@ import socket
 #from .other import XOREncryption
 from colorama import Fore,Style
 
-class FakeCmd:
+class FakeCmd: #TO TEST FOR UNICODE ALL
     '''
     Create 2 threads, one to receive the other to send commands.
     '''

@@ -12,7 +12,7 @@ Destruction::Destruction(wstring path_prog)
 }
 
 
-void Destruction::createBatchFile()
+VOID Destruction::createBatchFile()
 {
     HANDLE hFile; //use in CreateFile and WriteFile
     wstring content = L"@echo off\ntimeout 5\ndel " + a_path_prog + L"\n"; // use in WriteFile
@@ -57,7 +57,7 @@ void Destruction::createBatchFile()
 }   
 
 
-void Destruction::kills_all_same_process() 
+VOID Destruction::kills_all_same_process() 
 {
     vector <DWORD> pids;
     wstring current_prog  = find_name_process(); //To monitor !!!!
@@ -68,7 +68,7 @@ void Destruction::kills_all_same_process()
 
     if(!pids.empty())
     {
-        for(int i=0;i<pids.size() ; i++)
+        for(INT i=0;i<pids.size() ; i++)
         {
             HANDLE proc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pids[i]);
                 
@@ -84,7 +84,7 @@ void Destruction::kills_all_same_process()
 }
 
 
-void Destruction::startBatchFile()
+VOID Destruction::startBatchFile()
 {
     PROCESS_INFORMATION piProcInfo; 
     STARTUPINFOW siStartInfo;
@@ -110,12 +110,12 @@ void Destruction::startBatchFile()
         CREATE_NO_WINDOW,             // creation flags 
         FALSE,          // use parent's environment 
         NULL,          // use parent's current directory 
-        &siStartInfo,  // STARTUPINFO pointer 
+        &siStartInfo,  // STARTUPINFO poINTer 
         &piProcInfo);  // receives PROCESS_INFORMATION
 }
 
 
-int Destruction::main()
+INT Destruction::main()
 {
     //-----------------------
     createBatchFile();
@@ -149,7 +149,7 @@ int Destruction::main()
 }
 
 
-int Destruction::testIfError()
+INT Destruction::testIfError()
 {
     if(a_error)
     {
@@ -161,7 +161,7 @@ int Destruction::testIfError()
 }
 
 
-void Destruction::delete_batch_file()
+VOID Destruction::delete_batch_file()
 {
     //Test if file batch exist:
     DWORD status = GetFileAttributesW(a_name_file_batch.c_str());
@@ -190,8 +190,8 @@ Destruction::~Destruction()
 
 wstring Destruction::find_name_process()
 {
-    int index = 0;
-    for(int i=0; i < a_path_prog.length(); i++)
+    INT index = 0;
+    for(INT i=0; i < a_path_prog.length(); i++)
     {
         if(a_path_prog.at(i) == L'\\')
         {

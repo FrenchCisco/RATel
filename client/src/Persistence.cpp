@@ -14,14 +14,14 @@ Persistence::Persistence(bool admin,wstring path_prog)
 }
 
 
-int Persistence::customPersi()
+INT Persistence::customPersi()
 {
     //Coming soon.
     return 0;
 }
 
 
-void  Persistence::main() 
+VOID  Persistence::main() 
 {       
     wstring path_prog = a_path_prog + L'\0'; //don't forget "\0"
     WCHAR value[] = L"" NAME_KEY_REGISTER; 

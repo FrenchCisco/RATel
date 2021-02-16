@@ -167,7 +167,7 @@ The client first sends this information, then the server sends the parameters as
         data = ""
         self.conn.settimeout(SOCK_TIMEOUT)
         try:
-            data = self.conn.recv(4096).decode("utf8","replace")
+            data = self.conn.recv(4096).decode("utf-16-le","replace")
         except socket.timeout:
             #print("timeout in recvultrasafe")
             pass
@@ -175,7 +175,7 @@ The client first sends this information, then the server sends the parameters as
             printColor("error", "[-] Error in recvUltraSafe: {} .\n".format(e))
         else:   
             try:
-                self.conn.send(XOREncryption("\r\n",Handler.PBKDF2_Key).encode("utf8"))
+                self.conn.send(XOREncryption("\r\n",Handler.PBKDF2_Key).encode("utf-16-le"))
             except Exception:
                 printColor("error", "[-] Error in recvUltraSafe when confirming.")
  

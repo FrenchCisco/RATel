@@ -2,12 +2,11 @@
 #include "../inc/HandShake.h"
 
 
-int main()
+INT main()
 {
     
    // ShowWindow(GetConsoleWindow(),SW_HIDE);
-    _setmode(_fileno(stdout), 0x00020000); //Si cette fonction est called alors il est impossible d'utilisee cout
-    
+    _setmode(_fileno(stdout), 0x00020000); 
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
 
@@ -27,4 +26,5 @@ int main()
 
     Client.closeConnexion();
     
+    return 0;
 }

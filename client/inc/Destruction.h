@@ -3,6 +3,7 @@
 
 #include "../inc/master.h"
 #include "../inc/common.h"
+
 using namespace std;
 
 class Destruction
@@ -11,14 +12,14 @@ class Destruction
         Destruction(); //Launches a process (.bat file) to delete the program and then exits the program. 
         Destruction(wstring path_prog);
 
-        void createBatchFile(); //Create the batch file
-        void kills_all_same_process(); //Deletes all processes that have the same name. 
-        void startBatchFile(); //Starts the batch file  
+        VOID createBatchFile(); //Create the batch file
+        VOID kills_all_same_process(); //Deletes all processes that have the same name. 
+        VOID startBatchFile(); //Starts the batch file  
         
-        int main(); 
+        INT main(); 
 
-        int testIfError();
-        void delete_batch_file(); //In case of error(s) check if the batch file exists. if the file exists then delete it.
+        INT testIfError();
+        VOID delete_batch_file(); //In case of error(s) check if the batch file exists. if the file exists then delete it.
         wstring find_name_process();
 
         ~Destruction();

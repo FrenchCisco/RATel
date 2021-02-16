@@ -48,6 +48,7 @@ def XOREncryption(data,key):
     print("result: ",result)
     return result
 
+
 def generate_PBKDF2_key(password, salt="CISCOTHEBOSS",iteration=10000 ,length=512): #Generates the key to encrypt and decrypt data using the XOR algorithm.
     
     password = password.encode()
@@ -127,7 +128,7 @@ def pingAllTarget(dict_conn,checkconn_objt , number_of_times=int() ,ping_string=
     
         if(dict_conn[key][NB_ALIVE] and bool(dict_conn[key][NB_SOCKET]) and not dict_conn[key][NB_SELECT]): #If the connection is alive (True) and the socket object is active (True)
             try:
-                dict_conn[key][NB_SOCKET].send(XOREncryption(ping_string, Handler.PBKDF2_Key).encode("utf8"))
+                dict_conn[key][NB_SOCKET].send(XOREncryption(ping_string, Handler.PBKDF2_Key).encode("utf-16-le"))
 
             except ConnectionError as connerr: #If the connection does not answer
                 if(Handler.status_connection_display):

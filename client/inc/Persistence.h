@@ -11,12 +11,12 @@ class Persistence
     
         Persistence();
         Persistence(bool is_admin, wstring path_prog);
-        int customPersi(); //Comming soon
+        INT customPersi(); //Comming soon
         
-        void main();
+        VOID main();
                
     private:
-        bool a_is_admin; //Declaration attribut of constuctor.
+        BOOL a_is_admin; //Declaration attribut of constuctor.
         wstring a_path_prog;
 };
 #endif
