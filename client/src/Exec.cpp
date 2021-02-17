@@ -95,7 +95,7 @@ PROCESS_INFORMATION Exec::createChildProcess(wstring &command)
 {
     wstring command_C = L"/C " + command;
     WCHAR *argv_cmd = &command_C[0]; //arguments
-    
+    wcout << "command exec: " << argv_cmd << endl;
     PROCESS_INFORMATION piProcInfo; 
     STARTUPINFOW siStartInfo;
     bool bSuccess = FALSE; 
@@ -112,8 +112,8 @@ PROCESS_INFORMATION Exec::createChildProcess(wstring &command)
 
     bSuccess = CreateProcessW(L"C:\\windows\\system32\\cmd.exe",  //command line 
         argv_cmd,     // argv of cmd
-        &security,          // process security attributes 
-        &security,          // primary thread security attributes 
+        NULL,          // process security attributes 
+        NULL,          // primary thread security attributes 
         TRUE,          // handles are inherited 
         0,             // creation flags 
         NULL,          // use parent's environment 
@@ -149,7 +149,6 @@ PROCESS_INFORMATION Exec::createChildProcess(wstring &command)
 vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
 {
     INT index=0;
-    wstring tmp_for_vector,result_of_command;
 
     DWORD dwRead; 
     CHAR chBuff[4096];
@@ -174,8 +173,9 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
         
         string s  = chBuff;
         
-        cout << strlen(chBuff) << endl;
+        wcout << strlen(chBuff) << endl;
 
+        wcout << "test1: "<<ConvertUtf8ToWide((string) chBuff) << endl;
         result.push_back(s);
         s.erase();
 
@@ -197,8 +197,8 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
 
         string s =  chBuff;
         
-        cout << strlen(chBuff) << endl;
-
+        wcout << strlen(chBuff) << endl;
+        
         result.push_back(s);
         s.erase();
 

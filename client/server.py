@@ -6,9 +6,6 @@ def XOREncryption(data,key):
     result = ""
     char_xor = ""
 
-    print("\n\n-----------------------------------------\n")
-    print(len(data))
-    print("-----------------------------------------\n\n")
     for x in range(len(data)):
        
         current = data[x]
@@ -17,10 +14,12 @@ def XOREncryption(data,key):
 
         char_xor = chr(ord(current) ^ ord(current_key))
         
+        #print("i: ",i,"current: ",current, " | current key: ", current_key, " | char xor",char_xor )
+
         result += char_xor
-        print("i: ",x,"current: ",current, " | current key: ", current_key, " | char xor: ",char_xor )
 
     return result
+
     #print("result: ",result)
     
 
@@ -43,26 +42,25 @@ print("CONNECT: {}:{}".format(address[0], address[1]))
 tmp = ""
 result = ""
 while True:
-#   inp =  input(">")
-#   print("commande: ", inp)
-#   cmd_xor = XOREncryption(inp, MY_KEY)
-#   conn.send(cmd_xor.encode())
-    result_xor = conn.recv(20000)
-
-    result_xor = result_xor.decode("utf-16-le")
-
-    #for i in range(len(result_xor)):
-    #    print("i: ",i , " char: ",result_xor[i])
-    #print(len(result_xor))
-
-    result = XOREncryption(result_xor,MY_KEY)
-    print("--->",result)
     
-    print("len result: ",len(result))  
-    print("result Xor: ",len(result_xor))  
-    if(result == "\r\n"):
-        print("bye")
-        break
+    inp =  input(">")
+    print("commande: ", inp)
+    
+    cmd_xor = XOREncryption(inp, MY_KEY)
+    conn.send(cmd_xor.encode("utf-16-le"))
+    
+    while True:
+
+        result_xor = conn.recv(20000)
+    
+        result = XOREncryption(result_xor.decode("utf-16-le"),MY_KEY)
+        print("--->",result)
+        
+        print("len result: ",len(result))  
+        print("result Xor: ",len(result_xor))  
+        if(result == "\r\n"):
+            print("bye")
+            break
     
 
 '''

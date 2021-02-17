@@ -15,8 +15,6 @@ from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMI
 class Management(threading.Thread):
     is_life = "is_life?" 
     
-    #running = True
-
     """
     Send is life. (ping)
     If the customer responds when he wants.
@@ -69,8 +67,13 @@ class CheckConn:
         '''
         
         try:
-
-            sock.send(XOREncryption(payload, Handler.PBKDF2_Key).encode("utf-16-le"))
+            
+            print("COMMAND utf16: ", payload.encode("utf-16-le") )
+            print("len command utf16: ", len(payload.encode("utf-16-le")) )
+            for x in range(len(payload)):
+                print("i: ",x , " ", payload[x])
+            tmp = (XOREncryption(payload, Handler.PBKDF2_Key))
+            sock.send(tmp.encode("utf-16-le"))
 
         except ConnectionError as connerr: #If the connection does not answer
             if(Handler.status_connection_display and display):
@@ -106,6 +109,7 @@ class CheckConn:
         sock.settimeout(None)
         return result
     
+
     def recvsafe(self,sock,buffer): #Receives a single secure data (no need for "\r\n") to finish the connection 
         
         result = ""

@@ -117,6 +117,8 @@ def pingAllTarget(dict_conn,checkconn_objt , number_of_times=int() ,ping_string=
     #ping all the machine is determines whether the machine is alive or dead. 
     from .handler import Handler
 
+    
+
     for key in dict_conn.keys():
                         
         if(dict_conn[key][NB_ALIVE] ==True and dict_conn[key][NB_SOCKET] ==False):

