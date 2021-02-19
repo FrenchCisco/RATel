@@ -46,6 +46,9 @@ while True:
     inp =  input(">")
     print("commande: ", inp)
     
+    conn.send(inp.encode("utf8"))
+    
+    '''
     cmd_xor = XOREncryption(inp, MY_KEY)
     conn.send(cmd_xor.encode("utf-16-le"))
     
@@ -61,7 +64,7 @@ while True:
         if(result == "\r\n"):
             print("bye")
             break
-    
+    '''
 
 '''
     ok 

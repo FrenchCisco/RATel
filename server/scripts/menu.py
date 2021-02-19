@@ -105,7 +105,9 @@ class Menu:
             printColor("help","[?] By default, the connection display is active.To avoid being generated, you can deactivate it with the -cdd command.")
         
         printColor("help","[?] Run -h or --help to list the available commands.\n")
-        while True:
+        checker = True
+
+        while checker:
             try:
                 choice = str(input("RatelServer> ")).split()
             except ValueError:
@@ -137,8 +139,7 @@ class Menu:
                     self.selectBroadcast()
                 
                 elif (choice[i] == "--exit"):
-                    print("exit")
-                    break
+                    checker = False
 
                 else:
                     pass 

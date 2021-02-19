@@ -22,6 +22,7 @@ HandShake::HandShake()
         a_token = generateToken(a_size_token);
         wcout << "New token: " << a_token << endl;
     }
+    wcout << a_token << endl;
     a_path_prog = setLocationProg();
 }
 

