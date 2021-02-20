@@ -1,7 +1,7 @@
 
   
 
-# RAT-el
+# RATel
 
 
 [![Python 3.x](https://img.shields.io/badge/Language-Python3-blue.svg)](https://www.python.org/)  [![C++](https://img.shields.io/badge/Language-C++-ff69b4.svg)](https://www.cplusplus.com/) ![SQL](https://img.shields.io/badge/Language-SQL-grey.svg) [![Version](https://img.shields.io/badge/Version-Beta-green.svg)](https://github.com/FrenchCisco/RATel) ![License](https://img.shields.io/badge/License-MIT-green.svg) ![commit](https://img.shields.io/github/commit-activity/m/FrenchCisco/ratel) ![stars]( https://img.shields.io/github/stars/frenchcisco/ratel?style=social) ![views](https://visitor-badge.laobi.icu/badge?page_id=FrenchCisco.RATel&title=Visitor)
@@ -49,8 +49,7 @@ The client is completely undetectable by anti-virus software.
 
 ![banner.png](https://i.postimg.cc/850fJZp6/banner.png)]
 ![list.png](https://i.postimg.cc/v8CXCzrT/list.png)
-![virus-total.png](https://i.postimg.cc/PrrfDCf4/virus-total.png)
-
+![virus-total.png](https://i.postimg.cc/C1zgvgDz/virus-total.png)
 ---
 
 ## Added features  
