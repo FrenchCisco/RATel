@@ -3,7 +3,6 @@ import time
 from colorama import Fore,Style
 
 from .other import printColor
-from .other import XOREncryption
 from .other import areYouSure
 from .other import printAllTarget
 
@@ -95,7 +94,6 @@ class Session:
         '''-p or --persistence'''
         #if Handler.dict_conn[self.session_nb][NB_ALIVE]:  #test is life
         mod_persi = "MOD_PERSISTENCE:default"
-        print("mod_persi: ", mod_persi)
         if(CheckConn().sendsafe(self.session_nb, self.sock, mod_persi)): #send mod persi
             #printColor("information","[+] the persistence mod was sent.\n")
             

@@ -1,6 +1,5 @@
 import threading
 import socket 
-#from .other import XOREncryption
 from colorama import Fore,Style
 
 class FakeCmd: #TO TEST FOR UNICODE ALL
@@ -35,8 +34,6 @@ class FakeCmd: #TO TEST FOR UNICODE ALL
         while FakeCmd.thread_in_progress:
             
             inp  = input(">")
-            print("command: ", inp)
-            print("encode: ", inp.encode("utf8"))
             try:
                 
                 if(inp == "-b" or inp =="--back" or inp == "exit"):

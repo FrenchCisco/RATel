@@ -4,12 +4,10 @@
 
 INT changeDirectory(wstring path)
 {
-    wcout << "path :" << path << endl;
     if(SetCurrentDirectoryW(path.c_str()) == 0)
     {
         //if error
-        wcout << "erro path !" << endl;
-        if(_wchdir(path.c_str()) != 0)
+        if(_wchdir(path.c_str()) == -1)
         {
             //if error
             ; // TO change
@@ -22,7 +20,6 @@ INT changeDirectory(wstring path)
     }
     else
     {
-        wcout << "cd ok : "<< GetLastError() << endl;
         return 0;
     }
 }
@@ -48,11 +45,10 @@ VOID sendUltraSafe(SOCKET &sock, wstring data) //Just for HandShake or reconnect
 {
     INT len_send=0;
     INT len_recv=0;
-    WCHAR buffer[BUFFER_LEN];
+    WCHAR buffer[BUFFER_LEN] = {0};
     wstring result;
     timeval timeout;
 
-    ZeroMemory(&buffer, wcslen(buffer)); //Clean buff
     
     len_send = send(sock, (char *)data.c_str(), data.length() * sizeof(WCHAR), 0); /// !!!warning !! 
 
@@ -94,15 +90,12 @@ VOID sendUltraSafe(SOCKET &sock, wstring data) //Just for HandShake or reconnect
 }
 
 
-wstring XOREncryption(wstring data) //Do not use strlen on XOREncryption
+wstring XOREncryption(wstring data)  
 {
     wstring result;
     wstring char_xor;
-    //wstring key = L"" XOR_KEY;
-    wstring key = L"" XOR_KEY;
+    const wstring key =L"" XOR_KEY;
 
-    //wcout << "\n\n--------------" << endl;
-    //wcout << data.length() << " key: "<< key << endl;
     if(data.empty())
     {
         return result;
@@ -111,19 +104,17 @@ wstring XOREncryption(wstring data) //Do not use strlen on XOREncryption
     for(INT i=0;i<data.size(); i++)
     {
         char_xor = data.at(i) ^ key[i % key.size()];
-        //cout << "i: "<< i << " "<< char_xor << endl;
         result += char_xor;   
     }
 
     return result;
-
-}//Source: https://www.cprogramming.com/tutorial/xor.html
+}
 
 
 string ConvertWideToUtf8(const wstring &s)
 {
 
-    string utf8;
+    string utf8 = "";
     INT len = WideCharToMultiByte(CP_UTF8, 0, s.c_str(), s.length(), NULL, 0, NULL, NULL);
     if (len > 0)
     {
@@ -134,7 +125,7 @@ string ConvertWideToUtf8(const wstring &s)
     return utf8;
 }
 
-wstring ConvertUtf8ToWide(const string& str) //https://stackoverflow.com/questions/6693010/how-do-i-use-multibytetowidechar
+wstring ConvertUtf8ToWide(const string &str) //https://stackoverflow.com/questions/6693010/how-do-i-use-multibytetowidechar
 {
     INT count = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), str.length(), NULL, 0);
     wstring wstr(count, 0);

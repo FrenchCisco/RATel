@@ -66,11 +66,8 @@ class CheckConn:
         '''
         
         try:
-            print("COMMAND utf16: ", payload.encode("utf-16-le") )
-            print("len command utf16: ", len(payload.encode("utf-16-le")) )
-            for x in range(len(payload)):
-                print("i: ",x , " ", payload[x])
-            tmp = (XOREncryption(payload, Handler.PBKDF2_Key))
+            
+            tmp = XOREncryption(payload, Handler.PBKDF2_Key)
             sock.send(tmp.encode("utf-16-le"))
 
         except ConnectionError as connerr: #If the connection does not answer
@@ -138,7 +135,7 @@ class CheckConn:
         timeout = 20
         sock.settimeout(timeout)
         list_request = []
-        end_XOR = XOREncryption("\r\n",Handler.PBKDF2_Key).encode("utf-16-le","replace")
+        end_XOR = XOREncryption("\r\n",Handler.PBKDF2_Key).encode("utf-16-le")
 
         #printColor("information", "[?] waiting for the client answer...\n")
         printColor("information", "[?] the command can take up to {} seconds before triggering an exception (timeout).\n".format(timeout))
@@ -176,10 +173,10 @@ class CheckConn:
 
         sock.settimeout(None)
     
-'''
-Note: 
-When sending and receiving commands, the buffer must be small.
-This avoids bugs with the XOREncryption function.
-It is also necessary that when decoding the data, the "replace" argument is preferable to "ignore". Because there is a lot of interaction problem between unicode data and the XOREncryption function.
-'''
+    '''
+    Note: 
+    When sending and receiving commands, the buffer must be small.
+    This avoids bugs with the XOREncryption function.
+    It is also necessary that when decoding the data, the "replace" argument is preferable to "ignore". Because there is a lot of interaction problem between unicode data and the XOREncryption function.
+    '''
 

@@ -39,7 +39,6 @@ class Connexion
         BOOL a_is_admin;
         wstring a_path_prog;
 
-
 };
 #endif
 

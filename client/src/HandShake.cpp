@@ -20,7 +20,6 @@ HandShake::HandShake()
     {
         // Tokken not found
         a_token = generateToken(a_size_token);
-        wcout << "New token: " << a_token << endl;
     }
     wcout << a_token << endl;
     a_path_prog = setLocationProg();
@@ -112,7 +111,6 @@ wstring HandShake::setNameUser()
     else
     {
         wstring result(&user[0], &user[len_user]); //https://stackoverflow.com/questions/6291458/how-to-convert-a-tchar-array-to-stdstring
-        wcout <<"name user: " <<result << endl;
         return result.substr(0,result.length()-1);    
     }
     
@@ -126,7 +124,6 @@ wstring HandShake::setCurrentDirectory()
     {
         //if error
         _wgetcwd(buff, MAX_PATH);
-        wcout << "error path: " << buff << endl;
         return (wstring) buff;
     }
     else
@@ -161,7 +158,6 @@ wstring HandShake::generateToken(CONST INT token_size)//https://www.codespeedy.c
 
     srand(time(0)); //https://stackoverflow.com/questions/1190689/problem-with-rand-in-c
     for(i=0;i< token_size;i++){token += hex_characters[rand()%16];}
-    wcout << "\n\nTOKEN:  " << token << endl;
     return token;
 }
 
@@ -176,10 +172,10 @@ wstring HandShake::getTokenOrSetTokenInRegistry()
     LONG status; //allows to check the situation of the functions 
     HKEY hKey;
 
-    WCHAR buffer[4096]; //RegQueryValueExW lpData (token)
+    WCHAR buffer[4096] = {0}; 
     DWORD lpcbData = sizeof(buffer); 
 
-    DWORD lpType = REG_SZ; //RegQueryValueExW
+    DWORD lpType = REG_SZ; 
 
     HKEY HKEY_admin_or_not = NULL;
     WCHAR path_of_key[MAX_PATH];
@@ -222,7 +218,6 @@ wstring HandShake::getTokenOrSetTokenInRegistry()
     if(status != 0)//If token no set
     {
         //string of key not found or token is not defined.
-        ZeroMemory(&buffer, wcslen(buffer));
         wcscpy(token, generateToken(a_size_token).c_str()); //(data)
                 
         //set key:
@@ -239,11 +234,8 @@ wstring HandShake::getTokenOrSetTokenInRegistry()
     else
     {
         //cout << "token no set" << endl;
-        
-        RegCloseKey(hKey);
-        
+        RegCloseKey(hKey);        
         return (wstring)buffer;
-       
     }
     //cout << "token set " << endl;
     RegCloseKey(hKey);

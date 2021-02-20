@@ -61,7 +61,7 @@ VOID Destruction::kills_all_same_process()
 {
     vector <DWORD> pids;
     wstring current_prog  = find_name_process(); //To monitor !!!!
-    wcout << "\n\nName prog: "<<current_prog << endl;
+
     DWORD my_pid = GetCurrentProcessId();
     
     pids = Exec().returnPid(current_prog);

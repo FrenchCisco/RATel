@@ -13,7 +13,6 @@ from .session import Session
 from .management import Management
 from .management import CheckConn
 from .other import printColor
-from .other import XOREncryption
 from .other import printAllTarget
 from .sql import Sql
 from .broadcast import Broadcast
@@ -27,8 +26,6 @@ if(platform.system() == "Linux"):
 else: #if windows
     import pyreadline
    
-
-
 
 class Menu:
     RESET_COLOR = Style.RESET_ALL

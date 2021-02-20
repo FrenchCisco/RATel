@@ -39,8 +39,6 @@ def XOREncryption(data,key):
 
         char_xor = chr(ord(current) ^ ord(current_key))
         
-        #print("i: ",i,"current: ",current, " | current key: ", current_key, " | char xor",char_xor )
-
         result += char_xor
 
     return result
@@ -127,7 +125,7 @@ def pingAllTarget(dict_conn,checkconn_objt , number_of_times=int() ,ping_string=
     
         if(dict_conn[key][NB_ALIVE] and bool(dict_conn[key][NB_SOCKET]) and not dict_conn[key][NB_SELECT]): #If the connection is alive (True) and the socket object is active (True)
             try:
-                dict_conn[key][NB_SOCKET].send(XOREncryption(ping_string, Handler.PBKDF2_Key).encode("utf-16-le"))
+                dict_conn[key][NB_SOCKET].send(XOREncryption(ping_string, Handler.PBKDF2_Key, ).encode("utf-16-le"))
 
             except ConnectionError as connerr: #If the connection does not answer
                 if(Handler.status_connection_display):
