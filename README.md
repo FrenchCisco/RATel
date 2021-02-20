@@ -77,6 +77,7 @@ The client is completely undetectable by anti-virus software.
 
 - Token management system to identify clients
 
+- Unicode management
   
 
 ###### **Client**:
@@ -95,6 +96,7 @@ The client is completely undetectable by anti-virus software.
 
 - Automatic reconnection
 
+- Unicode management
   
 
 ###### **RATelGenerator**:
@@ -161,9 +163,7 @@ If you have any ideas for features, code improvements or bugs, you can leave me 
 
 ## Disclaimer:
 
-The use of this software on any device that is not yours is prohibited. If you use RATel on a machine that does not belong
-
-to you, I will in no way be responsible for your actions.
+The use of this software on any device that is not yours is prohibited. If you use RATel on a machine that does not belong to you, I will in no way be responsible for your actions.
 
   
 
