@@ -3,9 +3,9 @@
 
 # RAT-el
 
-  
+  https://visitor-badge.laobi.icu/badge?page_id=FrenchCisco.RATel&title=Visitor 
 
-[![Python 3.x](https://img.shields.io/badge/Language-Python3-blue.svg)](https://www.python.org/) [![C++](https://img.shields.io/badge/Language-C++-ff69b4.svg)](https://www.cplusplus.com/) [![C++](https://img.shields.io/badge/Language-SQL-grey.svg)](https://en.wikipedia.org/wiki/SQL) [![Version](https://img.shields.io/badge/Version-Beta-green.svg)](https://github.com/FrenchCisco/RATel) [![License](https://img.shields.io/badge/License-MIT-green.svg)] [![committ](https://img.shields.io/github/commit-activity/m/FrenchCisco/ratel)] [![stars]( https://img.shields.io/github/stars/frenchcisco/ratel?style=social)]
+![Python 3.x](https://img.shields.io/badge/Language-Python3-blue.svg)(https://www.python.org/) ![C++](https://img.shields.io/badge/Language-C++-ff69b4.svg)(https://www.cplusplus.com/) ![C++](https://img.shields.io/badge/Language-SQL-grey.svg) ![Version](https://img.shields.io/badge/Version-Beta-green.svg) (https://github.com/FrenchCisco/RATel) ![License](https://img.shields.io/badge/License-MIT-green.svg) ![commit](https://img.shields.io/github/commit-activity/m/FrenchCisco/ratel) ![stars]( https://img.shields.io/github/stars/frenchcisco/ratel?style=social) ![views](https://visitor-badge.laobi.icu/badge?page_id=FrenchCisco.RATel&title=Visitor)
 
   
 
@@ -48,11 +48,9 @@ The client is completely undetectable by anti-virus software.
 
 ## Screenshots
 
-![Screenshot](https://github.com/FrenchCisco/RATel/blob/main/docs/pics/banner.png)
-
-![Screenshot](https://github.com/FrenchCisco/RATel/blob/main/docs/pics/--list.png)
-
-  
+![banner.png](https://i.postimg.cc/850fJZp6/banner.png)]
+![list.png](https://i.postimg.cc/v8CXCzrT/list.png)
+![virus-total.png](https://i.postimg.cc/PrrfDCf4/virus-total.png)
 
 ---
 
