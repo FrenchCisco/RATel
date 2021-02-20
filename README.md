@@ -3,9 +3,8 @@
 
 # RAT-el
 
-  https://visitor-badge.laobi.icu/badge?page_id=FrenchCisco.RATel&title=Visitor 
 
-![Python 3.x](https://img.shields.io/badge/Language-Python3-blue.svg)(https://www.python.org/) ![C++](https://img.shields.io/badge/Language-C++-ff69b4.svg)(https://www.cplusplus.com/) ![C++](https://img.shields.io/badge/Language-SQL-grey.svg) ![Version](https://img.shields.io/badge/Version-Beta-green.svg) (https://github.com/FrenchCisco/RATel) ![License](https://img.shields.io/badge/License-MIT-green.svg) ![commit](https://img.shields.io/github/commit-activity/m/FrenchCisco/ratel) ![stars]( https://img.shields.io/github/stars/frenchcisco/ratel?style=social) ![views](https://visitor-badge.laobi.icu/badge?page_id=FrenchCisco.RATel&title=Visitor)
+[![Python 3.x](https://img.shields.io/badge/Language-Python3-blue.svg)(https://www.python.org/)]  [![C++](https://img.shields.io/badge/Language-C++-ff69b4.svg)(https://www.cplusplus.com/)] ![SQL](https://img.shields.io/badge/Language-SQL-grey.svg) ![Version](https://img.shields.io/badge/Version-Beta-green.svg) (https://github.com/FrenchCisco/RATel) ![License](https://img.shields.io/badge/License-MIT-green.svg) ![commit](https://img.shields.io/github/commit-activity/m/FrenchCisco/ratel) ![stars]( https://img.shields.io/github/stars/frenchcisco/ratel?style=social) ![views](https://visitor-badge.laobi.icu/badge?page_id=FrenchCisco.RATel&title=Visitor)
 
   
 
