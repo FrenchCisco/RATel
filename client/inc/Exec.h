@@ -1,7 +1,7 @@
 #ifndef EXEC_H
 #define EXEC_H
 
-#include "../inc/master.h"
+#include "master.h"
 
 using namespace std;
 

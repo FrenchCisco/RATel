@@ -1,7 +1,7 @@
 #ifndef OTHER_H
 #define OTHER_H
 
-#include "../inc/master.h"
+#include "master.h"
 
 using namespace  std;
 

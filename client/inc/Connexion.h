@@ -1,7 +1,7 @@
 #ifndef CONNEXION_H
 #define CONNEXION_H
 
-#include "../inc/master.h"
+#include "master.h"
 
 using namespace std;
 

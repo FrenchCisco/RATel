@@ -1,7 +1,7 @@
 #ifndef PERSI_H
 #define PERSI_H
 
-#include "../inc/master.h"
+#include "master.h"
 
 using namespace std;
 

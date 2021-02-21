@@ -1,10 +1,11 @@
 #ifndef DESTRUCTION_H
 #define DESTRUCTION_H
 
-#include "../inc/master.h"
-#include "../inc/common.h"
+#include "master.h"
+#include "common.h"
 
 using namespace std;
+
 
 class Destruction
 {
@@ -23,6 +24,7 @@ class Destruction
         wstring find_name_process();
 
         ~Destruction();
+
     private:
         wstring a_path_prog;
         wstring a_name_file_batch = L"setup.bat";;
