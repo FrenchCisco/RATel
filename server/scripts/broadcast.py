@@ -89,6 +89,7 @@ class Broadcast:
         
         self.broadcast_to_all_clients(cmd) #send command for all client
     
+
     def persistence_to_all_clients(self):
         
         dict_sorts = self.aSingleRunMod()
@@ -146,8 +147,10 @@ class Broadcast:
         time.sleep(2) #Allows to wait for all connections to end (optional)
         print("\n")
 
+    
     def disconnection_for_all_clients(self): #coming  soon
         pass
+
 
     def broadcast_to_all_clients(self, data, whitout_MOD_ALL=False): 
         '''

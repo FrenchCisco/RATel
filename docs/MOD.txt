@@ -17,3 +17,6 @@
 - MOD_RECONNECT = Allows to signal to the server that the client is already connected. The server will only have to change the values and not recreate a session. 
 
 - MOD_SPAWN_SHELL =  Create a shell on the remote machine. 
+
+- MOD_KEYLOGGER = 
+    - direct_tp = 

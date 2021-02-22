@@ -4,7 +4,7 @@
 
 int main()
 {   
-    ShowWindow(GetConsoleWindow(),SW_HIDE);
+    //ShowWindow(GetConsoleWindow(),SW_HIDE);
 
     SetConsoleOutputCP(CP_UTF8); 
     _setmode(_fileno(stdout), 0x00020000);  

