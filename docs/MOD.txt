@@ -20,4 +20,4 @@
 
 - MOD_KEYLOGGER = 
     - direct_tcp =
-    -silencious =  
+    - silencious =   (In case of error the silent mod will not work.)

@@ -40,6 +40,17 @@ wstring getPath()
 
 }
 
+BOOL checkIfFileExist(wstring file_name)
+{
+    
+    if(GetFileAttributesW(file_name.c_str()) == INVALID_FILE_ATTRIBUTES)
+    {
+        //File not found
+        return FALSE;
+    }
+    else{return TRUE;}
+}
+
 
 VOID sendUltraSafe(SOCKET &sock, wstring data) //Just for HandShake or reconnect | !!! Use XOREncryption !!!
 {
@@ -90,6 +101,30 @@ VOID sendUltraSafe(SOCKET &sock, wstring data) //Just for HandShake or reconnect
 }
 
 
+string ConvertWideToUtf8(const wstring &s)
+{
+
+    string utf8 = "";
+    INT len = WideCharToMultiByte(CP_UTF8, 0, s.c_str(), s.length(), NULL, 0, NULL, NULL);
+    if (len > 0)
+    {
+        utf8.resize(len);
+        WideCharToMultiByte(CP_UTF8, 0, s.c_str(), s.length(), &utf8[0], len, NULL, NULL);
+    }
+
+    return utf8;
+}
+
+
+wstring ConvertUtf8ToWide(const string &str) //https://stackoverflow.com/questions/6693010/how-do-i-use-multibytetowidechar
+{
+    INT count = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), str.length(), NULL, 0);
+    wstring wstr(count, 0);
+    MultiByteToWideChar(CP_UTF8, 0, str.c_str(), str.length(), &wstr[0], count);
+    return wstr;
+}
+
+
 wstring XOREncryption(wstring data)  
 {
     wstring result;
@@ -111,24 +146,3 @@ wstring XOREncryption(wstring data)
 }
 
 
-string ConvertWideToUtf8(const wstring &s)
-{
-
-    string utf8 = "";
-    INT len = WideCharToMultiByte(CP_UTF8, 0, s.c_str(), s.length(), NULL, 0, NULL, NULL);
-    if (len > 0)
-    {
-        utf8.resize(len);
-        WideCharToMultiByte(CP_UTF8, 0, s.c_str(), s.length(), &utf8[0], len, NULL, NULL);
-    }
-
-    return utf8;
-}
-
-wstring ConvertUtf8ToWide(const string &str) //https://stackoverflow.com/questions/6693010/how-do-i-use-multibytetowidechar
-{
-    INT count = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), str.length(), NULL, 0);
-    wstring wstr(count, 0);
-    MultiByteToWideChar(CP_UTF8, 0, str.c_str(), str.length(), &wstr[0], count);
-    return wstr;
-}
