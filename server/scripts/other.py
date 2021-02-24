@@ -63,7 +63,7 @@ def exec(command):
             return err
 
 
-def printColor(status,message):
+def printColor(status,message,END=False):
     ERROR_COLOR = "\033[31m" #red
     HELP_COLOR = "\033[35m" #magenra
     TERMINAL_COLOR = "\033[34m" #blue
@@ -80,7 +80,10 @@ def printColor(status,message):
     elif status == "help":
         print(HELP_COLOR+message+TERMINAL_COLOR)
     elif status == "successfully":
-        print(SUCCESSFULLY_COLOR+message+TERMINAL_COLOR)
+        if(END):
+            print(SUCCESSFULLY_COLOR+message+TERMINAL_COLOR,end="")
+        else:
+            print(SUCCESSFULLY_COLOR+message+TERMINAL_COLOR)
 
 
 def areYouSure():

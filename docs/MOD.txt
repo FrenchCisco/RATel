@@ -19,4 +19,5 @@
 - MOD_SPAWN_SHELL =  Create a shell on the remote machine. 
 
 - MOD_KEYLOGGER = 
-    - direct_tp = 
+    - direct_tcp =
+    -silencious =  

