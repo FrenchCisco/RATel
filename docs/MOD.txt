@@ -1,12 +1,12 @@
 - MOD_DESTRUCTION = Stop the connection and then remove all traces on the target machine.
     - default = Removes all traces of RAT. Deletes the RAT and cuts the connection to the server then informs the server whether the action was performed successfully or not. 
-    - broadcast (comming soon)
+    - broadcast 
 
 - MOD_PERSISTENCE = adds a registry key to keep control of the computer, even after a system reboot. 
     - default (The client sends a response to the server to report whether the persistence was successfully completed.)
     - broadcast (Removes all traces of RAT. Deletes the RAT and cuts the connection to the server then does not inform the server whether the action was performed successfully or not. )
 
-- MOD_DISCONNECTION = Disconnects the client from the server.
+- MOD_DISCONNECTION = Disconnects the client from the server. (comming soon)
     - default
     - broadcast 
 
@@ -20,4 +20,6 @@
 
 - MOD_KEYLOGGER = 
     - direct_tcp =
-    - silencious =   (In case of error the silent mod will not work.)
+    - start_silencious =  (In case of error the silent mod will not work.)
+    - stop_silencious =
+    - dump_all = 
