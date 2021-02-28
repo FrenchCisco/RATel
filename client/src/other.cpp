@@ -42,7 +42,7 @@ wstring getPath()
 
 BOOL checkIfFileExist(wstring file_name)
 {
-    
+    //return True if file exist else return false.   
     if(GetFileAttributesW(file_name.c_str()) == INVALID_FILE_ATTRIBUTES)
     {
         //File not found

