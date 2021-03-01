@@ -22,5 +22,5 @@
     - direct_tcp =
     - start_silencious =  (In case of error the silent mod will not work.)
     - stop_silencious =
-    - delete_silencious = 
+    - clean_silencious = 
     - dump_all = 

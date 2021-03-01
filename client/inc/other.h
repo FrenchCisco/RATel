@@ -21,4 +21,7 @@ wstring ConvertUtf8ToWide(const string &str); //https://stackoverflow.com/questi
 //VOID XOREncryptFile(wstring file_name);
 wstring XOREncryption(wstring data); //allows you to know whether the function encrypts or decrypts. encrypt (TRUE) = encrypt function
 //vector <wstring> XORReadEncryptFile();
+
+wstring int_to_wstring(INT &value);
+
 #endif

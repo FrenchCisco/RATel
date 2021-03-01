@@ -13,7 +13,7 @@ class Persistence
         Persistence(bool is_admin, wstring path_prog);
         INT customPersi(); //Comming soon
         
-        VOID main();
+        INT main();
                
     private:
         BOOL a_is_admin; //Declaration attribut of constuctor.

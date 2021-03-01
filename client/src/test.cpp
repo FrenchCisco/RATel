@@ -22,6 +22,11 @@ void test(int *var)
         cout << "nop" << endl;
     }
 }
+wstring int_to_wstring(int value)
+{
+    string int_str = to_string(value);
+    return ConvertUtf8ToWide(int_str);
+}
 
 int main()
 {
@@ -31,4 +36,8 @@ int main()
     cout << "---------------------" << endl;
     test(NULL);
     cout << "test" << endl;
+
+    int hello = 2;
+    wstring resul = int_to_wstring(100);
+    wcout << resul + L"hello"<< endl;
 }

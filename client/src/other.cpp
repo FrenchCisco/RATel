@@ -146,3 +146,8 @@ wstring XOREncryption(wstring data)
 }
 
 
+wstring int_to_wstring(INT &value)
+{
+    string int_str = to_string(value);
+    return ConvertUtf8ToWide(int_str);
+}
