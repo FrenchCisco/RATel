@@ -2,6 +2,8 @@
 #ifndef MASTER_H
 #define MASTER_H
 
+#define _WIN32_WINNT  0x0600 //https://stackoverflow.com/questions/15111799/what-is-win32-winnt-and-how-does-it-work
+
 #include <iostream>
 #include <vector>
 #include <string> 

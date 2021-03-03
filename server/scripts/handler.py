@@ -128,36 +128,6 @@ The client first sends this information, then the server sends the parameters as
         self.ObjSql = ObjSql
 
 
-    def checkString(self, string_to_test, string_len_max):
-        
-        '''
-        test if the string is too big.
-        If the string is too big it can cause display bugs.
-        '''
-
-        result = ""
-        i = 0
-        string_to_test = str(string_to_test)
-
-        while(True):
-            
-            if(i >= len(string_to_test)): 
-                break
-            
-            elif(i >= string_len_max):
-                break
-            
-            else:
-                try:
-                    
-                    result += string_to_test[i]
-                except IndexError as e:
-                    #print("-->",e)
-                    break
-                else:
-                    i+= 1
-
-        return result
 
 
     def recvUltraSafe(self):
@@ -229,16 +199,16 @@ The client first sends this information, then the server sends the parameters as
                     pass
             
             elif(tmp[0] == "MOD_HANDSHAKE_IS_ADMIN"):
-                is_admin = self.checkString(tmp[1], 10)
+                is_admin = tmp[1]
                 
             elif(tmp[0] == "MOD_HANDSHAKE_PATH_PROG"):
-                path_prog = self.checkString(tmp[1], 256) 
+                path_prog = tmp[1]
             
             elif(tmp[0] == "MOD_HANDSHAKE_NAME_USER"):
-                name_user  = self.checkString(tmp[1], 80)
+                name_user  = tmp[1]
 
             elif(tmp[0]=="MOD_HANDSHAKE_TOKEN"):
-                token = self.checkString(tmp[1], 40)
+                token = tmp[1]
 
             else:
                 printColor("error","[-] An error occurred during handshake mode.")

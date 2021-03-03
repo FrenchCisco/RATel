@@ -5,7 +5,7 @@ from colorama import Fore,Style
 from .other import printColor
 from .other import areYouSure
 from .other import printAllTarget
-
+from .other import printAllTargetAllInformation
 from .management import CheckConn
 from .handler import Handler
 from .sql import Sql
@@ -38,6 +38,8 @@ class Session:
 -h or --help : Displays all session mode commands.
 
 -ls or --list : Displays all clients with their information.
+
+--listAll : displays all client information.
 
 -c : Executes a command and returns the result.(Don't forget to put the command in double quotes). 
 
@@ -118,7 +120,7 @@ class Session:
                 
                 reponse = CheckConn().recvsafe(self.sock, 4096).split(SPLIT)
                 
-                if(reponse[1] == "RATEL_ERROR_FAILS"): 
+                if(reponse[1] == "1"):  #1 = RATEL_ERROR_FAILS
                 
                     printColor("error", "\n[-] An error occurred while executing the destroy mode.")
                     printColor("error","[-] The client The connection therefore stays active.\n")
@@ -170,6 +172,9 @@ class Session:
                     
                     elif terminal[i] == "-ls" or terminal[i] == "--list":
                         printAllTarget()
+
+                    elif terminal[i] == "--listAll":
+                        printAllTargetAllInformation()
 
                     elif terminal[i] == "--command":
                         self.spawnShell("cmd.exe")

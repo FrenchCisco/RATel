@@ -80,7 +80,8 @@ else:
     
     except KeyboardInterrupt:
         pass
-
+    except Exception as e:
+        print(">",e)
     finally: 
         handler.SuccessfullyQuit() 
         SqlObj.closeConn()

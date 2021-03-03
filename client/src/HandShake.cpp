@@ -21,7 +21,6 @@ HandShake::HandShake()
         // Tokken not found
         a_token = generateToken(a_size_token);
     }
-    wcout << a_token << endl;
     a_path_prog = setLocationProg();
 }
 
@@ -95,6 +94,7 @@ BOOL HandShake::setIsAdmin()
         //2 cout << "NOT ADMIN IN setadmin: " << result.substr(0,4) << endl;
         return false;
     }
+    
 }
 
 

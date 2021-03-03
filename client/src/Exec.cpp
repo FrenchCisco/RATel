@@ -1,5 +1,3 @@
-#define _WIN32_WINNT  0x0600 //https://stackoverflow.com/questions/15111799/what-is-win32-winnt-and-how-does-it-work
-//#define WIN32_LEAN_AND_MEAN
 
 #include "../inc/Exec.h"
 #include "../inc/common.h"

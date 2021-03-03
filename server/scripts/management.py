@@ -174,29 +174,36 @@ class CheckConn:
         sock.settimeout(None)
 
 
-    def recvmod(self,sock, buff):
-
+    def recvmod(self,sock, display=True):
+        print("recvmod")
         result=""
-        reponse_mod = self.recvsafe(sock, buff)
+        reponse_mod = self.recvsafe(sock, 512)
 
         try:
-            
-            result = reponse_mod.split(SPLIT)[1]
-            print("result->", result)
-
+            result = str(reponse_mod).split(SPLIT)[1]
         except Exception as e:
-            print(e) # to delete
+            print("---->",e) # to delete
+        
+        else:
+            finds_the_code_in_the_dict = False
+            print(reponse_mod)
+            for key in dict_error_codes.keys():
+                #test if the code is received and in the dictionary:
+                if(str(key) == result):
+                    print("find")
+                    finds_the_code_in_the_dict = True
+                    if(dict_error_codes[key][:3] == "[+]"):
+                        if(display):
+                            printColor("successfully","\n"+str(dict_error_codes[key]))
+                        return True
 
-        finally:
-
-            if result ==  "RATEL_ERROR_SUCCESS": #"RATEL_ERROR_SUCCESS":
-                printColor("successfully", "\n[+] "+dict_error_codes["RATEL_ERROR_SUCCESS"])
+                    else:
+                        if(display):
+                            printColor("error", "\n"+str(dict_error_codes[key]))
+                        return False
             
-            elif result == "RATEL_ERROR_FAILS":
-                printColor("error", "\n[-] "+dict_error_codes["RATEL_ERROR_FAILS"])
-            
-            else:
-                printColor("error", "An unknown error has occurred. ")
+            if not (finds_the_code_in_the_dict):
+                printColor("error","\[+] Unknown error code.")
 
-            print("\n")
+        print("\n")
     

