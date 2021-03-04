@@ -175,35 +175,37 @@ class CheckConn:
 
 
     def recvmod(self,sock, display=True):
-        print("recvmod")
+        #Receives the customer's error code. Then displays the result  
+        #return False if error.
         result=""
         reponse_mod = self.recvsafe(sock, 512)
-
+        error = None
         try:
             result = str(reponse_mod).split(SPLIT)[1]
         except Exception as e:
-            print("---->",e) # to delete
+            printColor("error",e) # to delete
         
         else:
             finds_the_code_in_the_dict = False
-            print(reponse_mod)
             for key in dict_error_codes.keys():
                 #test if the code is received and in the dictionary:
                 if(str(key) == result):
-                    print("find")
                     finds_the_code_in_the_dict = True
                     if(dict_error_codes[key][:3] == "[+]"):
                         if(display):
                             printColor("successfully","\n"+str(dict_error_codes[key]))
-                        return True
-
+                            error=False
                     else:
                         if(display):
                             printColor("error", "\n"+str(dict_error_codes[key]))
-                        return False
+                            error=True
+                        
             
             if not (finds_the_code_in_the_dict):
                 printColor("error","\[+] Unknown error code.")
-
         print("\n")
+        if(error):
+            return False
+        else:
+            return True
     
