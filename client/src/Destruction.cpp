@@ -24,7 +24,7 @@ VOID Destruction::createBatchFile()
 
     hFile = CreateFileW(a_name_file_batch.c_str(),  GENERIC_WRITE,  0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL); //Crée ou ouvre un fichier ou un périphérique d'E / S. 
    
-    if (GetLastError() == ERROR_FILE_EXISTS)
+    if (GetLastError() == 80) //ERROR_FILE_EXISTS
     {
         delete_batch_file();
         hFile = CreateFileW(a_name_file_batch.c_str(),  GENERIC_WRITE,  0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL); //Crée ou ouvre un fichier ou un périphérique d'E / S. 

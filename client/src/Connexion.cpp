@@ -144,7 +144,7 @@ INT Connexion::main()
                 if(status_destruction) //Go destruction !
                 {
                     //If error
-                    status = L"MOD_DESTRUCTION:" SPLIT  "True";// "[-] An error occurred while executing the destroy mode.";
+                    status = L"MOD_DESTRUCTION:" SPLIT  "True";// "[-] An  occurred while executing the destroy mode.";
                 }
                 else
                 {
